@@ -19,10 +19,12 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
       '@docusaurus/preset-classic',
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
+        docs: false,
         blog: {
+          routeBasePath: '/',
           showReadingTime: true,
           editUrl:
-            'https://github.com/jbl428/jbl428.github.io/edit/main/blog/',
+            'https://github.com/jbl428/jbl428.github.io/edit/main/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
