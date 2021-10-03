@@ -1,44 +1,44 @@
-import React, { useEffect, useRef } from 'react';
-import OriginalBlogPostItem from '@theme-original/BlogPostItem';
-import useThemeContext from '@theme/hooks/useThemeContext';
+import React, { useEffect, useRef } from "react";
+import OriginalBlogPostItem from "@theme-original/BlogPostItem";
+import useThemeContext from "@theme/hooks/useThemeContext";
 
-const utterancesSelector = 'iframe.utterances-frame';
+const utterancesSelector = "iframe.utterances-frame";
 
- function BlogPostItem(props) {
-   const {isDarkTheme} = useThemeContext();
-   const utterancesTheme = isDarkTheme ? 'github-dark' : 'github-light';
-   const containerRef = useRef(null);
+function BlogPostItem(props) {
+  const { isDarkTheme } = useThemeContext();
+  const utterancesTheme = isDarkTheme ? "github-dark" : "github-light";
+  const containerRef = useRef(null);
 
-   useEffect(() => {
-     if (!props.isBlogPostPage) return;
+  useEffect(() => {
+    if (!props.isBlogPostPage) return;
 
-     const utterancesEl = containerRef.current.querySelector(utterancesSelector);
+    const utterancesEl = containerRef.current.querySelector(utterancesSelector);
 
-     const createUtterancesEl = () => {
-       const script = document.createElement('script');
+    const createUtterancesEl = () => {
+      const script = document.createElement("script");
 
-       script.src = 'https://utteranc.es/client.js';
-       script.setAttribute('repo', 'jbl428/jbl428.github.io');
-       script.setAttribute('issue-term', 'pathname');
-       script.setAttribute('label', 'comment');
-       script.setAttribute('theme', utterancesTheme);
-       script.crossOrigin = 'anonymous';
-       script.async = true;
+      script.src = "https://utteranc.es/client.js";
+      script.setAttribute("repo", "jbl428/jbl428.github.io");
+      script.setAttribute("issue-term", "pathname");
+      script.setAttribute("label", "comment");
+      script.setAttribute("theme", utterancesTheme);
+      script.crossOrigin = "anonymous";
+      script.async = true;
 
-       containerRef.current.appendChild(script);
-     };
+      containerRef.current.appendChild(script);
+    };
 
-     const postThemeMessage = () => {
-       const message = {
-         type: 'set-theme',
-         theme: utterancesTheme,
-       };
+    const postThemeMessage = () => {
+      const message = {
+        type: "set-theme",
+        theme: utterancesTheme,
+      };
 
-       utterancesEl.contentWindow.postMessage(message, 'https://utteranc.es');
-     };
+      utterancesEl.contentWindow.postMessage(message, "https://utteranc.es");
+    };
 
-     utterancesEl ? postThemeMessage() : createUtterancesEl();
-   }, [utterancesTheme]);
+    utterancesEl ? postThemeMessage() : createUtterancesEl();
+  }, [utterancesTheme]);
 
   return (
     <>
