@@ -21,6 +21,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
       ({
         docs: false,
         blog: {
+          blogTitle: 'Jake Son Blog',
+          blogDescription: 'The blog of Jake Son',
           routeBasePath: '/',
           showReadingTime: true,
           editUrl:
@@ -43,7 +45,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
           src: 'img/gopher.svg',
         },
         items: [
-          {to: '/blog', label: 'Blog', position: 'left'},
+          {to: '/archive', label: 'Archive', position: 'left'},
           {
             href: 'https://github.com/jbl428',
             label: 'GitHub',

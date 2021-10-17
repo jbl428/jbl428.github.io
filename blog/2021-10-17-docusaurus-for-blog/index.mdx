@@ -1,0 +1,46 @@
+---
+title: "Docusaurus를 이용한 블로그 구축"
+authors: jake
+tags: [blog, docusaurus]
+---
+
+기술 블로그를 위해 어떤 플랫폼을 사용할지 고민하다가 직장 동료가 `Docusaurus`를 추천해주었다.
+다크모드를 지원하고 크게 커스텀하지 않아도 쓸만한 블로그를 만들 수 있을거같았다.
+그래서 첫 블로그 글로 구축한 내용을 공유하려고 한다.
+
+<!--truncate-->
+
+개인적으로 기술관련 환경을 세팅할 때에는 블로그 보다는 공식문서를 활용한다.
+블로그 글은 작성 당시에는 맞는 설치방법이었지만 시간이 지나 버전이 올라가는 경우 그대로 따라하면 제대로 동작하지 않는 경우가 많기 때문이다.
+그렇기에 이 글을 그대로 따라하여 구축하기 보다 참고용으로 활용하고 공식문서를 주로 이용하기를 권장한다.
+
+## 환경
+
+블로그를 위해 사용한 기술과 각 버전은 다음과 같다.
+
+- Docusaurus (with typescript): 2.0.0-beta.7
+- GitHub Page
+- GitHub Action
+
+관련 저장소는 아래 링크를 참조한다.
+
+https://github.com/jbl428/jbl428.github.io
+
+## GitHub 저장소 생성
+
+`GitHub Page`는 깃허브에서 제공하는 무료 호스팅 서비스이다. 블로그나 포트폴리오 같은 정적 사이트로 주로 사용된다.
+깃허브에 들어가서 저장소를 생성하는데 이름은 `<사용자이름>.github.io` 형태로 설정해주고 나머지 옵션은 상황에 따라 적절히 설정한다.
+이후 해당 저장소를 clone 한다.
+
+```shell
+git clone https://github.com/<사용자이름>/<사용자이름>.github.io.git
+```
+
+## GitHub Page 로 사용할 브랜치 설정
+
+저장소의 어떤 브랜치의 특정 경로를 웹페이지로 사용할 것인지 설정해야한다.
+배포설정을 통해 `gh-pages` 브랜치의 루트에 정적파일이 생성되므로 아래 화면처럼 설정한다.
+
+![github-setting](./github-setting.png)
+
+![github-page-setting](./github-page-setting.png)
