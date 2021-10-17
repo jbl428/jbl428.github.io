@@ -1,0 +1,14 @@
+{
+  "title": {
+    "message": "Jake Son Blog",
+    "description": "The title for the blog used in SEO"
+  },
+  "description": {
+    "message": "The blog of Jake Son",
+    "description": "The description for the blog used in SEO"
+  },
+  "sidebar.title": {
+    "message": "최근 게시물",
+    "description": "The label for the left sidebar"
+  }
+}

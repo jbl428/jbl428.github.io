@@ -13,6 +13,10 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
   favicon: 'img/favicon.ico',
   organizationName: 'jbl428',
   projectName: 'jbl428.github.io',
+  i18n: {
+    defaultLocale: 'ko',
+    locales: ['ko']
+  },
 
   presets: [
     [
