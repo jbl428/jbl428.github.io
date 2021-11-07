@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://jbl428.github.io/</id>
+    <title>Jake Son Blog Blog</title>
+    <updated>2021-11-07T00:00:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://jbl428.github.io/"/>
+    <subtitle>Jake Son Blog Blog</subtitle>
+    <icon>https://jbl428.github.io/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Promise 와 Monad]]></title>
+        <id>Promise 와 Monad</id>
+        <link href="https://jbl428.github.io/2021/11/07/promise-and-monad"/>
+        <updated>2021-11-07T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[예전 node.js 의 많은 비동기 함수는 결과를 함수로 받는 콜백형태로 이루어져 있었다.]]></summary>
+        <content type="html"><![CDATA[<p>예전 <code>node.js</code> 의 많은 비동기 함수는 결과를 함수로 받는 콜백형태로 이루어져 있었다.
+이로인해 여러 비동기 로직을 순차적으로 실행하는 코드를 보면 일명 <code>Callback Hell</code> 이라는 것을 볼 수 있다.</p><pre><code class="language-js">asyncA(a =&gt; {
+    asyncB(b =&gt; {
+        asyncC(c =&gt; {
+            asyncD(d =&gt; {
+                ...
+            })
+        }
+    })
+})
+</code></pre><p>이후 이를 해결하는 방안으로 여러 라이브러리나 기술들이 나왔으나 지금은 주로 <code>promise</code> 와 <code>async/await</code> 를 활용한다.</p><p>사실 나는 <code>angular</code> 를 통해 js 를 본격적으로 사용했기에 비동기 처리를 <code>rxjs</code> 의 <code>observable</code> 을 사용해왔다.
+이후 백엔드 개발자가 된 이후로 api 를 개발하는데 사용하는 모든 함수가 <code>promise</code> 를 반환하다보니 <code>observable</code> 을 활용하지 않게되었다.</p><p><code>promise</code> 를 본격적으로 사용했을 때에는 이미 <code>async/await</code> 가 도입된 이후였고 동기적으로 보이는 코드를 작성하는데 큰 어려움 없었다.
+그래서 굳이 <code>then</code> 이나 <code>catch</code> 구문을 사용할 필요가 없다고 생각했었다.
+그러나 함수형 패러다임을 공부하면서 함수의 합성, 선언적인 코드, pointfree 에 대한 매력을 느꼈고 이를 <code>then chaining</code> 을 통해 이룰 수 있다는 것을 깨달았다.
+함수형 패러다임 중 난해한 <code>monad</code> 도 <code>promise</code> 와 비교하면서 생각하니 이해하는데 많은 도움을 받았다.
+그래서 이와 관련한 글을 작성하려고 한다.</p><h2>함수로 나누기</h2><p>다음과 같은 작업을 하는 코드를 작성한다고 가정해본다.</p><ul><li>user 테이블에서 id 가 100인 것을 가져온다.</li><li>가져온 사용자 필드 중 이름을 대문자로 변경한다.</li><li>post 테이블에서 이전 단계에서 얻은 이름과 같은 row 의 개수를 반환한다.</li></ul><p>위 작업을 잘게 나누어 여러 함수로 나누어보자.</p><pre><code class="language-typescript">declare function getUser(id: number): Promise&lt;User&gt;;
+declare function getNameField(user: User): string;
+declare function toUppercase(str: string): string;
+declare function getPostCount(name: string): Promise&lt;number&gt;;
+</code></pre><p><code>getUser</code> 나 <code>getPostCount</code> 는 데이터베이스에서 가져오는 것이기에 대부분 ORM 라이브러리들은 <code>promise</code> 를 반환할 것이다.
+각 단계를 함수로 나누었고 이제 함수형 패러다임에서 주로 사용하는 합성을 하려고 한다.</p><h2>함수의 합성</h2><p>함수의 합성은 수학에서 이야기하는 합성으로 f, g 라는 함수를 합성해 새로운 함수를 만들어낸다.</p>]]></content>
+        <author>
+            <name>Jake Son</name>
+            <uri>https://github.com/jbl428</uri>
+        </author>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Localstack 을 활용한 AWS SES 통합테스트]]></title>
+        <id>Localstack 을 활용한 AWS SES 통합테스트</id>
+        <link href="https://jbl428.github.io/2021/10/31/local-stack"/>
+        <updated>2021-10-31T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[localstack 은 AWS 인프라 시뮬레이터로 Lambda, S3, Dynamodb, Kinesis, SQS, SNS 같은 서비스를 로컬 환경에 올릴 수 있다.]]></summary>
+        <content type="html"><![CDATA[<p><code>localstack</code> 은 AWS 인프라 시뮬레이터로 Lambda, S3, Dynamodb, Kinesis, SQS, SNS 같은 서비스를 로컬 환경에 올릴 수 있다.
+이번 글은 이메일 발송 서비스인 <code>SES</code> 를 테스트 해보기 위한 설정과정을 기술하고자 한다.</p><blockquote><p>과정에 대한 모든 코드는 다음 URL을 참조한다.
+<a href="https://github.com/jbl428/study-note/tree/master/localstack">https://github.com/jbl428/study-note/tree/master/localstack</a></p></blockquote><h2>환경</h2><p><code>node.js</code> 환경에서 <code>jest</code> 를 활용해 테스트 하였으며 <code>testcontainers</code> 라이브러리를 활용하였다.</p><blockquote><p>본 글을 작성하는 시점에서는 <code>SES API</code> 버전이 v2 가 나왔지만 <code>localstack</code> 이 지원하지 않아 v1 을 이용하였다.</p></blockquote><p><code>localstack</code> 의 경우 예전 버전은 각 서비스 별로 접속 endpoint 가 달랐지만 지금은 하나로 통합되었다.
+유료버전이 따로 있으며 더 많은 기능을 지원한다고 한다. <code>SES</code> 서비스는 무료버전도 지원한다.</p><h2>testcontainers</h2><p><code>testcontainers</code> 는 도커 컨테이너를 활용해 테스트를 위한 환경을 만들어주는 라이브러리로 코드로 컨테이너를 실행 및 종료 할 수 있는거라 보면된다.
+여러 프로그래밍 언어를 지원하며 가장 많은 star 를 보유한 언어는 자바이다.
+그래서 localstack 용 모듈을 따로 지원해 편하게 쓸 수 있지만 node.js 용은 없기에 번거로운 과정을 거쳐야한다.</p><pre><code class="language-sh">yarn add -D testcontainers
+</code></pre><p>보통 테스트 파일의 beforeAll 에 컨테이너 실행 로직을 넣어준다.</p><pre><code class="language-ts">import { GenericContainer, StartedTestContainer, Wait } from &#x27;testcontainers&#x27;;
+
+describe(&#x27;localstack test&#x27;, () =&gt; {
+  let localstackPort: number;
+  let container: StartedTestContainer;
+
+  beforeAll(async () =&gt; {
+    container = await new GenericContainer(&#x27;localstack/localstack&#x27;)
+      .withExposedPorts(4566)
+      .withEnv(&#x27;SERVICES&#x27;, &#x27;ses&#x27;)
+      .withWaitStrategy(Wait.forLogMessage(&#x27;Execution of &quot;preload_services&quot;&#x27;))
+      .start();
+
+    localstackPort = container.getMappedPort(4566);
+  });
+
+  afterAll(() =&gt; container.stop());
+
+  ...테스트 케이스
+
+};
+</code></pre><pre><code class="language-ts">container = await new GenericContainer(&quot;localstack/localstack&quot;);
+</code></pre><p>GenericContainer 클래스의 생성자 파라미터로 실행을 원하는 컨테이너 이미지 이름을 넣어준다.</p><pre><code class="language-ts">    .withExposedPorts(4566)
+</code></pre><p>컨테이너 내부의 특정 포트를 외부의 사용하지 않는 임의의 포트로 expose 해주는 역할을 한다.
+위의 경우 컨테이너의 4566 포트를 외부로 노출시키며 로컬의 미사용 포트번호 중에 임의로 설정해준다.
+이를 통해 여러 컨테이너를 동시에 실행시켜도 각각 다른 포트로 노출되기에 테스트를 병렬로 실행하면서 각 테스트 케이스간의 독립성을 지켜준다.</p><pre><code class="language-ts">    .withWaitStrategy(Wait.forLogMessage(&#x27;Execution of &quot;preload_services&quot;&#x27;))
+</code></pre><p>특정 컨테이너는 실행이 완료되도 이후에 초기 세팅과정이 있기 때문에 해당 컨테이너를 온전히 사용하기 까지 기다려야 하는 경우가 발생한다.
+따라서 withWaitStrategy 를 통해 어떤 조건에 해당할 때까지 기다릴 것인지 설정할 수 있다.
+위의 경우는 컨테이너 로그 메세지 중에 Execution of &quot;preload_services&quot; 문구가 포착될 때까지 기다린다는 설정이다.
+wait strategy 는 여러가지가 있으며 각 항목은 아래 문서를 참조한다.</p><p><a href="https://www.testcontainers.org/features/startup_and_waits/">https://www.testcontainers.org/features/startup_and_waits/</a></p><pre><code class="language-ts">localstackPort = container.getMappedPort(4566);
+</code></pre><p>withExposedPorts 를 통해 노출한 포트를 알아낸 후 localstackPort 변수에 할당하며 이를 테스트 케이스에서 활용한다.</p><pre><code class="language-ts">afterAll(() =&gt; container.stop());
+</code></pre><p>테스트가 종료되면 컨테이너를 종료하는 코드이며 사실 testcontainer 는 종료로직을 넣지 않아도 일정 시간동안 활동이 없으면 자동으로 컨테이너를 종료시켜주는 기능이 있다.
+ryuk container 라고 불리는 컨테이너가 그 역할을 한다.</p><p><a href="https://hub.docker.com/r/testcontainers/ryuk">https://hub.docker.com/r/testcontainers/ryuk</a></p><pre><code class="language-ts">const client = new SESClient({
+  region: &quot;local&quot;,
+  endpoint: `http://localhost:${localstackPort}`, // localstackPort 으로 포트설정
+  credentials: {
+    accessKeyId: &quot;test&quot;,
+    secretAccessKey: &quot;test&quot;,
+  },
+});
+</code></pre><p>운영 aws 을 사용하려면 <code>accessKeyId</code> 나 <code>secretAccessKey</code> 같은 접속정보를 제공해야 하는데 localstack 에서는 빈 문자열이 아닌 임의의 문자열을 지정해도 정상동작함을 확인했다.
+하지만 문서를 보니 S3를 이용하는 경우 test 로 설정하는 것을 권장하기에 따라서 지정한다.</p><p>SES 경우 인증된 메일 주소로만 발송주소를 설정할 수 있고 localstack 도 똑같이 메일발송 api 호출 전에 인증 api 를 사용해 메일주소를 등록해야 한다.</p><pre><code class="language-ts">const command = new VerifyEmailAddressCommand({
+  EmailAddress: &quot;from@inflab.com&quot;,
+});
+await client.send(command);
+</code></pre><p>이후에 sdk 에 요구하는 스팩에 맞게 발송로직을 추가한다.</p><pre><code class="language-ts">const sendCommand = new SendEmailCommand({
+    메일 전송 옵션들...
+})
+await client.send(sendCommand);
+</code></pre><h2>참고자료</h2><ul><li>testcontainers: <a href="https://www.testcontainers.org">https://www.testcontainers.org</a></li><li>localstack: <a href="https://github.com/localstack/localstack">https://github.com/localstack/localstack</a></li></ul>]]></content>
+        <author>
+            <name>Jake Son</name>
+            <uri>https://github.com/jbl428</uri>
+        </author>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[함수형 프로그래밍 관련 자료]]></title>
+        <id>함수형 프로그래밍 관련 자료</id>
+        <link href="https://jbl428.github.io/2021/10/21/functional-programming-material"/>
+        <updated>2021-10-21T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[그동안 함수형 프로그래밍에 대한 공부를 하면서 보았던 자료들을 이곳에 기록하려고 한다.]]></summary>
+        <content type="html"><![CDATA[<p>그동안 함수형 프로그래밍에 대한 공부를 하면서 보았던 자료들을 이곳에 기록하려고 한다.</p><h2>서적</h2><h3>함수형 사고 (Neal Ford)</h3><p>메모이제이션 개념에 대해 처음 알게된 책이다.</p><h3>함수형 자바스크립트 (Luis Atencio)</h3><p>자바스크립트로 하는 함수형 프로그래밍 책으로 읽은것은 기억나는데 딱히 기억에 남는 내용은 없었다.</p><h3>Grokking Simplicity Taming complex software with functional thinking (Eric Normand)</h3><p>프로그램을 Action, Calculation, Data 로 나누어 생각하고 함수형 프로그래밍을 전염성이 강하고 테스트 하기 힘든 Action 을 Calculation 으로 만드는 패러다임으로 설명하고 있다.
+초반부는 흥미롭게 읽었지만 이후에는 이미 익숙한 내용이 많아서 끝까지 읽지는 않았다.</p><h3>Learning Functional Programming in Go (Lex Sheehan)</h3><p>고언어로 함수형 프로그래밍을 어떻게 할 수 있는지 알 수 있는 책.
+고언어는 함수를 <code>type</code> 명령어로 새로운 타입으로 만들면 함수의 메소드라는 독특한 성질을 만들 수 있는데 이를 활용해서 함수 체이닝을 구현한게 참신했다.
+채널을 활용해 pipeline을 만든는 코드도 놀라워 직접 구현해보기도 하였다.</p><blockquote><p><a href="https://github.com/jbl428/study-note/tree/master/go-pipeline">https://github.com/jbl428/study-note/tree/master/go-pipeline</a></p></blockquote><h2>영상</h2><h3>Monad란 무엇인가?</h3><p><a href="https://www.youtube.com/watch?v=jI4aMyqvpfQ">https://www.youtube.com/watch?v=jI4aMyqvpfQ</a></p><p>개인적으로 모나드에 대해 쉽게 설명했다고 느낀 영상이었다. <code>flatMap</code> 에 대한 개념을 익히는데 도움이 되었다.</p><h3>haskell rank</h3><p><a href="https://www.youtube.com/watch?v=h_D4P-KRNKs&amp;list=PLguYJK7ydFE4aS8fq4D6DqjF6qsysxTnx">https://www.youtube.com/watch?v=h_D4P-KRNKs&amp;list=PLguYJK7ydFE4aS8fq4D6DqjF6qsysxTnx</a></p><p><a href="https://www.hackerrank.com/">https://www.hackerrank.com/</a> 에서 제공하는 프로그래밍 문제를 하스켈을 이용해 풀이하는 영상이 있다.
+명령형 언어로 구현하면 길어질 수 있는 코드를 하스켈로 간결하게 만드는 과정이 신기했다.
+그리고 유투버가 <code>emacs</code> 를 정말 잘 사용하는데 한 번 시청하길 권해본다.</p><h3>JSON Parser 100% From Scratch in Haskell (only 111 lines)</h3><p><a href="https://www.youtube.com/watch?v=N9RUqGYuGfw">https://www.youtube.com/watch?v=N9RUqGYuGfw</a></p><p>위 영상을 만든 유튜버의 또 다른 영상으로 하스켈로 <code>JSON</code> 파서를 만드는 과정을 담고있다.
+모나드를 실제로 어떻게 활용하는지 알 수 있었던 좋은 영상이었고 하스켈을 꼭 마스터 해보고 싶어진 계기가 되었다.</p><h2>강의</h2><h3>함수형 프로그래밍과 JavaScript ES6+</h3><p><a href="https://www.inflearn.com/course/functional-es6/dashboard">https://www.inflearn.com/course/functional-es6/dashboard</a></p><p>유인동님의 함수형 프로그래밍 강의로 ES6 이터레이터를 활용해 <code>fxjs</code> 라이브러리의 핵심 함수를 구현하는 과정을 담고있다.
+개인적으로 자바스크립트로 지연평가를 구현했다는게 가장 놀라웠다.
+그리고 <code>go</code> 함수에 파라미터로 들어가는 함수가 promise 를 반환하면 적절히 다음 함수에 promise 안의 값을 전달해 주도록 구현한 아이디어가 매우 좋았다.</p>]]></content>
+        <author>
+            <name>Jake Son</name>
+            <uri>https://github.com/jbl428</uri>
+        </author>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Docusaurus 에 utterances 연동]]></title>
+        <id>Docusaurus 에 utterances 연동</id>
+        <link href="https://jbl428.github.io/2021/10/19/utterances"/>
+        <updated>2021-10-19T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[utterances 는 GitHub 이슈 를 이용해서 원하는 사이트의 댓글 기능을 만들어주는 서비스이다.]]></summary>
+        <content type="html"><![CDATA[<p><a href="https://utteranc.es/">utterances</a> 는 <code>GitHub 이슈</code> 를 이용해서 원하는 사이트의 댓글 기능을 만들어주는 서비스이다.
+따라서 github 계정이 존재해야 댓글 작성이 가능하지만 개발에 관련 글을 작성할 예정이라 큰 문제는 아니었다.
+만약 다른 소셜 로그인도 지원하고 싶다면 <a href="https://disqus.com/">disqus</a> 같은 서비스를 사용하면 된다.</p><p><code>docusaurus</code> 에 <code>utterances</code> 를 연동하는 방법에 관한 문서를 검색해보았는데 딱 하나 존재했다.</p><ul><li><a href="https://younho9.dev/docusaurus-manage-docs-2">https://younho9.dev/docusaurus-manage-docs-2</a></li></ul><p>해당 글을 참조해서 연동하였지만 모든 부분을 그대로 따라하지는 않았다.
+테마에 따라 <code>utterances</code> 의 테마도 똑같이 수정하는 코드는 많은 도움이 되었다.</p><h2>utterances 사전 설정</h2><p>utterances 연동하려면 github 저장소가 public 이어야 한다.
+저장소가 <a href="https://github.com/apps/utterances">utterances app</a> 을 사용하도록 설정해야 한다.
+링크를 누른 후 <code>Configure</code> 를 누른 후 github 로그인 후 아래 화면처럼 저장소를 선택한고 <code>Save</code> 를 누른다.</p><p><img src="./utterances-app.png" alt="utterances-app"/></p><h2>docusaurus 테마 컴포넌트 수정</h2><p>검색한 글에서는 <code>swizzle</code> 명령어를 통해서 <code>docusaurus</code> 가 내부적으로 사용하는 컴포넌트를 직접 수정해서 사용했다.
+하지만 <a href="https://docusaurus.io/ko/docs/using-themes#swizzling-theme-components">공식문서</a> 를 보면 권장하는 방법은 아니다.
+해당 컴포넌트가 버전이 올라가면 변경될 가능성이 있기 때문이다.
+따라서 해당 글의 아래 부분에 있는 <a href="https://docusaurus.io/ko/docs/using-themes#wrapping-theme-components">테마 컴포넌트 감싸기</a> 기능을 사용했다.
+그러면 기존 컴포넌트의 소스는 건들지 않고 utterances 를 위한 로직만 추가하면 되기에 더 안전하다.
+테마에 따라 utterances 의 테마도 바뀌는 로직을 포함한 전체 코드는 아래와 같다.</p><p>:::info
+<code>&lt;사용자이름&gt;</code> 부분을 적절히 수정한다.
+:::</p><pre><code class="language-jsx" metastring="title=&quot;src/theme/BlogPostItem.tsx&quot;" title="&quot;src/theme/BlogPostItem.tsx&quot;">import React, { useEffect, useRef } from &quot;react&quot;;
+import OriginalBlogPostItem from &quot;@theme-original/BlogPostItem&quot;;
+import useThemeContext from &quot;@theme/hooks/useThemeContext&quot;;
+
+const utterancesSelector = &quot;iframe.utterances-frame&quot;;
+
+function BlogPostItem(props) {
+  const { isDarkTheme } = useThemeContext();
+  const utterancesTheme = isDarkTheme ? &quot;github-dark&quot; : &quot;github-light&quot;;
+  const containerRef = useRef(null);
+
+  useEffect(() =&gt; {
+    if (!props.isBlogPostPage) return;
+
+    const utterancesEl = containerRef.current.querySelector(utterancesSelector);
+
+    const createUtterancesEl = () =&gt; {
+      const script = document.createElement(&quot;script&quot;);
+
+      script.src = &quot;https://utteranc.es/client.js&quot;;
+      script.setAttribute(&quot;repo&quot;, &quot;&lt;사용자이름&gt;/&lt;사용자이름&gt;.github.io&quot;);
+      script.setAttribute(&quot;issue-term&quot;, &quot;pathname&quot;);
+      script.setAttribute(&quot;label&quot;, &quot;comment&quot;);
+      script.setAttribute(&quot;theme&quot;, utterancesTheme);
+      script.crossOrigin = &quot;anonymous&quot;;
+      script.async = true;
+
+      containerRef.current.appendChild(script);
+    };
+
+    const postThemeMessage = () =&gt; {
+      const message = {
+        type: &quot;set-theme&quot;,
+        theme: utterancesTheme,
+      };
+
+      utterancesEl.contentWindow.postMessage(message, &quot;https://utteranc.es&quot;);
+    };
+
+    utterancesEl ? postThemeMessage() : createUtterancesEl();
+  }, [utterancesTheme]);
+
+  return (
+    &lt;&gt;
+      &lt;OriginalBlogPostItem {...props} /&gt;
+      {props.isBlogPostPage &amp;&amp; &lt;div ref={containerRef} /&gt;}
+    &lt;/&gt;
+  );
+}
+
+export default BlogPostItem;
+</code></pre><p><code>src/theme/</code> 경로 밑에 <code>&lt;컴포넌트 이름&gt;.tsx</code> 파일을 생성하면 해당 컴포넌트를 커스텀 할 수 있다.
+<code>@theme-original/&lt;컴포넌트&gt;</code> 를 import 하면 원본 컴포넌트를 가져올 수 있고 해당 컴포넌트에 utterances 관련 내용만 추가하면 된다.</p><pre><code class="language-jsx" metastring="{2,7-11} title=&quot;src/theme/BlogPostItem.tsx&quot;" title="&quot;src/theme/BlogPostItem.tsx&quot;">import React, { useEffect, useRef } from &quot;react&quot;;
+import OriginalBlogPostItem from &quot;@theme-original/BlogPostItem&quot;; // 원본 컴포넌트 가져오기
+import useThemeContext from &quot;@theme/hooks/useThemeContext&quot;;
+
+  ...
+
+  return (
+    &lt;&gt;
+      &lt;OriginalBlogPostItem {...props} /&gt;
+      {props.isBlogPostPage &amp;&amp; &lt;div ref={containerRef} /&gt;} // 댓글 화면 추가
+    &lt;/&gt;
+</code></pre><p>이제 댓글 기능이 제대로 되는지 확인해본다.</p><h2>공식문서를 읽자</h2><p>이전 글에서 말한 내용이지만 블로그 글은 참조용으로만 사용하고 공식문서를 메인으로 활용하는게 중요하다고 생각한다.
+만약 블로그 글만 참조했다면 <code>테마 컴포넌트 감싸기</code> 라는 기능을 몰랐을테고 더 좋은 연동방법을 적용하지 못했을것이다.
+이 글도 누군가에게 참고용으로만 사용되기를 바라며 더 좋은 방법을 찾아보고 적용하셨으면 좋겠다.</p><h2>참고자료</h2><ul><li>Docusaurus로 문서 관리하기 - 2: <a href="https://younho9.dev/docusaurus-manage-docs-2">https://younho9.dev/docusaurus-manage-docs-2</a></li></ul>]]></content>
+        <author>
+            <name>Jake Son</name>
+            <uri>https://github.com/jbl428</uri>
+        </author>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Docusaurus 를 이용한 블로그 구축]]></title>
+        <id>Docusaurus 를 이용한 블로그 구축</id>
+        <link href="https://jbl428.github.io/2021/10/17/docusaurus-for-blog"/>
+        <updated>2021-10-17T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[기술 블로그를 위해 어떤 플랫폼을 사용할지 고민하다가 직장 동료가 Docusaurus 를 추천해주었다.]]></summary>
+        <content type="html"><![CDATA[<p>기술 블로그를 위해 어떤 플랫폼을 사용할지 고민하다가 직장 동료가 <code>Docusaurus</code> 를 추천해주었다.
+다크모드를 지원하고 크게 커스텀하지 않아도 쓸만한 블로그를 만들 수 있을거같았다.
+그래서 첫 블로그 글로 구축한 내용을 공유하려고 한다.</p><p>개인적으로 기술관련 환경을 세팅할 때에는 블로그 보다는 공식문서를 활용한다.
+블로그 글은 작성 당시에는 맞는 설치방법이었지만 시간이 지나 버전이 올라가는 경우 그대로 따라하면 제대로 동작하지 않는 경우가 많기 때문이다.
+그렇기에 이 글을 그대로 따라하여 구축하기 보다 참고용으로 활용하고 공식문서를 주로 이용하기를 권장한다.</p><h2>환경</h2><p>블로그를 위해 사용한 기술과 각 버전은 다음과 같다.</p><ul><li>Docusaurus (with typescript): 2.0.0-beta.7</li><li>GitHub Page</li><li>GitHub Action</li></ul><p>관련 저장소는 아래 링크를 참조한다.</p><p><a href="https://github.com/jbl428/jbl428.github.io">https://github.com/jbl428/jbl428.github.io</a></p><h2>GitHub 저장소 생성</h2><p><code>GitHub Page</code> 는 깃허브에서 제공하는 무료 호스팅 서비스이다. 블로그나 포트폴리오 같은 정적 사이트로 주로 사용된다.
+깃허브에 들어가서 저장소를 생성하는데 이름은 <code>&lt;사용자이름&gt;.github.io</code> 형태로 설정해주고 나머지 옵션은 상황에 따라 적절히 설정한다.
+이후 해당 저장소를 clone 한다.</p><pre><code class="language-shell">git clone https://github.com/&lt;사용자이름&gt;/&lt;사용자이름&gt;.github.io.git
+</code></pre><h2>Docusaurus 설치</h2><p>저장소 루트 디렉토리로 이동한 다음 아래 명령어를 수행한다.</p><pre><code class="language-shell">npm init docusaurus@latest temp classic --typescript
+</code></pre><p><code>temp</code> 디렉토리에 docusaurus 관련 파일이 들어가는데 저장소 루트로 모두 이동한다.</p><pre><code class="language-shell">mv temp/* .
+mv temp/.* .
+</code></pre><h2>기본설정</h2><p><code>docusaurus.config.js</code> 파일에는 <code>Docusaurus</code> 에 대한 설정이 들어있다.
+각 항목에 대한 설명은 <a href="https://docusaurus.io/ko/docs/docusaurus.config.js">문서</a> 를 참조한다.</p><pre><code class="language-jsx" metastring="{3-11} title=&quot;docusaurus.config.js&quot;" title="&quot;docusaurus.config.js&quot;">module.exports = {
+  // ...
+  title: &quot;사이트 제목&quot;,
+  tagline: &quot;사이트 설명&quot;,
+  url: &quot;https://&lt;사용자이름&gt;.github.io&quot;,
+  baseUrl: &quot;/&quot;,
+  onBrokenLinks: &quot;throw&quot;,
+  onBrokenMarkdownLinks: &quot;warn&quot;,
+  favicon: &quot;img/favicon.ico&quot;,
+  organizationName: &quot;&lt;사용자이름&gt;&quot;,
+  projectName: &quot;&lt;사용자이름&gt;.github.io&quot;,
+  // ...
+};
+</code></pre><h2>배포 설정</h2><p><code>GitHub Action</code> 을 활용해서 <code>main</code> 브랜치에 푸시가 일어나면 빌드를 수행하고 <code>gh-pages</code> 브랜치로 결과를 푸시하는 설정을 해준다.
+<a href="https://docusaurus.io/ko/docs/deployment#triggering-deployment-with-github-actions">링크</a> 를 참조해서 5번 단계까지 작업을 해준다.
+마지막 6번 단계인 <code>workflow</code> 파일을 만드는 부분만 아래처럼 해준다.</p><p>:::info
+<code>&lt;이메일&gt;</code> 과 <code>&lt;이름&gt;</code> 부분을 적절히 수정하도록 한다.
+:::</p><pre><code class="language-yaml" metastring="title=&quot;.github/workflows/blog.yml&quot;" title="&quot;.github/workflows/blog.yml&quot;">name: blog
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  gh-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: &quot;12.x&quot;
+      - uses: webfactory/ssh-agent@v0.5.0
+        with:
+          ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
+      - name: Release to GitHub Pages
+        env:
+          USE_SSH: true
+          GIT_USER: git
+          DEPLOYMENT_BRANCH: gh-pages
+          CURRENT_BRANCH: main
+        run: |
+          git config --global user.email &quot;&lt;이메일&gt;&quot;
+          git config --global user.name &quot;&lt;이름&gt;&quot;
+          if [ -e yarn.lock ]; then
+            yarn install --frozen-lockfile
+          elif [ -e package-lock.json ]; then
+            npm ci
+          else
+            npm i
+          fi
+          npm run deploy
+</code></pre><h2>보관소 페이지 추가</h2><p>처음에는 <a href="https://blog.johnnyreilly.com/blog-archive">John Reilly archive</a> 처럼 모든 게시글을 연도별로 정리한 페이지를 추가하고자 이분의 저장소 코드를 복사해서 사용했다.
+하지만 공식문서를 보니 이미 위와 같은 기능이 <code>Docusaurus</code> 에 반영된 것을 확인하였다.
+아래처럼 적절한 경로에 값을 추가하면된다.</p><pre><code class="language-jsx" metastring="{7,17} title=&quot;docusaurus.config.js&quot;" title="&quot;docusaurus.config.js&quot;">(module.exports = {
+  // ...
+  presets: [
+    [
+      ({
+        blog: {
+          archiveBasePath: &#x27;archive&#x27;,
+        },
+      }),
+    ],
+  ],
+  // ...
+  presets: [
+  themeConfig: {
+      navbar: {
+        items: [
+          {to: &#x27;/archive&#x27;, label: &#x27;Archive&#x27;, position: &#x27;left&#x27;},
+        ],
+      },
+  }
+  // ...
+}
+</code></pre><h2>i18n 설정</h2><p>기본 언어 설정을 한글로 하기위해 로케일 설정을 해준다.</p><pre><code class="language-jsx" metastring="{3-6} title=&quot;docusaurus.config.js&quot;" title="&quot;docusaurus.config.js&quot;">(module.exports = {
+  // ...
+  i18n: {
+    defaultLocale: &#x27;ko&#x27;,
+    locales: [&#x27;ko&#x27;]
+  },
+  // ...
+}
+</code></pre><p>그리고 아래 명령어를 수행하면 <code>i18n</code> 디렉토리 밑에 각종 레이블에 대한 json 파일이 생성된다.</p><pre><code class="language-shell">yarn docusaurus write-translations
+</code></pre><p>내용을 살펴보면 한글로 번역이 안된 부분이 있는데 적절히 수정해준다.</p><pre><code class="language-json" metastring="title=&quot;i18n/ko/code.json&quot;" title="&quot;i18n/ko/code.json&quot;">  &quot;theme.blog.archive.title&quot;: {
+    &quot;message&quot;: &quot;보관소&quot;,
+    &quot;description&quot;: &quot;The page &amp; hero title of the blog archive page&quot;
+  },
+  &quot;theme.blog.archive.description&quot;: {
+    &quot;message&quot;: &quot;모든 게시물&quot;,
+    &quot;description&quot;: &quot;The page &amp; hero description of the blog archive page&quot;
+  }
+</code></pre><pre><code class="language-json" metastring="title=&quot;i18n/ko/docusaurus-plugin-content-blog/options.json&quot;" title="&quot;i18n/ko/docusaurus-plugin-content-blog/options.json&quot;">  &quot;sidebar.title&quot;: {
+    &quot;message&quot;: &quot;최근 게시물&quot;,
+    &quot;description&quot;: &quot;The label for the left sidebar&quot;
+  }
+</code></pre><h2>GitHub Page 로 사용할 브랜치 설정</h2><p>저장소의 어떤 브랜치의 특정 경로를 웹페이지로 사용할 것인지 설정해야한다.
+배포설정을 통해 <code>gh-pages</code> 브랜치의 루트에 정적파일이 생성되므로 아래 화면처럼 설정한다.</p><p><img src="./github-setting.png" alt="github-setting"/></p><p><img src="./github-page-setting.png" alt="github-page-setting"/></p><h2>마지막</h2><p>이제 <code>https://&lt;사용자이름&gt;.github.io</code> 페이지에 접속하면 만든 블로그를 확인할 수 있다.
+하지만 댓글을 작성할 수 있는 기능은 없는데 추후 게시글로 작성하려고 한다.</p><h2>참고자료</h2><ul><li>Docusaurus 공식문서: <a href="https://docusaurus.io/ko/docs">https://docusaurus.io/ko/docs</a></li></ul>]]></content>
+        <author>
+            <name>Jake Son</name>
+            <uri>https://github.com/jbl428</uri>
+        </author>
+    </entry>
+</feed>
