@@ -1,0 +1,57 @@
+---
+title: "Promise 와 Monad"
+authors: jake
+tags: [monad, promise]
+---
+
+예전 `node.js` 의 많은 비동기 함수는 결과를 함수로 받는 콜백형태로 이루어져 있었다.
+이로인해 여러 비동기 로직을 순차적으로 실행하는 코드를 보면 일명 `Callback Hell` 이라는 것을 볼 수 있다.
+
+```js
+asyncA(a => {
+    asyncB(b => {
+        asyncC(c => {
+            asyncD(d => {
+                ...
+            })
+        }
+    })
+})
+```
+
+이후 이를 해결하는 방안으로 여러 라이브러리나 기술들이 나왔으나 지금은 주로 `promise` 와 `async/await` 를 활용한다.
+
+사실 나는 `angular` 를 통해 js 를 본격적으로 사용했기에 비동기 처리를 `rxjs` 의 `observable` 을 사용해왔다.
+이후 백엔드 개발자가 된 이후로 api 를 개발하는데 사용하는 모든 함수가 `promise` 를 반환하다보니 `observable` 을 활용하지 않게되었다.
+
+`promise` 를 본격적으로 사용했을 때에는 이미 `async/await` 가 도입된 이후였고 동기적으로 보이는 코드를 작성하는데 큰 어려움 없었다.
+그래서 굳이 `then` 이나 `catch` 구문을 사용할 필요가 없다고 생각했었다.
+그러나 함수형 패러다임을 공부하면서 함수의 합성, 선언적인 코드, pointfree 에 대한 매력을 느꼈고 이를 `then chaining` 을 통해 이룰 수 있다는 것을 깨달았다.
+함수형 패러다임 중 난해한 `monad` 도 `promise` 와 비교하면서 생각하니 이해하는데 많은 도움을 받았다.
+그래서 이와 관련한 글을 작성하려고 한다.
+
+<!--truncate-->
+
+## 함수로 나누기
+
+다음과 같은 작업을 하는 코드를 작성한다고 가정해본다.
+
+- user 테이블에서 id 가 100인 것을 가져온다.
+- 가져온 사용자 필드 중 이름을 대문자로 변경한다.
+- post 테이블에서 이전 단계에서 얻은 이름과 같은 row 의 개수를 반환한다.
+
+위 작업을 잘게 나누어 여러 함수로 나누어보자.
+
+```typescript
+declare function getUser(id: number): Promise<User>;
+declare function getNameField(user: User): string;
+declare function toUppercase(str: string): string;
+declare function getPostCount(name: string): Promise<number>;
+```
+
+`getUser` 나 `getPostCount` 는 데이터베이스에서 가져오는 것이기에 대부분 ORM 라이브러리들은 `promise` 를 반환할 것이다.
+각 단계를 함수로 나누었고 이제 함수형 패러다임에서 주로 사용하는 합성을 하려고 한다.
+
+## 함수의 합성
+
+함수의 합성은 수학에서 이야기하는 합성으로 f, g 라는 함수를 합성해 새로운 함수를 만들어낸다.
