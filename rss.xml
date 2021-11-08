@@ -33,7 +33,29 @@ declare function getNameField(user: User): string;
 declare function toUppercase(str: string): string;
 declare function getPostCount(name: string): Promise&lt;number&gt;;
 </code></pre><p><code>getUser</code> 나 <code>getPostCount</code> 는 데이터베이스에서 가져오는 것이기에 대부분 ORM 라이브러리들은 <code>promise</code> 를 반환할 것이다.
-각 단계를 함수로 나누었고 이제 함수형 패러다임에서 주로 사용하는 합성을 하려고 한다.</p><h2>함수의 합성</h2><p>함수의 합성은 수학에서 이야기하는 합성으로 f, g 라는 함수를 합성해 새로운 함수를 만들어낸다.</p>]]></content:encoded>
+각 단계를 함수로 나누었고 이제 함수형 패러다임에서 주로 사용하는 합성을 하려고 한다.</p><h2>함수의 합성</h2><p>먼저 수학에서 이야기하는 합성을 소개해보면</p><blockquote><p>한 함수의 공역이 다른 함수의 정의역과 일치하는 경우, 두 함수를 이어 하나의 함수로 만드는 연산이다.</p></blockquote><p><img src="./compose.png" alt="compose"/></p><p>수학에서 이야기하는 정의역과 공역을 프로그래밍 언어에서 함수의 파라미터와 반환 타입으로 생각해볼 수 있다.
+즉 A 라는 함수의 반환 타입이 B 라는 함수의 파라미터와 일치하면 두 함수를 합성한 새로운 함수를 만들 수 있다.</p><pre><code class="language-typescript">declare function A(id: number): string;
+declare function B(user: string): boolean;
+
+function compose(id: number) {
+  return B(A(id));
+}
+</code></pre><p>위 성질을 이용해 이전 단계에서 나눈 함수들을 합성하려고 해보면 바로 문제가 발생한다.
+<code>getUser</code> 함수는 <code>Promise&lt;User&gt;</code> 를 반환하지만 <code>getNameField</code> 의 파라미터는 <code>User</code> 이기 때문이다.
+<code>Promise&lt;User&gt;</code> 는 내부에 <code>User</code> 를 갖고있을지라도 어쨋든 <code>User</code> 타입과는 일치하지 않는다.</p><h2>Then</h2><p>합성을 하기위해 <code>getUser</code> 의 반환값을 <code>User</code> 로 바꾸거나 <code>getNameField</code> 의 파라미터를 <code>Promise&lt;User&gt;</code> 로 바꾸는 방법을 생각해볼 수 있다.</p><p>:::info
+<code>async/await</code> 를 알고있다면 이 문제는 쉽게 해결된다는 것을 알고있지만 지금은 잠깐 무시하자.
+:::</p><p>데이터베이스에 가여오는 작업은 비동기 작업이기에 Promise 를 제거하기에는 어렵고
+<code>getNameField</code> 의 파라미터를 <code>Promise&lt;User&gt;</code> 로 받으면 안에있는 User 를 가져와서 name 을 꺼내는 로직을 작성할 수 없게된다.
+위와 같은 문제의 해결방안으로 Promise 의 then 메소드가 있다.</p><pre><code class="language-typescript">getUser(100).then((user) =&gt; getNameField(user)); // Promise&lt;string&gt;;
+</code></pre><p>then 메소드는 함수를 파라미터로 받고 Promise 의 내부값을 해당 함수의 파라미터로 전달하고 그 반환값을 새로운 Promise 로 감싼다.
+따라서 위 코드의 반환값은 <code>Promise&lt;string&gt;</code> 으로 변한다.
+결과적으로 Promise 는 계속 유지되고 내부의 타입만 바뀌게 된다.
+Promise 를 계속 반환하는 덕분에 계속해서 then 을 통해 다음 함수를 넣어줄 수 있다.</p><pre><code class="language-typescript">getUser(100)
+  .then((user) =&gt; getNameField(user))
+  .then((name) =&gt; toUppercase(name))
+  .then((name) =&gt; getPostCount(name));
+</code></pre><p>함수형 프로그래밍에 익숙한 사람이라면 위 코드를 <code>pointfree</code> 방식으로 작성할 수도 있다.</p><pre><code class="language-typescript">getUser(100).then(getNameField).then(toUppercase).then(getPostCount);
+</code></pre>]]></content:encoded>
         </item>
         <item>
             <title><![CDATA[Localstack 을 활용한 AWS SES 통합테스트]]></title>
