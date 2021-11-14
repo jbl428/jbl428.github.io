@@ -125,29 +125,26 @@ jobs:
 하지만 공식문서를 보니 이미 위와 같은 기능이 `Docusaurus` 에 반영된 것을 확인하였다.
 아래처럼 적절한 경로에 값을 추가하면된다.
 
-```jsx {7,17} title="docusaurus.config.js"
-(module.exports = {
+```jsx {7,15} title="docusaurus.config.js"
+module.exports = {
   // ...
   presets: [
     [
-      ({
+      {
         blog: {
-          archiveBasePath: 'archive',
+          archiveBasePath: "archive",
         },
-      }),
+      },
     ],
   ],
   // ...
-  presets: [
   themeConfig: {
-      navbar: {
-        items: [
-          {to: '/archive', label: 'Archive', position: 'left'},
-        ],
-      },
-  }
+    navbar: {
+      items: [{ to: "/archive", label: "Archive", position: "left" }],
+    },
+  },
   // ...
-}
+};
 ```
 
 ## i18n 설정
@@ -155,14 +152,14 @@ jobs:
 기본 언어 설정을 한글로 하기위해 로케일 설정을 해준다.
 
 ```jsx {3-6} title="docusaurus.config.js"
-(module.exports = {
+module.exports = {
   // ...
   i18n: {
-    defaultLocale: 'ko',
-    locales: ['ko']
+    defaultLocale: "ko",
+    locales: ["ko"],
   },
   // ...
-}
+};
 ```
 
 그리고 아래 명령어를 수행하면 `i18n` 디렉토리 밑에 각종 레이블에 대한 json 파일이 생성된다.

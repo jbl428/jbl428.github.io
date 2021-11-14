@@ -52,7 +52,7 @@ describe('localstack test', () => {
 
   afterAll(() => container.stop());
 
-  ...테스트 케이스
+  // ...테스트 케이스
 
 };
 ```
@@ -124,8 +124,8 @@ await client.send(command);
 
 ```ts
 const sendCommand = new SendEmailCommand({
-    메일 전송 옵션들...
-})
+  // 메일 전송 옵션들...
+});
 await client.send(sendCommand);
 ```
 

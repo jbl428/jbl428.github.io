@@ -105,7 +105,7 @@ then 메소드는 함수를 파라미터로 받고 promise 의 내부값을 해�
 then 메소드가 promise 를 계속 반환하는 덕분에 계속해서 then 을 이용해 다음 함수를 넣어줄 수 있다.
 
 ```typescript
-getUser(100)
+const postCountPromise = getUser(100)
   .then((user) => getNameField(user))
   .then((name) => toUppercase(name))
   .then((name) => getPostCount(name));
@@ -118,10 +118,6 @@ const postCountPromise = getUser(100)
   .then(getNameField)
   .then(toUppercase)
   .then(getPostCount); // Promise<number>;
-
-const a: Promise<null> = Promise.resolve(null).then(() =>
-  Promise.resolve(Promise.resolve(Promise.resolve(null)))
-);
 ```
 
 ## Flatten
