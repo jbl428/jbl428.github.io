@@ -60,7 +60,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
       },
       footer: {
         style: 'dark',
-        copyright: `Copyright © ${new Date().getFullYear()} Jake Son, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Jake Son. Built with Docusaurus.`,
       },
       prism: {
         theme: lightCodeTheme,
