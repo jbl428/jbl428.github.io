@@ -1,5 +1,5 @@
 ---
-title: "Promise 와 Monad"
+title: "Promise 와 Monad - 1"
 authors: jake
 tags: [monad, promise]
 ---
@@ -8,21 +8,21 @@ tags: [monad, promise]
 이로인해 여러 비동기 로직을 순차적으로 실행하는 코드를 보면 일명 `Callback Hell` 이라는 것을 볼 수 있다.
 
 ```js
-asyncA(a => {
-    asyncB(b => {
-        asyncC(c => {
-            asyncD(d => {
-                ...
-            })
-        }
-    })
-})
+asyncA((a) => {
+  asyncB((b) => {
+    asyncC((c) => {
+      asyncD((d) => {
+        return a + b + c + d;
+      });
+    });
+  });
+});
 ```
 
 이후 이를 해결하는 방안으로 여러 라이브러리나 기술들이 나왔으나 지금은 주로 `promise` 와 `async/await` 를 활용한다.
 
 사실 나는 `angular` 를 통해 js 를 본격적으로 사용했기에 비동기 처리를 `rxjs` 의 `observable` 을 사용해왔다.
-이후 백엔드 개발자가 된 이후로 api 를 개발하는데 사용하는 모든 함수가 `promise` 를 반환하다보니 `observable` 을 활용하지 않게되었다.
+하지만 백엔드 개발자가 된 이후로 api 를 개발하는데 사용하는 대부분의 함수가 `promise` 를 반환하다보니 `observable` 을 활용하지 않게되었다.
 
 `promise` 를 본격적으로 사용했을 때에는 이미 `async/await` 가 도입된 이후였고 동기적으로 보이는 코드를 작성하는데 큰 어려움 없었다.
 그래서 굳이 `then` 이나 `catch` 구문을 사용할 필요가 없다고 생각했었다.
@@ -36,13 +36,20 @@ asyncA(a => {
 
 다음과 같은 작업을 하는 코드를 작성한다고 가정해본다.
 
-- user 테이블에서 id 가 100인 것을 가져온다.
-- 가져온 사용자 필드 중 이름을 대문자로 변경한다.
+- user 테이블에서 주어진 id 에 해당하는 row 를 가져온다.
+- 가져온 사용자에서 이름 필드만 추출한다.
+- 추출한 이름을 대문자로 변경한다.
 - post 테이블에서 이전 단계에서 얻은 이름과 같은 row 의 개수를 반환한다.
 
-위 작업을 잘게 나누어 여러 함수로 나누어보자.
+위 작업을 각각 함수로 만들었고 아래 형태의 타입이라고 생각해보자.
 
 ```typescript
+interface User {
+  id: number;
+  name: string;
+  // ...
+}
+
 declare function getUser(id: number): Promise<User>;
 declare function getNameField(user: User): string;
 declare function toUppercase(str: string): string;
@@ -50,7 +57,7 @@ declare function getPostCount(name: string): Promise<number>;
 ```
 
 `getUser` 나 `getPostCount` 는 데이터베이스에서 가져오는 것이기에 대부분 ORM 라이브러리들은 `promise` 를 반환할 것이다.
-각 단계를 함수로 나누었고 이제 함수형 패러다임에서 주로 사용하는 합성을 하려고 한다.
+각 단계를 함수로 만들었고 이제 함수형 패러다임에서 주로 사용하는 합성을 하려고 한다.
 
 ## 함수의 합성
 
@@ -76,7 +83,7 @@ function compose(id: number) {
 `getUser` 함수는 `Promise<User>` 를 반환하지만 `getNameField` 의 파라미터는 `User` 이기 때문이다.
 `Promise<User>` 는 내부에 `User` 를 갖고있을지라도 어쨋든 `User` 타입과는 일치하지 않는다.
 
-## Then
+## Promise.prototype.then()
 
 합성을 하기위해 `getUser` 의 반환값을 `User` 로 바꾸거나 `getNameField` 의 파라미터를 `Promise<User>` 로 바꾸는 방법을 생각해볼 수 있다.
 
@@ -84,18 +91,18 @@ function compose(id: number) {
 `async/await` 를 알고있다면 이 문제는 쉽게 해결된다는 것을 알고있지만 지금은 잠깐 무시하자.
 :::
 
-데이터베이스에 가여오는 작업은 비동기 작업이기에 Promise 를 제거하기에는 어렵고
-`getNameField` 의 파라미터를 `Promise<User>` 로 받으면 안에있는 User 를 가져와서 name 을 꺼내는 로직을 작성할 수 없게된다.
-위와 같은 문제의 해결방안으로 Promise 의 then 메소드가 있다.
+데이터베이스에 가여오는 작업은 비동기 작업이기에 promise 를 제거하기에는 어렵고
+`getNameField` 의 파라미터를 `Promise<User>` 로 변경하면 안에있는 User 를 가져와서 name 을 꺼내는 로직을 작성할 수 없게된다.
+이와 같은 문제의 해결방안으로 promise 의 then 메소드가 있다.
 
 ```typescript
-getUser(100).then((user) => getNameField(user)); // Promise<string>;
+const userNamePromise = getUser(100).then((user) => getNameField(user)); // Promise<string>;
 ```
 
-then 메소드는 함수를 파라미터로 받고 Promise 의 내부값을 해당 함수의 파라미터로 전달하고 그 반환값을 새로운 Promise 로 감싼다.
-따라서 위 코드의 반환값은 `Promise<string>` 으로 변한다.
-결과적으로 Promise 는 계속 유지되고 내부의 타입만 바뀌게 된다.
-Promise 를 계속 반환하는 덕분에 계속해서 then 을 통해 다음 함수를 넣어줄 수 있다.
+then 메소드는 함수를 파라미터로 받고 promise 의 내부값을 해당 함수의 파라미터로 전달하고 그 반환값을 새로운 promise 로 감싼다.
+따라서 위 코드의 반환값은 `Promise<string>` 가 된다.
+`string` 이 아닌 `Promise<string>` 가 되는 이유는 then 메소드는 **주어진 비동기 작업이 성공적으로 끝난다면 그 값을 then 파라미터로 받은 함수로 넘겨주겠다는 새로운 약속**을 만드는 역할을 하기 때문이다.
+then 메소드가 promise 를 계속 반환하는 덕분에 계속해서 then 을 이용해 다음 함수를 넣어줄 수 있다.
 
 ```typescript
 getUser(100)
@@ -104,8 +111,52 @@ getUser(100)
   .then((name) => getPostCount(name));
 ```
 
-함수형 프로그래밍에 익숙한 사람이라면 위 코드를 `pointfree` 방식으로 작성할 수도 있다.
+함수형 프로그래밍에 익숙한 사람이라면 위 코드를 아래와 같은 `pointfree` 방식으로 작성하기도 한다.
 
 ```typescript
-getUser(100).then(getNameField).then(toUppercase).then(getPostCount);
+const postCountPromise = getUser(100)
+  .then(getNameField)
+  .then(toUppercase)
+  .then(getPostCount); // Promise<number>;
+
+const a: Promise<null> = Promise.resolve(null).then(() =>
+  Promise.resolve(Promise.resolve(Promise.resolve(null)))
+);
 ```
+
+## Flatten
+
+이전 코드의 마지막 부분을 살펴보면 이상한 점이 있다.
+`getPostCount` 는 `Promise<number>` 를 반환하고 then 메소드는 주어진 함수의 반환값을 다시 promise 로 감싼다고 했으니 최종 결과는 `Promise<Promise<number>>` 가 될거라는 생각이 든다.
+하지만 결과가 `Promise<number>` 가 되는 이유는 then 메소드가 주어진 함수가 promise 를 반환하면 평탄화 과정을 거치기 때문이다.
+배열의 경우에도 이와 비슷하게 `flatMap` 이 있어서 파라미터로 주어진 함수가 배열을 반환해도 기존 차원이 그대로 유지된다.
+
+```typescript
+const arrA = [1, 2, 3, 4, 5];
+arrA.map((v) => [v + 1]); // [[2], [3], [4], [5], [6]]
+arrA.flatMap((v) => [v + 1]); // [2, 3, 4, 5, 6]
+```
+
+## 마무리
+
+지금까지 `Promise<User>` 를 반환하는 함수로 시작해서 여러 다른 함수를 거쳐 최종 `Promise<number>` 를 만드는 과정을 살펴보았다.
+보통 nodejs 환경에서 하나의 파라미터와 하나의 값을 반환하는 함수를 만든다면 내부 로직에 비동기 작업의 여부에 따라 아래 형태 중 하나가 될것이다.
+
+```typescript
+function syncFunc<A, B>(a: A): B;
+function asyncFunc<A, B>(a: A): Promise<B>;
+```
+
+모든 함수가 `syncFunc` 형태라면 쉽게 합성이 가능하지만 하나라도 `asyncFunc` 이 있다면 promise 의 then 과 같은 메소드를 사용해야 한다.
+즉 then 은 위 두가지 형태를 가진 함수의 합성을 원활하게 해주는 역할을 한다.
+이는 promise 가 monad 의 성질을 만족하기에 얻을 수 있는 장점이다.
+
+monad 에 대한 정의보다 monad 를 통해 얻을 수 있는 장점에 대해 먼저 설명하였다.
+그 이유는 [모나드 괴담](https://xtendo.org/ko/monad#143) 이라고 불릴 정도로 monad 를 이해하기 어렵다는 인식이 있고,
+nodejs 개발자에게 친숙한 promise 를 활용해 monad 를 어떻게 활용하는지에 대한 이해를 먼저 한다면 추후에 monad 를 이해하기 쉬울거라는 생각이 들었기 때문이다.
+
+다음 글에서는 `async/await` 를 활용해 파라미터 개수가 2개 이상인 함수에 대한 처리와 monad 에 대한 조금 더 자세한 설명을 하려고 한다.
+
+## 참고자료
+
+- Promise.prototype.then(): https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Promise/then
