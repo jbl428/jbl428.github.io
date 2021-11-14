@@ -56,7 +56,7 @@ function compose(id: number) {
 </code></pre><p>then 메소드는 함수를 파라미터로 받고 promise 의 내부값을 해당 함수의 파라미터로 전달하고 그 반환값을 새로운 promise 로 감싼다.
 따라서 위 코드의 반환값은 <code>Promise&lt;string&gt;</code> 가 된다.
 <code>string</code> 이 아닌 <code>Promise&lt;string&gt;</code> 가 되는 이유는 then 메소드는 <strong>주어진 비동기 작업이 성공적으로 끝난다면 그 값을 then 파라미터로 받은 함수로 넘겨주겠다는 새로운 약속</strong>을 만드는 역할을 하기 때문이다.
-then 메소드가 promise 를 계속 반환하는 덕분에 계속해서 then 을 이용해 다음 함수를 넣어줄 수 있다.</p><pre><code class="language-typescript">getUser(100)
+then 메소드가 promise 를 계속 반환하는 덕분에 계속해서 then 을 이용해 다음 함수를 넣어줄 수 있다.</p><pre><code class="language-typescript">const postCountPromise = getUser(100)
   .then((user) =&gt; getNameField(user))
   .then((name) =&gt; toUppercase(name))
   .then((name) =&gt; getPostCount(name));
@@ -64,10 +64,6 @@ then 메소드가 promise 를 계속 반환하는 덕분에 계속해서 then �
   .then(getNameField)
   .then(toUppercase)
   .then(getPostCount); // Promise&lt;number&gt;;
-
-const a: Promise&lt;null&gt; = Promise.resolve(null).then(() =&gt;
-  Promise.resolve(Promise.resolve(Promise.resolve(null)))
-);
 </code></pre><h2>Flatten</h2><p>이전 코드의 마지막 부분을 살펴보면 이상한 점이 있다.
 <code>getPostCount</code> 는 <code>Promise&lt;number&gt;</code> 를 반환하고 then 메소드는 주어진 함수의 반환값을 다시 promise 로 감싼다고 했으니 최종 결과는 <code>Promise&lt;Promise&lt;number&gt;&gt;</code> 가 될거라는 생각이 든다.
 하지만 결과가 <code>Promise&lt;number&gt;</code> 가 되는 이유는 then 메소드가 주어진 함수가 promise 를 반환하면 평탄화 과정을 거치기 때문이다.
@@ -113,7 +109,7 @@ describe(&#x27;localstack test&#x27;, () =&gt; {
 
   afterAll(() =&gt; container.stop());
 
-  ...테스트 케이스
+  // ...테스트 케이스
 
 };
 </code></pre><pre><code class="language-ts">container = await new GenericContainer(&quot;localstack/localstack&quot;);
@@ -141,8 +137,8 @@ ryuk container 라고 불리는 컨테이너가 그 역할을 한다.</p><p><a h
 });
 await client.send(command);
 </code></pre><p>이후에 sdk 에 요구하는 스팩에 맞게 발송로직을 추가한다.</p><pre><code class="language-ts">const sendCommand = new SendEmailCommand({
-    메일 전송 옵션들...
-})
+  // 메일 전송 옵션들...
+});
 await client.send(sendCommand);
 </code></pre><h2>참고자료</h2><ul><li>testcontainers: <a href="https://www.testcontainers.org">https://www.testcontainers.org</a></li><li>localstack: <a href="https://github.com/localstack/localstack">https://github.com/localstack/localstack</a></li></ul>]]></content:encoded>
         </item>
@@ -317,36 +313,33 @@ jobs:
           npm run deploy
 </code></pre><h2>보관소 페이지 추가</h2><p>처음에는 <a href="https://blog.johnnyreilly.com/blog-archive">John Reilly archive</a> 처럼 모든 게시글을 연도별로 정리한 페이지를 추가하고자 이분의 저장소 코드를 복사해서 사용했다.
 하지만 공식문서를 보니 이미 위와 같은 기능이 <code>Docusaurus</code> 에 반영된 것을 확인하였다.
-아래처럼 적절한 경로에 값을 추가하면된다.</p><pre><code class="language-jsx" metastring="{7,17} title=&quot;docusaurus.config.js&quot;" title="&quot;docusaurus.config.js&quot;">(module.exports = {
+아래처럼 적절한 경로에 값을 추가하면된다.</p><pre><code class="language-jsx" metastring="{7,15} title=&quot;docusaurus.config.js&quot;" title="&quot;docusaurus.config.js&quot;">module.exports = {
   // ...
   presets: [
     [
-      ({
+      {
         blog: {
-          archiveBasePath: &#x27;archive&#x27;,
+          archiveBasePath: &quot;archive&quot;,
         },
-      }),
+      },
     ],
   ],
   // ...
-  presets: [
   themeConfig: {
-      navbar: {
-        items: [
-          {to: &#x27;/archive&#x27;, label: &#x27;Archive&#x27;, position: &#x27;left&#x27;},
-        ],
-      },
-  }
-  // ...
-}
-</code></pre><h2>i18n 설정</h2><p>기본 언어 설정을 한글로 하기위해 로케일 설정을 해준다.</p><pre><code class="language-jsx" metastring="{3-6} title=&quot;docusaurus.config.js&quot;" title="&quot;docusaurus.config.js&quot;">(module.exports = {
-  // ...
-  i18n: {
-    defaultLocale: &#x27;ko&#x27;,
-    locales: [&#x27;ko&#x27;]
+    navbar: {
+      items: [{ to: &quot;/archive&quot;, label: &quot;Archive&quot;, position: &quot;left&quot; }],
+    },
   },
   // ...
-}
+};
+</code></pre><h2>i18n 설정</h2><p>기본 언어 설정을 한글로 하기위해 로케일 설정을 해준다.</p><pre><code class="language-jsx" metastring="{3-6} title=&quot;docusaurus.config.js&quot;" title="&quot;docusaurus.config.js&quot;">module.exports = {
+  // ...
+  i18n: {
+    defaultLocale: &quot;ko&quot;,
+    locales: [&quot;ko&quot;],
+  },
+  // ...
+};
 </code></pre><p>그리고 아래 명령어를 수행하면 <code>i18n</code> 디렉토리 밑에 각종 레이블에 대한 json 파일이 생성된다.</p><pre><code class="language-shell">yarn docusaurus write-translations
 </code></pre><p>내용을 살펴보면 한글로 번역이 안된 부분이 있는데 적절히 수정해준다.</p><pre><code class="language-json" metastring="title=&quot;i18n/ko/code.json&quot;" title="&quot;i18n/ko/code.json&quot;">  &quot;theme.blog.archive.title&quot;: {
     &quot;message&quot;: &quot;보관소&quot;,
