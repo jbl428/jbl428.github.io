@@ -139,15 +139,15 @@ arrA.flatMap((v) => [v + 1]); // [2, 3, 4, 5, 6]
 보통 nodejs 환경에서 하나의 파라미터와 하나의 값을 반환하는 함수를 만든다면 내부 로직에 비동기 작업의 여부에 따라 아래 형태 중 하나가 될것이다.
 
 ```typescript
-function syncFunc<A, B>(a: A): B;
-function asyncFunc<A, B>(a: A): Promise<B>;
+declare function syncFunc<A, B>(a: A): B;
+declare function asyncFunc<A, B>(a: A): Promise<B>;
 ```
 
 모든 함수가 `syncFunc` 형태라면 쉽게 합성이 가능하지만 하나라도 `asyncFunc` 이 있다면 promise 의 then 과 같은 메소드를 사용해야 한다.
 즉 then 은 위 두가지 형태를 가진 함수의 합성을 원활하게 해주는 역할을 한다.
 이는 promise 가 monad 의 성질을 만족하기에 얻을 수 있는 장점이다.
 
-monad 에 대한 정의보다 monad 를 통해 얻을 수 있는 장점에 대해 먼저 설명하였다.
+지금까지 monad 의 정의보다 monad 를 통해 얻을 수 있는 장점에 대해 먼저 설명하였다.
 그 이유는 [모나드 괴담](https://xtendo.org/ko/monad#143) 이라고 불릴 정도로 monad 를 이해하기 어렵다는 인식이 있고,
 nodejs 개발자에게 친숙한 promise 를 활용해 monad 를 어떻게 활용하는지에 대한 이해를 먼저 한다면 추후에 monad 를 이해하기 쉬울거라는 생각이 들었기 때문이다.
 
