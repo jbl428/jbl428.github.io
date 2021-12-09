@@ -4,9 +4,197 @@
         <title>Jake Son Blog Blog</title>
         <link>https://jbl428.github.io/</link>
         <description>Jake Son Blog Blog</description>
-        <lastBuildDate>Sun, 28 Nov 2021 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 09 Dec 2021 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[TypeORM CreateDateColumn 데코레이터와 value transformer 문제]]></title>
+            <link>https://jbl428.github.io/2021/12/09/typeorm-transformer</link>
+            <guid>TypeORM CreateDateColumn 데코레이터와 value transformer 문제</guid>
+            <pubDate>Thu, 09 Dec 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[문제 상황]]></description>
+            <content:encoded><![CDATA[<h3>문제 상황</h3><p>보통 테이블에 기본으로 넣는 생성시간과, 수정시간 필드를 추가하기 위해 typeorm 사용하는 환경에서는 데코레이터와 상속을 사용한다.
+예를들어 아래와 같은 클래스를 만든 후 다른 엔티티 클래스가 상속받는 방법으로 구현하게 된다.</p><pre><code class="language-ts">import { CreateDateColumn, UpdateDateColumn } from &quot;typeorm&quot;;
+
+export abstract class BaseEntity {
+  @CreateDateColumn({ type: &quot;timestamp&quot; })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: &quot;timestamp&quot; })
+  updatedAt: Date;
+}
+</code></pre><p>하지만 각 필드의 타입을 Date 대신 서드파티 라이브러리의 날짜 타입으로 바꾸기 위해서는 <code>value transformer</code> 를 사용해야 하지만 에러가 발생한다.</p><pre><code class="language-ts">import { CreateDateColumn, UpdateDateColumn } from &quot;typeorm&quot;;
+import { LocatDateTime } from &quot;@js-joda/core&quot;;
+
+export abstract class BaseEntity {
+  @CreateDateColumn({
+    type: &quot;timestamp&quot;,
+    transformer: new LocalDateTransformer(),
+  })
+  createdAt: LocalDateTime;
+
+  @UpdateDateColumn({
+    type: &quot;timestamp&quot;,
+    transformer: new LocalDateTransformer(),
+  })
+  updatedAt: LocalDateTime;
+}
+</code></pre><p>:::info
+여기서 LocalDateTransformer 는 typeorm 의 ValueTransformer 인터페이스를 구현한 클래스로
+js 의 Date 와 LocalDateTime 간의 변환로직이 있다.
+:::</p><p>typeorm 공식 저장소에 이와같은 이슈가 올라와 있지만 (2020년 12월) 아직도 해결되지 않고있다.</p><ul><li><a href="https://github.com/typeorm/typeorm/issues/7150">UpdateDateColumn fails with transformer</a></li></ul><h3>해결 방안</h3><p>이를 해결하기 위해 <code>@CreateDateColumn</code> 데코레이터 대신 <code>@Column</code>, <code>@BeforeInsert</code>, <code>@BeforeUpdate</code> 를 활용한다.</p><pre><code class="language-ts">import { BeforeInsert, BeforeUpdate, Column } from &quot;typeorm&quot;;
+import { LocalDateTime } from &quot;@js-joda/core&quot;;
+
+export abstract class BaseEntity {
+  @Column({
+    type: &quot;timestamptz&quot;,
+    transformer: new LocalDateTimeTransformer(),
+    nullable: false,
+  })
+  createdAt: LocalDateTime;
+
+  @Column({
+    type: &quot;timestamptz&quot;,
+    transformer: new LocalDateTimeTransformer(),
+    nullable: false,
+  })
+  updatedAt: LocalDateTime;
+
+  @BeforeInsert()
+  protected beforeInsert() {
+    this.createdAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  @BeforeUpdate()
+  protected beforeUpdate() {
+    this.updatedAt = LocalDateTime.now();
+  }
+}
+</code></pre><p><code>@BeforeInsert</code> 와 <code>@BeforeUpdate</code> 는 이름 그대로 테이블에 새로운 row 가 추가되기 전이나 기존 row 수정작업 전에 실행된다.
+정상 동작하는지 테스트코드를 작성해보자.</p><pre><code class="language-ts">import {
+  Connection,
+  createConnection,
+  Entity,
+  PrimaryGeneratedColumn,
+  Repository,
+} from &quot;typeorm&quot;;
+import { LocalDateTime } from &quot;@js-joda/core&quot;;
+
+@Entity()
+class TestEntity extends BaseEntity {
+  @PrimaryGeneratedColumn(&quot;increment&quot;)
+  id: number;
+}
+
+describe(&quot;TestEntityRepository&quot;, () =&gt; {
+  let testEntityRepository: Repository&lt;TestEntity&gt;;
+  let connection: Connection;
+
+  beforeAll(async () =&gt; {
+    connection = await createConnection({
+      type: &quot;postgres&quot;,
+      host: &quot;localhost&quot;,
+      port: 5432,
+      username: &quot;test&quot;,
+      password: &quot;test&quot;,
+      database: &quot;test&quot;,
+      entities: [TestEntity],
+      synchronize: true,
+    });
+
+    testEntityRepository = connection.getRepository(TestEntity);
+  });
+
+  afterAll(() =&gt; connection.close());
+
+  beforeEach(() =&gt; testEntityRepository.clear());
+
+  it(&quot;save 메소드로 insert 시 createdAt, updatedAt 이 현재시간으로 들어간다&quot;, async () =&gt; {
+    // given
+    const nowTime = LocalDateTime.now();
+    const entity = new TestEntity();
+
+    // when
+    const testEntity = await testEntityRepository.save(entity);
+
+    // then
+    expect(testEntity.createdAt.isAfter(nowTime)).toBeTruthy();
+    expect(testEntity.updatedAt.isAfter(nowTime)).toBeTruthy();
+  });
+
+  it(&quot;insert 메소드로 insert 시 createdAt, updatedAt 이 현재시간으로 들어간다&quot;, async () =&gt; {
+    // given
+    const nowTime = LocalDateTime.now();
+    const entity = new TestEntity();
+
+    // when
+    await testEntityRepository.insert(entity);
+
+    // then
+    const testEntity = await testEntityRepository.findOneOrFail();
+    expect(testEntity.createdAt.isAfter(nowTime)).toBeTruthy();
+    expect(testEntity.updatedAt.isAfter(nowTime)).toBeTruthy();
+  });
+
+  it(&quot;save 메소드로 엔티티 업데이트 시 updatedAt 이 갱신된다&quot;, async () =&gt; {
+    // given
+    const testEntity = await testEntityRepository.save(new TestEntity());
+    const before = testEntity.updatedAt;
+
+    // when
+    const updatedTestEntity = await testEntityRepository.save(testEntity);
+
+    // then
+    expect(updatedTestEntity.updatedAt.isAfter(before)).toBeTruthy();
+  });
+
+  it(&quot;update 메소드로 엔티티 업데이트 시 updatedAt 이 갱신된다&quot;, async () =&gt; {
+    const testEntity = await testEntityRepository.save(new TestEntity());
+    const before = testEntity.updatedAt;
+
+    // when
+    await testEntityRepository.update(testEntity.id, testEntity);
+
+    // then
+    const updatedTestEntity = await testEntityRepository.findOneOrFail();
+    expect(updatedTestEntity.updatedAt.isAfter(before)).toBeTruthy();
+  });
+});
+</code></pre><p>대부분의 상황에서 정상적으로 동작하지만 <code>queryBuilder</code> 를 사용해 update 를 수행할 때에는 updatedAt 이 갱신되지 않는다.</p><pre><code class="language-ts">it(&quot;queryBuilder 로 업데이트 시 updatedAt 갱신되지 않는다&quot;, async () =&gt; {
+  // given
+  const testEntity = await testEntityRepository.save(new TestEntity());
+  const before = testEntity.updatedAt;
+
+  // when
+  await testEntityRepository
+    .createQueryBuilder(&quot;testEntity&quot;)
+    .update()
+    .set({ id: 3 })
+    .execute();
+
+  // then
+  const updatedTestEntity = await testEntityRepository.findOneOrFail();
+  expect(updatedTestEntity.updatedAt.isEqual(before)).toBeTruthy();
+});
+</code></pre><p>위 경우에는 명시적으로 현재시간을 넣어주어야 한다.</p><pre><code class="language-ts">it(&quot;queryBuilder 로 업데이트 시 updatedAt 갱신된다&quot;, async () =&gt; {
+  // given
+  const testEntity = await testEntityRepository.save(new TestEntity());
+  const before = testEntity.updatedAt;
+
+  // when
+  await testEntityRepository
+    .createQueryBuilder(&quot;testEntity&quot;)
+    .update()
+    .set({ id: 100, updatedAt: LocalDateTime.now() })
+    .execute();
+
+  // then
+  const updatedTestEntity = await testEntityRepository.findOneOrFail();
+  expect(updatedTestEntity.updatedAt.isAfter(before)).toBeTruthy();
+});
+</code></pre>]]></content:encoded>
+        </item>
         <item>
             <title><![CDATA[Promise 와 Monad - 2]]></title>
             <link>https://jbl428.github.io/2021/11/28/promise-and-monad-2</link>

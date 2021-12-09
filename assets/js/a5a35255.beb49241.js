@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[284],{6811:function(e){e.exports=JSON.parse('{"allTagsPath":"/tags","slug":"/tags/create-date-column","name":"CreateDateColumn","count":1,"permalink":"/tags/create-date-column"}')}}]);
