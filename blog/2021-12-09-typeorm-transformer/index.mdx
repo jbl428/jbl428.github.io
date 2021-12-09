@@ -1,0 +1,33 @@
+---
+title: "TypeORM createdAt, updatedAt 처리"
+authors: jake
+tags: [typeorm, transformer]
+draft: true
+---
+
+보통 테이블에 기본으로 넣는 생성시간과, 수정시간 필드를 추가하기 위해 typeorm 사용하는 환경에서는 데코레이터와 상속을 사용한다.
+예를들어 아래와 같은 클래스를 만든 후 다른 엔티티 클래스가 상속받는 방법으로 구현하게 된다.
+
+```ts
+import { CreateDateColumn, UpdateDateColumn } from "typeorm";
+
+export abstract class BaseEntity {
+  @CreateDateColumn({ type: "timestamp" })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: "timestamp" })
+  updatedAt: Date;
+}
+```
+
+typeorm 의 `@CreateDateColumn` 와 `@UpdateDateColumn` 데코레이터를 활용해 생성과 수정이 일어나면 자동으로 현재시간으로 업데이트해준다.
+위 데코레이터는 mysql 환경이라면 아래와 같은 DDL 구문으로 테이블을 생성한다.
+
+```sql
+CREATE TABLE `base_entity` (
+    `created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    `updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+)
+```
+
+`updated_at` 의 경우
