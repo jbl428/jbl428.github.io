@@ -254,7 +254,7 @@ addNumber = do
     b &lt;- getSecondNumber a
     return add a b
 </code></pre><p>하스켈의 <code>do natation</code> 이 monad 를 반환하는 함수들을 활용한 로직을 절차적으로 표시하는 역할을 해준다.
-마찬가지로 <code>async/await</code> 도 promise 를 반환하는 함수들을 활용한 로직을 절차적으로 표시하는 역할을 해준다.</p><h2>promise 와 monad</h2><p>이쯤에서 monad 에 대한 설명을 하지면 어떤 타입에 특별한 문맥을 더해주는 컨테이너라 말할 수 있다.
+마찬가지로 <code>async/await</code> 도 promise 를 반환하는 함수들을 활용한 로직을 절차적으로 표시하는 역할을 해준다.</p><h2>promise 와 monad</h2><p>이쯤에서 monad 에 대한 설명을 하자면 어떤 타입에 특별한 문맥을 더해주는 컨테이너라 말할 수 있다.
 예를들면 <code>number</code> 는 일반적인 숫자타입이지만 거기에 promise 로 감싸면 안의 숫자는 일정시간이 지난 후 값을 알게된다는 문맥을 더해준다.</p><pre><code class="language-ts">const a: number = 3; // a 는 평가시점에 그 값과 타입을 바로 알 수 있다.
 const b: Promise&lt;number&gt; = new Promise((resolve) =&gt;
   setTimeout(() =&gt; resolve(5), 1000)
