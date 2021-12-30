@@ -9,7 +9,7 @@
     <icon>https://jbl428.github.io/img/favicon.ico</icon>
     <entry>
         <title type="html"><![CDATA[TypeORM CreateDateColumn 데코레이터와 value transformer 문제]]></title>
-        <id>TypeORM CreateDateColumn 데코레이터와 value transformer 문제</id>
+        <id>/2021/12/09/typeorm-transformer</id>
         <link href="https://jbl428.github.io/2021/12/09/typeorm-transformer"/>
         <updated>2021-12-09T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[문제 상황]]></summary>
@@ -201,7 +201,7 @@ describe(&quot;TestEntityRepository&quot;, () =&gt; {
     </entry>
     <entry>
         <title type="html"><![CDATA[Promise 와 Monad - 2]]></title>
-        <id>Promise 와 Monad - 2</id>
+        <id>/2021/11/28/promise-and-monad-2</id>
         <link href="https://jbl428.github.io/2021/11/28/promise-and-monad-2"/>
         <updated>2021-11-28T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[이전 글에서는 promise 를 반환하는 함수들을 then 을 이용해 합성하는 과정을 살펴보았다.]]></summary>
@@ -273,7 +273,7 @@ monad 는 category theory 에서 나온 개념이기에 다분히 수학적인 �
     </entry>
     <entry>
         <title type="html"><![CDATA[Promise 와 Monad - 1]]></title>
-        <id>Promise 와 Monad - 1</id>
+        <id>/2021/11/07/promise-and-monad-1</id>
         <link href="https://jbl428.github.io/2021/11/07/promise-and-monad-1"/>
         <updated>2021-11-07T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[예전 node.js 의 많은 비동기 함수는 결과를 함수로 받는 콜백형태로 이루어져 있었다.]]></summary>
@@ -349,7 +349,7 @@ nodejs 개발자에게 친숙한 promise 를 활용해 monad 를 어떻게 활�
     </entry>
     <entry>
         <title type="html"><![CDATA[Localstack 을 활용한 AWS SES 통합테스트]]></title>
-        <id>Localstack 을 활용한 AWS SES 통합테스트</id>
+        <id>/2021/10/31/local-stack</id>
         <link href="https://jbl428.github.io/2021/10/31/local-stack"/>
         <updated>2021-10-31T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[localstack 은 AWS 인프라 시뮬레이터로 Lambda, S3, Dynamodb, Kinesis, SQS, SNS 같은 서비스를 로컬 환경에 올릴 수 있다.]]></summary>
@@ -416,7 +416,7 @@ await client.send(sendCommand);
     </entry>
     <entry>
         <title type="html"><![CDATA[함수형 프로그래밍 관련 자료]]></title>
-        <id>함수형 프로그래밍 관련 자료</id>
+        <id>/2021/10/21/functional-programming-material</id>
         <link href="https://jbl428.github.io/2021/10/21/functional-programming-material"/>
         <updated>2021-10-21T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[그동안 함수형 프로그래밍에 대한 공부를 하면서 보았던 자료들을 이곳에 기록하려고 한다.]]></summary>
@@ -438,7 +438,7 @@ await client.send(sendCommand);
     </entry>
     <entry>
         <title type="html"><![CDATA[Docusaurus 에 utterances 연동]]></title>
-        <id>Docusaurus 에 utterances 연동</id>
+        <id>/2021/10/19/utterances</id>
         <link href="https://jbl428.github.io/2021/10/19/utterances"/>
         <updated>2021-10-19T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[utterances 는 GitHub 이슈 를 이용해서 원하는 사이트의 댓글 기능을 만들어주는 서비스이다.]]></summary>
@@ -527,7 +527,7 @@ import useThemeContext from &quot;@theme/hooks/useThemeContext&quot;;
     </entry>
     <entry>
         <title type="html"><![CDATA[Docusaurus 를 이용한 블로그 구축]]></title>
-        <id>Docusaurus 를 이용한 블로그 구축</id>
+        <id>/2021/10/17/docusaurus-for-blog</id>
         <link href="https://jbl428.github.io/2021/10/17/docusaurus-for-blog"/>
         <updated>2021-10-17T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[기술 블로그를 위해 어떤 플랫폼을 사용할지 고민하다가 직장 동료가 Docusaurus 를 추천해주었다.]]></summary>

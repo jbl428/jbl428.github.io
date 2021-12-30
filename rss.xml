@@ -10,7 +10,7 @@
         <item>
             <title><![CDATA[TypeORM CreateDateColumn 데코레이터와 value transformer 문제]]></title>
             <link>https://jbl428.github.io/2021/12/09/typeorm-transformer</link>
-            <guid>TypeORM CreateDateColumn 데코레이터와 value transformer 문제</guid>
+            <guid>/2021/12/09/typeorm-transformer</guid>
             <pubDate>Thu, 09 Dec 2021 00:00:00 GMT</pubDate>
             <description><![CDATA[문제 상황]]></description>
             <content:encoded><![CDATA[<h3>문제 상황</h3><p>보통 테이블에 기본으로 넣는 생성시간과, 수정시간 필드를 추가하기 위해 typeorm 사용하는 환경에서는 데코레이터와 상속을 사용한다.
@@ -198,7 +198,7 @@ describe(&quot;TestEntityRepository&quot;, () =&gt; {
         <item>
             <title><![CDATA[Promise 와 Monad - 2]]></title>
             <link>https://jbl428.github.io/2021/11/28/promise-and-monad-2</link>
-            <guid>Promise 와 Monad - 2</guid>
+            <guid>/2021/11/28/promise-and-monad-2</guid>
             <pubDate>Sun, 28 Nov 2021 00:00:00 GMT</pubDate>
             <description><![CDATA[이전 글에서는 promise 를 반환하는 함수들을 then 을 이용해 합성하는 과정을 살펴보았다.]]></description>
             <content:encoded><![CDATA[<p>이전 글에서는 promise 를 반환하는 함수들을 then 을 이용해 합성하는 과정을 살펴보았다.
@@ -266,7 +266,7 @@ monad 는 category theory 에서 나온 개념이기에 다분히 수학적인 �
         <item>
             <title><![CDATA[Promise 와 Monad - 1]]></title>
             <link>https://jbl428.github.io/2021/11/07/promise-and-monad-1</link>
-            <guid>Promise 와 Monad - 1</guid>
+            <guid>/2021/11/07/promise-and-monad-1</guid>
             <pubDate>Sun, 07 Nov 2021 00:00:00 GMT</pubDate>
             <description><![CDATA[예전 node.js 의 많은 비동기 함수는 결과를 함수로 받는 콜백형태로 이루어져 있었다.]]></description>
             <content:encoded><![CDATA[<p>예전 <code>node.js</code> 의 많은 비동기 함수는 결과를 함수로 받는 콜백형태로 이루어져 있었다.
@@ -338,7 +338,7 @@ nodejs 개발자에게 친숙한 promise 를 활용해 monad 를 어떻게 활�
         <item>
             <title><![CDATA[Localstack 을 활용한 AWS SES 통합테스트]]></title>
             <link>https://jbl428.github.io/2021/10/31/local-stack</link>
-            <guid>Localstack 을 활용한 AWS SES 통합테스트</guid>
+            <guid>/2021/10/31/local-stack</guid>
             <pubDate>Sun, 31 Oct 2021 00:00:00 GMT</pubDate>
             <description><![CDATA[localstack 은 AWS 인프라 시뮬레이터로 Lambda, S3, Dynamodb, Kinesis, SQS, SNS 같은 서비스를 로컬 환경에 올릴 수 있다.]]></description>
             <content:encoded><![CDATA[<p><code>localstack</code> 은 AWS 인프라 시뮬레이터로 Lambda, S3, Dynamodb, Kinesis, SQS, SNS 같은 서비스를 로컬 환경에 올릴 수 있다.
@@ -401,7 +401,7 @@ await client.send(sendCommand);
         <item>
             <title><![CDATA[함수형 프로그래밍 관련 자료]]></title>
             <link>https://jbl428.github.io/2021/10/21/functional-programming-material</link>
-            <guid>함수형 프로그래밍 관련 자료</guid>
+            <guid>/2021/10/21/functional-programming-material</guid>
             <pubDate>Thu, 21 Oct 2021 00:00:00 GMT</pubDate>
             <description><![CDATA[그동안 함수형 프로그래밍에 대한 공부를 하면서 보았던 자료들을 이곳에 기록하려고 한다.]]></description>
             <content:encoded><![CDATA[<p>그동안 함수형 프로그래밍에 대한 공부를 하면서 보았던 자료들을 이곳에 기록하려고 한다.</p><h2>서적</h2><h3>함수형 사고 (Neal Ford)</h3><p>메모이제이션 개념에 대해 처음 알게된 책이다.</p><h3>함수형 자바스크립트 (Luis Atencio)</h3><p>자바스크립트로 하는 함수형 프로그래밍 책으로 읽은것은 기억나는데 딱히 기억에 남는 내용은 없었다.</p><h3>Grokking Simplicity Taming complex software with functional thinking (Eric Normand)</h3><p>프로그램을 Action, Calculation, Data 로 나누어 생각하고 함수형 프로그래밍을 전염성이 강하고 테스트 하기 힘든 Action 을 Calculation 으로 만드는 패러다임으로 설명하고 있다.
@@ -419,7 +419,7 @@ await client.send(sendCommand);
         <item>
             <title><![CDATA[Docusaurus 에 utterances 연동]]></title>
             <link>https://jbl428.github.io/2021/10/19/utterances</link>
-            <guid>Docusaurus 에 utterances 연동</guid>
+            <guid>/2021/10/19/utterances</guid>
             <pubDate>Tue, 19 Oct 2021 00:00:00 GMT</pubDate>
             <description><![CDATA[utterances 는 GitHub 이슈 를 이용해서 원하는 사이트의 댓글 기능을 만들어주는 서비스이다.]]></description>
             <content:encoded><![CDATA[<p><a href="https://utteranc.es/">utterances</a> 는 <code>GitHub 이슈</code> 를 이용해서 원하는 사이트의 댓글 기능을 만들어주는 서비스이다.
@@ -504,7 +504,7 @@ import useThemeContext from &quot;@theme/hooks/useThemeContext&quot;;
         <item>
             <title><![CDATA[Docusaurus 를 이용한 블로그 구축]]></title>
             <link>https://jbl428.github.io/2021/10/17/docusaurus-for-blog</link>
-            <guid>Docusaurus 를 이용한 블로그 구축</guid>
+            <guid>/2021/10/17/docusaurus-for-blog</guid>
             <pubDate>Sun, 17 Oct 2021 00:00:00 GMT</pubDate>
             <description><![CDATA[기술 블로그를 위해 어떤 플랫폼을 사용할지 고민하다가 직장 동료가 Docusaurus 를 추천해주었다.]]></description>
             <content:encoded><![CDATA[<p>기술 블로그를 위해 어떤 플랫폼을 사용할지 고민하다가 직장 동료가 <code>Docusaurus</code> 를 추천해주었다.
