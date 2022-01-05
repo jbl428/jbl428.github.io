@@ -1,0 +1,59 @@
+---
+title: "코틀린 환경에서 Querydsl 설정하기"
+authors: jake
+tags: [kotlin, querydsl]
+---
+
+최근에 코틀린과 스프링을 활용해 사이드 프로젝트를 하면서 querydsl 사용을 위해 세팅한 작업을 남기려고 한다.
+자바로 된 querydsl 관련 블로그 글은 많은데 생각보다 코틀린은 적었고 제대로 적용이 안되어 고생을 하게되었다.
+
+<!--truncate-->
+
+## 최종 설정
+
+결론부터 먼저 말하면 querydsl 버전을 현재 시점 최신버전인 `5.0.0` 을 사용하면 정상적으로 동작한다.
+그리고 `kotlinOption 의 jvmTarget` 버전과 `java.sourceCompatibility` 에 지정한 버전이 일치해야한다.
+gradle 설정은 아래와 같다.
+
+```kotlin title="build.gradle.kts"
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("org.springframework.boot") version "2.6.2"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+
+    kotlin("jvm") version "1.6.10"
+    kotlin("plugin.spring") version "1.6.10"
+    kotlin("plugin.jpa") version "1.6.10"
+    // highlight-next-line
+    kotlin("kapt") version "1.6.10" // kapt 추가
+}
+
+repositories {
+    mavenCentral()
+}
+
+// highlight-next-line
+java.sourceCompatibility = JavaVersion.VERSION_11 // jvmTarget 과 같은 버전으로 지정
+
+dependencies {
+    // highlight-start
+    // querydsl 관련 패키지 추가. 버전은 5.0.0 으로 지정
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("com.querydsl:querydsl-jpa:5.0.0")
+    kapt("com.querydsl:querydsl-apt:5.0.0:jpa")
+    // highlight-end
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xjsr305=strict")
+        // highlight-next-line
+        jvmTarget = "11" // java.sourceCompatibility 과 같은 버전 지정
+    }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+```
