@@ -4,9 +4,60 @@
         <title>Jake Son Blog Blog</title>
         <link>https://jbl428.github.io/</link>
         <description>Jake Son Blog Blog</description>
-        <lastBuildDate>Thu, 09 Dec 2021 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 05 Jan 2022 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[코틀린 환경에서 Querydsl 설정하기]]></title>
+            <link>https://jbl428.github.io/2022/01/05/querydsl-in-kotlin</link>
+            <guid>/2022/01/05/querydsl-in-kotlin</guid>
+            <pubDate>Wed, 05 Jan 2022 00:00:00 GMT</pubDate>
+            <description><![CDATA[최근에 코틀린과 스프링을 활용해 사이드 프로젝트를 하면서 querydsl 사용을 위해 세팅한 작업을 남기려고 한다.]]></description>
+            <content:encoded><![CDATA[<p>최근에 코틀린과 스프링을 활용해 사이드 프로젝트를 하면서 querydsl 사용을 위해 세팅한 작업을 남기려고 한다.
+자바로 된 querydsl 관련 블로그 글은 많은데 생각보다 코틀린은 적었고 제대로 적용이 안되어 고생을 하게되었다.</p><h2>최종 설정</h2><p>결론부터 먼저 말하면 querydsl 버전을 현재 시점 최신버전인 <code>5.0.0</code> 을 사용하면 정상적으로 동작한다.
+그리고 <code>kotlinOption 의 jvmTarget</code> 버전과 <code>java.sourceCompatibility</code> 에 지정한 버전이 일치해야한다.
+gradle 설정은 아래와 같다.</p><pre><code class="language-kotlin" metastring="title=&quot;build.gradle.kts&quot;" title="&quot;build.gradle.kts&quot;">import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id(&quot;org.springframework.boot&quot;) version &quot;2.6.2&quot;
+    id(&quot;io.spring.dependency-management&quot;) version &quot;1.0.11.RELEASE&quot;
+
+    kotlin(&quot;jvm&quot;) version &quot;1.6.10&quot;
+    kotlin(&quot;plugin.spring&quot;) version &quot;1.6.10&quot;
+    kotlin(&quot;plugin.jpa&quot;) version &quot;1.6.10&quot;
+    // highlight-next-line
+    kotlin(&quot;kapt&quot;) version &quot;1.6.10&quot; // kapt 추가
+}
+
+repositories {
+    mavenCentral()
+}
+
+// highlight-next-line
+java.sourceCompatibility = JavaVersion.VERSION_11 // jvmTarget 과 같은 버전으로 지정
+
+dependencies {
+    // highlight-start
+    // querydsl 관련 패키지 추가. 버전은 5.0.0 으로 지정
+    implementation(&quot;org.springframework.boot:spring-boot-starter-data-jpa&quot;)
+    implementation(&quot;com.querydsl:querydsl-jpa:5.0.0&quot;)
+    kapt(&quot;com.querydsl:querydsl-apt:5.0.0:jpa&quot;)
+    // highlight-end
+}
+
+tasks.withType&lt;KotlinCompile&gt; {
+    kotlinOptions {
+        freeCompilerArgs = listOf(&quot;-Xjsr305=strict&quot;)
+        // highlight-next-line
+        jvmTarget = &quot;11&quot; // java.sourceCompatibility 과 같은 버전 지정
+    }
+}
+
+tasks.withType&lt;Test&gt; {
+    useJUnitPlatform()
+}
+</code></pre>]]></content:encoded>
+        </item>
         <item>
             <title><![CDATA[TypeORM CreateDateColumn 데코레이터와 value transformer 문제]]></title>
             <link>https://jbl428.github.io/2021/12/09/typeorm-transformer</link>
