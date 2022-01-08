@@ -2,11 +2,89 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://jbl428.github.io/</id>
     <title>Jake Son Blog Blog</title>
-    <updated>2022-01-05T00:00:00.000Z</updated>
+    <updated>2022-01-08T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://jbl428.github.io/"/>
     <subtitle>Jake Son Blog Blog</subtitle>
     <icon>https://jbl428.github.io/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[ts-morph 로 개발 컨벤션 검증 자동화하기]]></title>
+        <id>/2022/01/08/convention-check-with-ts-morph</id>
+        <link href="https://jbl428.github.io/2022/01/08/convention-check-with-ts-morph"/>
+        <updated>2022-01-08T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[최근에 typescript 환경에서 개발 컨벤션을 확인하는 작업을 자동화하는 방법을 찾다가 ts-morph 를 도입하게 된 과정을 기술하려고 한다.]]></summary>
+        <content type="html"><![CDATA[<p>최근에 typescript 환경에서 개발 컨벤션을 확인하는 작업을 자동화하는 방법을 찾다가 <code>ts-morph</code> 를 도입하게 된 과정을 기술하려고 한다.</p><blockquote><p>관련 코드는 아래 링크에서 확인할 수 있다.</p></blockquote><ul><li><a href="https://github.com/jbl428/study-note/tree/master/ts-morph">https://github.com/jbl428/study-note/tree/master/ts-morph</a></li></ul><h2>컨벤션</h2><p>아래와 같은 <code>TypeORM</code> 엔티티 파일이 있다고 가정한다.</p><pre><code class="language-ts" metastring="title=&quot;Profile.entity.ts&quot;" title="&quot;Profile.entity.ts&quot;">import { Column, Entity, PrimaryGeneratedColumn } from &quot;typeorm&quot;;
+
+@Entity()
+export class Profile {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  email: string;
+}
+</code></pre><pre><code class="language-ts" metastring="title=&quot;Post.entity.ts&quot;" title="&quot;Post.entity.ts&quot;">import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from &quot;typeorm&quot;;
+import { Profile } from &quot;./Profile.entity&quot;;
+
+@Entity()
+// highlight-start
+@Index(&quot;idx_post_1&quot;, [&quot;profile&quot;]) // profile_id 에 인덱스를 추가
+@Index(&quot;idx_post_2&quot;, [&quot;status&quot;]) // status 필드에 인덱스를 추가
+// highlight-end
+export class Post {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  content: string;
+
+  @Column()
+  status: string;
+
+  // highlight-start
+  // profile 과 1:n 관계이지만 FK 를 설정하지 않음
+  @ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
+  // profile 연관관계 필드 추가
+  @JoinColumn({ name: &quot;profile_id&quot;, referencedColumnName: &quot;id&quot; })
+  profile: Profile;
+  // highlight-end
+}
+</code></pre><p><code>Post</code> 엔티티는 <code>Profile</code> 과 1:N 관계이고 <code>profile_id</code> 필드가 있지만 외래키를 추가하지 않고 대신 class 상단에 <code>@Index</code> 데코레이터를 이용해 인덱스를 추가한다.
+인덱스를 추가하지 않으면 join 성능이 떨어지기 때문에 개발자가 인덱스를 추가하지 않는 실수를 하지 않도록 검증과정을 자동화하려고 했다.</p><h2>Shell script 로 검증</h2><p>처음에는 bash 스크립트를 활용해서 각 엔티티 파일을 읽은 후 정규식을 활용해 검증을 시도하려 했지만 다음과 같은 이유로 하지 않았다.</p><h3>OS</h3><p>현재 개발팀 모두 mac 을 사용하기에 스크립트를 실행하는데 어려움이 없지만 추후에 윈도우를 사용하는 사람이 올 수도 있다.
+스크립트를 CI 에서 실행하면 큰 문제는 없지만 OS 에 관계없이 누구나 로컬에서 편리하게 검증할 수 있도록 하고 싶었다.</p><h3>유지보수</h3><p>shell script 에 익숙하지 않은 개발자도 있어서 해당 스크립트를 유지보수 할 수 있는 사람이 적어진다.
+개발환경과 같은 언어를 활용해 검증을 한다면 코드를 이해하고 개선할 수 있는 사람이 많아질것이다.</p><h3>구현</h3><p>검증을 위해서 파일 내용 중 <code>JoinColumn</code> 데코레이터로 선언한 필드명 (예제에서는 <code>profile</code>) 을 알아내야 하는데 코드 상황에 따라 그 위치가 달라질 수 있다.</p><ul><li>JoinColumn 라인 바로 아래에 컬럼명이 존재</li></ul><pre><code class="language-ts">  @ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
+  @JoinColumn({ name: &quot;profile_id&quot;, referencedColumnName: &quot;id&quot; })
+  profile: Profile;
+</code></pre><ul><li>JoinColumn 두 라인 아래에 컬럼명이 존재</li></ul><pre><code class="language-ts">  @JoinColumn({ name: &quot;profile_id&quot;, referencedColumnName: &quot;id&quot; })
+  @ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
+  profile: Profile;
+</code></pre><ul><li>JoinColumn 세 라인 아래에 컬럼명이 존재</li></ul><pre><code class="language-ts">  @ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
+  @JoinColumn({
+    name: &quot;profile_id&quot;,
+    referencedColumnName: &quot;id&quot;
+  })
+  profile: Profile;
+</code></pre><ul><li>JoinColumn 과 같은 라인에 존재</li></ul><pre><code class="language-ts">  @ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
+  @JoinColumn({ name: &quot;profile_id&quot;, referencedColumnName: &quot;id&quot; }) profile: Profile;
+</code></pre><p><code>prettier</code> 를 사용하면 몇가지 상황은 배제할 수 있지만 컬럼명을 알아내기 위해 multiline 에 대한 정규식 표현을 사용해야 하는 불편함이 있다.
+그리고 컬럼명을 가져온 후 <code>@Index</code> 에 선언된 컬렴명과 비교하는 로직을 shell script 로 구현하기도 복잡하다.</p><p>위와 같은 이유로 shell script 보다 개발환경과 같은 언어인 typescript 을 활용하고 싶었고 이전부터 눈여겨본 <code>ts-morph</code> 를 도입해보았다.</p><h2>ts-morph</h2><p><a href="https://github.com/dsherret/ts-morph/tree/latest/packages/ts-morph">ts-morph</a> 는 난해한 <code>typescript ast</code> 를 사용하기 편리하게 만든 wrapper 라이브러리이다.
+타입스크립트 코드를 프로그래밍 적으로 분석 및 수정할 수 있게한다.
+사용법 자체도 간단해서 이번에 문서를 보고 처음 사용해보았는데 어렵지 않게 작업할 수 있었다.</p>]]></content>
+        <author>
+            <name>Jake Son</name>
+            <uri>https://github.com/jbl428</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[코틀린 환경에서 Querydsl 설정하기]]></title>
         <id>/2022/01/05/querydsl-in-kotlin</id>
