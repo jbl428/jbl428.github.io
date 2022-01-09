@@ -134,7 +134,17 @@ tasks.withType&lt;KotlinCompile&gt; {
 tasks.withType&lt;Test&gt; {
     useJUnitPlatform()
 }
-</code></pre>]]></content>
+</code></pre><h2>문제 상황</h2><p>querydsl 공식문서에는 gradle 설정은 없고 maven 만 존재해서 여러 블로그 글을 참조해서 설정하려고 했다.
+문서에도 모두 4.x.x 버전을 쓰고있고 공식 홈페이지에도 4.4.0 이 최신버전인지라 그대로 사용했지만 Qclass 생성 시 아래 메시지가 출력되고 아무런 파일이 생성되지 않았다.</p><pre><code class="language-shell">gradle clean compileKotlin
+&gt; Task :kaptKotlin
+[WARN] Can&#x27;t find annotation processor class com.querydsl.apt.jpa.JPAAnnotationProcessor: com/mysema/codegen/model/Type
+</code></pre><p><code>annotation processor</code> 관련 문제로 보여 관련 문서를 검색해고 제시된 해결방법을 시도해보았지만 여전히 같은 에러를 출력했다.
+kotlin 을 최신버전을 사용하고 있어서 새로운 호환성 문제가 생긴건지 의심이 들었고 querydsl 도 최신버전으로 올려서 시도해보았다.
+이후 해당 메시지는 사라졌지만 새로운 메시지가 출력됐다.</p><pre><code class="language-shell">gradle clean compileKotlin
+&gt; Task :kaptKotlin
+&#x27;compileJava&#x27; task (current target is 17) and &#x27;compileKotlin&#x27; task (current target is 11) jvm target compatibility should be set to the same Java version.
+</code></pre><p>이번 에러는 메시지만 봐도 쉽게 해결할 수 있는 내용이었고 <code>jvmTarget</code> 과 <code>java.sourceCompatibility</code> 를 동일하게 맞추니 정상적으로 동작했다.
+querydsl 5.0.0 릴리즈 노트를 보면 아래 내용이 있는데 자바 11 지원과 코틀린 코드 생성과 관련된 작업을 한것이 해결이 된 원인으로 보인다.</p><p><img src="./querydsl.png" alt="querydsl"/></p>]]></content>
         <author>
             <name>Jake Son</name>
             <uri>https://github.com/jbl428</uri>
