@@ -62,24 +62,212 @@ export class Post {
 </code></pre><p><code>Post</code> 엔티티는 <code>Profile</code> 과 1:N 관계이고 <code>profile_id</code> 필드가 있지만 외래키를 추가하지 않고 대신 class 상단에 <code>@Index</code> 데코레이터를 이용해 인덱스를 추가한다.
 인덱스를 추가하지 않으면 join 성능이 떨어지기 때문에 개발자가 인덱스를 추가하지 않는 실수를 하지 않도록 검증과정을 자동화하려고 했다.</p><h2>Shell script 로 검증</h2><p>처음에는 bash 스크립트를 활용해서 각 엔티티 파일을 읽은 후 정규식을 활용해 검증을 시도하려 했지만 다음과 같은 이유로 하지 않았다.</p><h3>OS</h3><p>현재 개발팀 모두 mac 을 사용하기에 스크립트를 실행하는데 어려움이 없지만 추후에 윈도우를 사용하는 사람이 올 수도 있다.
 스크립트를 CI 에서 실행하면 큰 문제는 없지만 OS 에 관계없이 누구나 로컬에서 편리하게 검증할 수 있도록 하고 싶었다.</p><h3>유지보수</h3><p>shell script 에 익숙하지 않은 개발자도 있어서 해당 스크립트를 유지보수 할 수 있는 사람이 적어진다.
-개발환경과 같은 언어를 활용해 검증을 한다면 코드를 이해하고 개선할 수 있는 사람이 많아질것이다.</p><h3>구현</h3><p>검증을 위해서 파일 내용 중 <code>JoinColumn</code> 데코레이터로 선언한 필드명 (예제에서는 <code>profile</code>) 을 알아내야 하는데 코드 상황에 따라 그 위치가 달라질 수 있다.</p><ul><li>JoinColumn 라인 바로 아래에 컬럼명이 존재</li></ul><pre><code class="language-ts">  @ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
-  @JoinColumn({ name: &quot;profile_id&quot;, referencedColumnName: &quot;id&quot; })
-  profile: Profile;
-</code></pre><ul><li>JoinColumn 두 라인 아래에 컬럼명이 존재</li></ul><pre><code class="language-ts">  @JoinColumn({ name: &quot;profile_id&quot;, referencedColumnName: &quot;id&quot; })
-  @ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
-  profile: Profile;
-</code></pre><ul><li>JoinColumn 세 라인 아래에 컬럼명이 존재</li></ul><pre><code class="language-ts">  @ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
-  @JoinColumn({
-    name: &quot;profile_id&quot;,
-    referencedColumnName: &quot;id&quot;
-  })
-  profile: Profile;
-</code></pre><ul><li>JoinColumn 과 같은 라인에 존재</li></ul><pre><code class="language-ts">  @ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
-  @JoinColumn({ name: &quot;profile_id&quot;, referencedColumnName: &quot;id&quot; }) profile: Profile;
+개발환경과 같은 언어를 활용해 검증을 한다면 코드를 이해하고 개선할 수 있는 사람이 많아질것이다.</p><h3>구현</h3><p>검증을 위해서 파일 내용 중 <code>JoinColumn</code> 데코레이터로 선언한 필드명 (예제에서는 <code>profile</code>) 을 알아내야 하는데 코드 상황에 따라 그 위치가 달라질 수 있다.</p><ul><li>JoinColumn 라인 바로 아래에 컬럼명이 존재</li></ul><pre><code class="language-ts">@ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
+@JoinColumn({ name: &quot;profile_id&quot;, referencedColumnName: &quot;id&quot; })
+profile: Profile;
+</code></pre><ul><li>JoinColumn 두 라인 아래에 컬럼명이 존재</li></ul><pre><code class="language-ts">@JoinColumn({ name: &quot;profile_id&quot;, referencedColumnName: &quot;id&quot; })
+@ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
+profile: Profile;
+</code></pre><ul><li>JoinColumn 세 라인 아래에 컬럼명이 존재</li></ul><pre><code class="language-ts">@ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
+@JoinColumn({
+  name: &quot;profile_id&quot;,
+  referencedColumnName: &quot;id&quot;
+})
+profile: Profile;
+</code></pre><ul><li>JoinColumn 과 같은 라인에 존재</li></ul><pre><code class="language-ts">@ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
+@JoinColumn({ name: &quot;profile_id&quot;, referencedColumnName: &quot;id&quot; }) profile: Profile;
 </code></pre><p><code>prettier</code> 를 사용하면 몇가지 상황은 배제할 수 있지만 컬럼명을 알아내기 위해 multiline 에 대한 정규식 표현을 사용해야 하는 불편함이 있다.
 그리고 컬럼명을 가져온 후 <code>@Index</code> 에 선언된 컬렴명과 비교하는 로직을 shell script 로 구현하기도 복잡하다.</p><p>위와 같은 이유로 shell script 보다 개발환경과 같은 언어인 typescript 을 활용하고 싶었고 이전부터 눈여겨본 <code>ts-morph</code> 를 도입해보았다.</p><h2>ts-morph</h2><p><a href="https://github.com/dsherret/ts-morph/tree/latest/packages/ts-morph">ts-morph</a> 는 난해한 <code>typescript ast</code> 를 사용하기 편리하게 만든 wrapper 라이브러리이다.
 타입스크립트 코드를 프로그래밍 적으로 분석 및 수정할 수 있게한다.
-사용법 자체도 간단해서 이번에 문서를 보고 처음 사용해보았는데 어렵지 않게 작업할 수 있었다.</p>]]></content:encoded>
+사용법 자체도 간단해서 이번에 문서를 보고 처음 사용해보았는데 어렵지 않게 작업할 수 있었다.
+각 ast 노드를 클래스 인스턴스로 만들어 각 클래스의 메소드를 활용해 자식 노드나 부가정보를 얻을 수 있는 형태로 구현되어있다.</p><h3>Project 생성</h3><p>먼저 Project 인스턴스를 생성해야 한다. 생성자에 파싱을 위한 소스파일 정보를 주거나 이후에 메소드를 통해 제공할 수 있다.
+tsconfig.json 경로를 제공하면 해당 파일에 적용되는 ts 파일들을 자동으로 읽는다.</p><pre><code class="language-ts">import { Project } from &quot;ts-morph&quot;;
+
+const project = new Project({
+  tsConfigFilePath: &quot;path/to/tsconfig.json&quot;,
+});
+</code></pre><p>아니면 인스턴스 생성이후 메소드를 호출해 소스파일을 등록할 수 있다.</p><pre><code class="language-ts">const project = new Project();
+
+project.addSourceFilesFromTsConfig(&quot;dir1/tsconfig.json&quot;); // tsconfig.json 파일 경로지정
+project.addSourceFilesAtPaths(&quot;dir3/**/*{.d.ts,.ts}&quot;); // 경로에 해당하는 파일읽기
+</code></pre><p>실제 파일내용을 제공할 수도 있어서 테스트코드 작성할 때 유용하게 쓸 수 있다.</p><pre><code class="language-ts">const project = new Project();
+
+const fileText = &quot;enum MyEnum {\n}\n&quot;;
+const sourceFile = project.createSourceFile(&quot;path/to/myNewFile.ts&quot;, fileText);
+</code></pre><p>소스파일 경로를 지정하는 방법과 파일내용을 제공하는 방법을 모두 지원하기 위해 아래와 같은 클래스를 만들었다.</p><pre><code class="language-ts" metastring="title=&quot;EntityValidator.ts&quot;" title="&quot;EntityValidator.ts&quot;">export class EntityValidator {
+  #project: Project;
+
+  constructor(path: string, content?: string) {
+    this.#project = new Project();
+
+    if (content) {
+      this.#project.createSourceFile(path, content);
+      return;
+    }
+
+    this.#project.addSourceFilesAtPaths(path);
+  }
+}
+</code></pre><h3>SourceFile 가져오기</h3><p>이제 ast 의 root 인 SourceFile 을 가져온다.</p><pre><code class="language-ts">const sourceFiles = this.#project.getSourceFiles();
+</code></pre><h3>Entity Class 가져오기</h3><p>이제 각 SourceFile 배열을 순회하면서 각 파일이 컨벤션을 만족하는지 확인하는 과정이 필요하다.
+우선 하나의 SourceFile 을 검증하는 로직을 먼저 구현해보자.
+먼저 해당 파일이 Entity 데코레이터가 있는 클래스가 선언되어 있는지 확인해본다.</p><p>SourceFile 에는 <code>getClass</code> 메소드가 있는데 파라미터로 필터함수를 주면 조건에 해당하는 첫 번째 클래스를 반환한다.
+해당 함수는 클래스의 데코레이터 중 이름이 <code>Entity</code> 가 있을 때 true 를 반환하도록 하였다.</p><pre><code class="language-ts">private getClass(sourceFile: SourceFile): ClassDeclaration {
+  // highlight-start
+  // Entity 데코레이터가 있는 클래스를 가져오기
+  const entityClass = sourceFile.getClass((declaration) =&gt;
+    declaration
+      .getDecorators()
+      .some((decorator) =&gt; decorator.getFullName() === &#x27;Entity&#x27;),
+  );
+  // highlight-end
+
+  if (!entityClass) {
+    throw new Error(&#x27;Entity 데코레이터가 존재하지 않습니다&#x27;);
+  }
+
+  return entityClass;
+}
+</code></pre><h3>JoinColumn 데코레이터가 선언된 필드명을 가져오기</h3><p>이제 해당 클래스에서 <code>JoinColumn</code> 데코레이터가 선언된 필드명을 가져온다.
+코드를 보면 <code>getProperties</code> 메소드를 통해 필드를 가져온 후 데코레이터 이름이 <code>JoinColumn</code> 인것만 필터링 후 <code>getName</code> 을 통해 필드명을 가져온다.
+메소드명만 읽어도 어떤 작업을 하는지 파악이 가능하기에 유지보수가 쉽고 코드를 읽기 쉽다는 장점이있다.</p><pre><code class="language-ts">private getJoinColumns(entityClass: ClassDeclaration): string[] {
+  return entityClass
+    .getProperties()
+    .filter((property) =&gt;
+      property
+        .getDecorators()
+        .some((decorator) =&gt; decorator.getFullName() === &#x27;JoinColumn&#x27;),
+    )
+    .map((property) =&gt; property.getName());
+}
+</code></pre><h3>JoinColumn 에 매칭되는 Index 데코레이터가 있는 필드 가져오기</h3><p><code>JoinColumn</code> 에 해당하는 필드명 중에 클래스에 선언된 Index 데코레이터의 두 번째 파라미터와 일치하는게 존재하는 것만 필터링한다.
+단순히 모든 Index 데코레이터 정보를 사용하지 않고 필터링 해야하는 이유는 JoinColumn 이 없는 필드에 대해서도 Index 데코레이터를 사용하는 경우가 있기 때문이다.</p><pre><code class="language-ts">private getIndexColumns(
+  entityClass: ClassDeclaration,
+  joinColumns: string[],
+): string[] {
+  return entityClass
+    .getDecorators()
+    .filter((decorator) =&gt; decorator.getFullName() === &#x27;Index&#x27;)
+    // getArguments 는 데코레이터의 파리마터를 반환한다
+    .map((decorator) =&gt; decorator.getArguments())
+    // Node.getFullText 메소드는 실제 파라미터 타입이 아닌 코드에 있는 문자열 그대로 반환한다.
+    // 따라서 [&#x27;column&#x27;] 과 같이 배열로 선언되어 있어도 문자열이 되며
+    // parseArgument 메소드는 특수문자를 모두 제거해서 컬럼명만 남긴다.
+    .map(([_, indexField]) =&gt; this.parseArgument(indexField))
+    .filter((columnName) =&gt; joinColumns.includes(columnName));
+}
+
+private parseArgument(node?: Node): string {
+  if (!node) {
+    return &#x27;&#x27;;
+  }
+
+  // 특수문자를 모두 제거
+  return node.getFullText().replace(/[\W\s]/gi, &#x27;&#x27;);
+}
+</code></pre><h3>검증하기</h3><p>위 메소드를 활용해서 각 SourceFile 를 순회해 <code>JoinColumn</code> 의 개수와 <code>Index</code> 개수가 일치하지 않으면 에러를 발생시킨다.</p><pre><code class="language-ts">validate(): void {
+  const sourceFiles = this.#project.getSourceFiles();
+
+  sourceFiles.forEach((sourceFile) =&gt; {
+    const entityClass = this.getClass(sourceFile);
+    const joinColumns = this.getJoinColumns(entityClass);
+    const indexColumns = this.getIndexColumns(entityClass, joinColumns);
+
+    if (indexColumns.length !== joinColumns.length) {
+      throw new Error(
+        `JoinColumn 에 매칭되는 Index 선언이 누락되었습니다: ${JSON.stringify(
+          {
+            entity: entityClass.getName(),
+            joinColumns,
+            indexColumns,
+          },
+          null,
+          2,
+        )}`,
+      );
+    }
+  });
+}
+</code></pre><h2>테스트</h2><p>이제 위 클래스가 정상 동작하는지 테스트를 작성해본다.
+<code>EntityValidator</code> 생성자의 두 번째 파라미터에 파일내용을 직접 넣어서 테스트 할 수 있다.</p><pre><code class="language-ts" metastring="title=&quot;EntityValidator.spec.ts&quot;" title="&quot;EntityValidator.spec.ts&quot;">import { EntityValidator } from &quot;./EntityValidator&quot;;
+
+describe(&quot;EntityValidator&quot;, () =&gt; {
+  it(&quot;JoinColumn 에 선언된 컬럼에 인덱스가 없으면 에러가 발생한다&quot;, () =&gt; {
+    // given
+    const path = &quot;post.ts&quot;;
+    const content = `
+@Entity()
+export class Post {
+  @ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
+  @JoinColumn({ name: &#x27;profile_id&#x27;, referencedColumnName: &#x27;id&#x27; })
+  profile: Profile;
+}`;
+    const checker = new EntityValidator(path, content);
+
+    // when
+    const validate = () =&gt; checker.validate();
+
+    // then
+    expect(validate).toThrowError();
+  });
+
+  it(&quot;JoinColumn 에 선언된 컬럼에 인덱스가 있으면 검증에 성공한다&quot;, () =&gt; {
+    // given
+    const content = `
+@Entity()
+@Index(&#x27;idx_post_1&#x27;, [&#x27;profile&#x27;])
+export class Post {
+  @ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
+  @JoinColumn({ name: &#x27;profile_id&#x27;, referencedColumnName: &#x27;id&#x27; })
+  profile: Profile;
+}`;
+    const checker = new EntityValidator(content);
+
+    // when
+    const validate = () =&gt; checker.validate();
+
+    // then
+    expect(validate).not.toThrowError();
+  });
+
+  it(&quot;JoinColumn 이 아닌 컬럼에 대한 인덱스가 있어도 검증에 성공한다&quot;, () =&gt; {
+    // given
+    const content = `
+@Entity()
+@Index(&#x27;idx_post_1&#x27;, [&#x27;profile&#x27;])
+@Index(&#x27;idx_post_2&#x27;, [&#x27;name&#x27;])
+export class Post {
+  @Column()
+  name: string
+
+  @ManyToOne(() =&gt; Profile, { createForeignKeyConstraints: false })
+  @JoinColumn({ name: &#x27;profile_id&#x27;, referencedColumnName: &#x27;id&#x27; })
+  profile: Profile;
+}`;
+    const checker = new EntityValidator(content);
+
+    // when
+    const validate = () =&gt; checker.validate();
+
+    // then
+    expect(validate).not.toThrowError();
+  });
+});
+</code></pre><p>마지막으로 실제 엔티티 파일이 있는 경로를 지정해서 컨벤션을 만족하는지 검증한다.
+테스트코드를 통해 검증하기 때문에 로컬과 CI 에서 손쉽게 사용할 수 있다는 장점이있다.</p><pre><code class="language-ts">it(&quot;엔티티 파일들은 JoinColumn 에 대한 인덱스가 존재한다&quot;, () =&gt; {
+  // given
+  const path = join(__dirname, &quot;../src/**/*.entity.ts&quot;);
+  const checker = new EntityValidator(path);
+
+  // when
+  const validate = () =&gt; checker.validate();
+
+  // then
+  expect(validate).not.toThrowError();
+});
+</code></pre><h2>마무리</h2><p><code>ts-morph</code> 를 활용해 컨벤션 검증과정을 살펴보았다.
+해당 라이브러리는 소스코드를 수정하는 기능도 있기 때문에 컨벤션에 맞지 않으면 자동으로 해결하는 기능도 추가할 수 있다.
+또한 클래스 외에 함수, 인터페이스, Enum 등 다른 유형의 코드도 파싱할 수 있기 때문에 다양한 컨벤션을 검증하는 로직을 만들 수 있다.</p><h2>참고문서</h2><ul><li>ts-morph documentation: <a href="https://ts-morph.com/">https://ts-morph.com/</a></li></ul>]]></content:encoded>
         </item>
         <item>
             <title><![CDATA[코틀린 환경에서 Querydsl 설정하기]]></title>
