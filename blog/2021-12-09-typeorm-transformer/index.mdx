@@ -66,6 +66,7 @@ export abstract class BaseEntity {
     type: "timestamptz",
     transformer: new LocalDateTimeTransformer(),
     nullable: false,
+    update: false,
   })
   createdAt: LocalDateTime;
 
