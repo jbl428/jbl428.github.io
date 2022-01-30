@@ -1,0 +1,94 @@
+---
+title: "Kotlin 에서 지연평가 구현하기"
+authors: jake
+tags: [kotlin, lazy-evaluation]
+---
+
+지연평가는 함수형 프로그래밍에서 자주 등장하는 개념이며 어떤 표현식의 값을 필요로 할 때까지 평가를 미루는 방법이다.
+함수형 언어에서는 기본으로 모든 계산이 지연평가로 동작하기에 따로 구현할 필요는 없지만 그렇지 않은 언어에서는 각자의 언어 기능을 활용해 구현한다.
+
+코틀린에서는 표준 위임 클래스 중 하나인 `Lazy` 를 통해 지연평가를 사용할 수 있다.
+하지만 이는 완벽한 지연평가라기 보다 프로퍼티의 지연 초기화에 가깝다.
+이번 글에서는 메모이제이션 기능이 있는 커스텀 `Lazy` 클래스를 만드는 과정을 기술하려고 한다.
+
+<!--truncate-->
+
+> - 모든 코드는 https://github.com/jbl428/study-note/tree/master/kotlin/lazy 에 있습니다.
+> - 본 글은 [코틀린을 다루는 기술](https://thebook.io/080208) 에 있는 지연계산 챕터의 내용을 참고해 작성하였습니다.
+
+## Lazy 위임 클래스
+
+먼저 코틀린의 Lazy 위임 클래스를 사용한 코드를 살펴보자.
+
+```kt
+internal class LazyTest {
+    @Test
+    fun `내장 Lazy 테스트`() {
+        // given
+        class Foo {
+            val bar: String by lazy {
+                println("lazy")
+                "bar"
+            }
+
+            init {
+                println("init")
+                println(bar)
+            }
+        }
+
+        // when
+        val foo = Foo()
+        println(foo.bar)
+    }
+}
+```
+
+위 테스트 코드를 실행한 후 로그를 살펴보면 다음과 같이 출력된다.
+
+```text
+init
+lazy
+bar
+bar
+```
+
+`Foo` 인스턴스 생성 시 `init` 이 실행되고 **"init"** 이 출력된다.
+이후 `print(bar)` 에서 처음 `bar` 를 참조하며 `by lazy` 에 지정한 메소드가 실행된다.
+따라서 **"lazy"**, **"bar"** 가 출력되고 이후 `foo.bar` 를 참조할 때에는 **"lazy"** 는 출력되지 않는것을 확인할 수 있다.
+
+## 추가기능 구현
+
+이처럼 `Lazy` 위임 클래스는 프로퍼티의 초기화를 지연시킬 수 있는 기능을 제공해주고 이를 확장해 다음 기능을 추가로 구현하려고 한다.
+
+### 메모이제이션
+
+:::info
+메모이제이션(memoization)은 컴퓨터 프로그램이 동일한 계산을 반복해야 할 때, 이전에 계산한 값을 메모리에 저장함으로써 동일한 계산의 반복 수행을 제거하여 프로그램 실행 속도를 빠르게 하는 기술이다. (출처: wikipedia)
+:::
+
+이전 예제코드에서 `by lazy` 에 기술한 초기화 로직은 한 번만 실행되고 이후에는 `bar` 의 값을 바로 사용하듯이 함수의 로직은 한 번만 실행되고 이후에는 결과를 바로 제공한다.
+
+### 합성
+
+지연평가 인스턴스가 반환하는 결과에 새로운 함수를 합성해 새로운 지연평가 인스턴스를 만들어준다.
+합성하는 함수는 일반적인 값을 반환하거나 새로운 지연 클래스를 반환하는 형태를 가진다.
+예를들면 아래와 같은 타입의 함수를 말한다.
+
+```kt
+fun normal(a: Int): String
+fun newLazy(a: String): Lazy<Boolean>
+```
+
+## 커스텀 Lazy 클래스
+
+### 선언
+
+```kt
+class Lazy<out A>(fn: () -> A) {
+    private val value by lazy(fn)
+    operator fun invoke(): A {
+        return value
+    }
+}
+```
