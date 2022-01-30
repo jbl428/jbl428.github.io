@@ -2,11 +2,65 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://jbl428.github.io/</id>
     <title>Jake Son Blog Blog</title>
-    <updated>2022-01-08T00:00:00.000Z</updated>
+    <updated>2022-01-30T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://jbl428.github.io/"/>
     <subtitle>Jake Son Blog Blog</subtitle>
     <icon>https://jbl428.github.io/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Kotlin 에서 지연평가 구현하기]]></title>
+        <id>/2022/01/30/lazy-eval-in-kotlin</id>
+        <link href="https://jbl428.github.io/2022/01/30/lazy-eval-in-kotlin"/>
+        <updated>2022-01-30T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[지연평가는 함수형 프로그래밍에서 자주 등장하는 개념이며 어떤 표현식의 값을 필요로 할 때까지 평가를 미루는 방법이다.]]></summary>
+        <content type="html"><![CDATA[<p>지연평가는 함수형 프로그래밍에서 자주 등장하는 개념이며 어떤 표현식의 값을 필요로 할 때까지 평가를 미루는 방법이다.
+함수형 언어에서는 기본으로 모든 계산이 지연평가로 동작하기에 따로 구현할 필요는 없지만 그렇지 않은 언어에서는 각자의 언어 기능을 활용해 구현한다.</p><p>코틀린에서는 표준 위임 클래스 중 하나인 <code>Lazy</code> 를 통해 지연평가를 사용할 수 있다.
+하지만 이는 완벽한 지연평가라기 보다 프로퍼티의 지연 초기화에 가깝다.
+이번 글에서는 메모이제이션 기능이 있는 커스텀 <code>Lazy</code> 클래스를 만드는 과정을 기술하려고 한다.</p><blockquote><ul><li>모든 코드는 <a href="https://github.com/jbl428/study-note/tree/master/kotlin/lazy">https://github.com/jbl428/study-note/tree/master/kotlin/lazy</a> 에 있습니다.</li><li>본 글은 <a href="https://thebook.io/080208">코틀린을 다루는 기술</a> 에 있는 지연계산 챕터의 내용을 참고해 작성하였습니다.</li></ul></blockquote><h2>Lazy 위임 클래스</h2><p>먼저 코틀린의 Lazy 위임 클래스를 사용한 코드를 살펴보자.</p><pre><code class="language-kt">internal class LazyTest {
+    @Test
+    fun `내장 Lazy 테스트`() {
+        // given
+        class Foo {
+            val bar: String by lazy {
+                println(&quot;lazy&quot;)
+                &quot;bar&quot;
+            }
+
+            init {
+                println(&quot;init&quot;)
+                println(bar)
+            }
+        }
+
+        // when
+        val foo = Foo()
+        println(foo.bar)
+    }
+}
+</code></pre><p>위 테스트 코드를 실행한 후 로그를 살펴보면 다음과 같이 출력된다.</p><pre><code class="language-text">init
+lazy
+bar
+bar
+</code></pre><p><code>Foo</code> 인스턴스 생성 시 <code>init</code> 이 실행되고 <strong>&quot;init&quot;</strong> 이 출력된다.
+이후 <code>print(bar)</code> 에서 처음 <code>bar</code> 를 참조하며 <code>by lazy</code> 에 지정한 메소드가 실행된다.
+따라서 <strong>&quot;lazy&quot;</strong>, <strong>&quot;bar&quot;</strong> 가 출력되고 이후 <code>foo.bar</code> 를 참조할 때에는 <strong>&quot;lazy&quot;</strong> 는 출력되지 않는것을 확인할 수 있다.</p><h2>추가기능 구현</h2><p>이처럼 <code>Lazy</code> 위임 클래스는 프로퍼티의 초기화를 지연시킬 수 있는 기능을 제공해주고 이를 확장해 다음 기능을 추가로 구현하려고 한다.</p><h3>메모이제이션</h3><p>:::info
+메모이제이션(memoization)은 컴퓨터 프로그램이 동일한 계산을 반복해야 할 때, 이전에 계산한 값을 메모리에 저장함으로써 동일한 계산의 반복 수행을 제거하여 프로그램 실행 속도를 빠르게 하는 기술이다. (출처: wikipedia)
+:::</p><p>이전 예제코드에서 <code>by lazy</code> 에 기술한 초기화 로직은 한 번만 실행되고 이후에는 <code>bar</code> 의 값을 바로 사용하듯이 함수의 로직은 한 번만 실행되고 이후에는 결과를 바로 제공한다.</p><h3>합성</h3><p>지연평가 인스턴스가 반환하는 결과에 새로운 함수를 합성해 새로운 지연평가 인스턴스를 만들어준다.
+합성하는 함수는 일반적인 값을 반환하거나 새로운 지연 클래스를 반환하는 형태를 가진다.
+예를들면 아래와 같은 타입의 함수를 말한다.</p><pre><code class="language-kt">fun normal(a: Int): String
+fun newLazy(a: String): Lazy&lt;Boolean&gt;
+</code></pre><h2>커스텀 Lazy 클래스</h2><h3>선언</h3><pre><code class="language-kt">class Lazy&lt;out A&gt;(fn: () -&gt; A) {
+    private val value by lazy(fn)
+    operator fun invoke(): A {
+        return value
+    }
+}
+</code></pre>]]></content>
+        <author>
+            <name>Jake Son</name>
+            <uri>https://github.com/jbl428</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[ts-morph 로 개발 컨벤션 검증 자동화하기]]></title>
         <id>/2022/01/08/convention-check-with-ts-morph</id>

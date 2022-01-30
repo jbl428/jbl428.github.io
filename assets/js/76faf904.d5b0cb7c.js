@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[5343],{4745:function(a){a.exports=JSON.parse('{"allTagsPath":"/tags","slug":"/tags/lazy-evaluation","name":"lazy-evaluation","count":1,"permalink":"/tags/lazy-evaluation"}')}}]);
