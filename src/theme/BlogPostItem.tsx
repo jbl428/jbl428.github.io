@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import OriginalBlogPostItem from "@theme-original/BlogPostItem";
-import useThemeContext from "@theme/hooks/useThemeContext";
+import {useColorMode}from "@docusaurus/theme-common";
 
 const utterancesSelector = "iframe.utterances-frame";
 
 function BlogPostItem(props) {
-  const { isDarkTheme } = useThemeContext();
+  const { isDarkTheme } = useColorMode();
   const utterancesTheme = isDarkTheme ? "github-dark" : "github-light";
   const containerRef = useRef(null);
 
