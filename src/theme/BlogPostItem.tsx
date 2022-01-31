@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import OriginalBlogPostItem from "@theme-original/BlogPostItem";
-import {useColorMode}from "@docusaurus/theme-common";
+import { useColorMode }from "@docusaurus/theme-common";
 
 const utterancesSelector = "iframe.utterances-frame";
 
