@@ -92,7 +92,7 @@ export class Comment extends BaseEntity {
     createForeignKeyConstraints: false,
     nullable: false,
   })
-  @Index('idx_post_id')
+  @Index("idx_post_id")
   @JoinColumn({ name: "post_id", referencedColumnName: "id" })
   post: Post;
 }
@@ -171,8 +171,8 @@ ts 의 `strictNullCheck` 옵션을 활성화하면 nullable 타입을 참조하�
 // migration 방식에서는 직접 foreign key 생성은 건너뛰도록 로직을 구현해야 한다
 class CustomMigrationGenerator extends TSMigrationGenerator {
   createStatement(sql: string, padLeft: number): string {
-    if (sql.includes(' add constraint ') || sql.includes(' drop constraint '))
-      return '';
+    if (sql.includes(" add constraint ") || sql.includes(" drop constraint "))
+      return "";
 
     return super.createStatement(sql, padLeft);
   }
@@ -242,7 +242,7 @@ export class LocalDateTimeType implements ValueTransformer {
 export class LocalDateTimeType extends Type<LocalDateTime, Date> {
   convertToDatabaseValue(
     value: LocalDateTime | Date,
-    platform: Platform,
+    platform: Platform
   ): Date {
     if (value instanceof Date) {
       return value;
@@ -253,13 +253,13 @@ export class LocalDateTimeType extends Type<LocalDateTime, Date> {
 
   convertToJSValue(
     value: LocalDateTime | Date,
-    platform: Platform,
+    platform: Platform
   ): LocalDateTime {
     if (value instanceof LocalDateTime) {
       return value;
     }
 
-    if (typeof value === 'number') {
+    if (typeof value === "number") {
       return LocalDateTime.from(nativeJs(new Date(value)));
     }
 
@@ -290,7 +290,7 @@ export class LocalDateTimeType extends Type<LocalDateTime, Date> {
   <TabItem value="TypeORM" label="TypeORM" default>
 
 ```ts
-it('queryBuilder where 에 string 형태로 사용하는 경우 조회에 실패한다', async () => {
+it("queryBuilder where 에 string 형태로 사용하는 경우 조회에 실패한다", async () => {
   // given
   const createdAt = LocalDateTime.of(2022, 2, 1);
   const post = PostFactory.make({ createdAt });
@@ -301,8 +301,8 @@ it('queryBuilder where 에 string 형태로 사용하는 경우 조회에 실패
 
   // when
   const result = await postRepository
-    .createQueryBuilder('post')
-    .where('post.createdAt = :createdAt', { createdAt })
+    .createQueryBuilder("post")
+    .where("post.createdAt = :createdAt", { createdAt })
     .getMany();
 
   // then
@@ -314,7 +314,7 @@ it('queryBuilder where 에 string 형태로 사용하는 경우 조회에 실패
   <TabItem value="MikroOMR" label="MikroOMR">
 
 ```ts
-it('queryBuilder where 에 string 형태로 사용하는 경우 조회에 실패한다', async () => {
+it("queryBuilder where 에 string 형태로 사용하는 경우 조회에 실패한다", async () => {
   // given
   const createdAt = LocalDateTime.of(2022, 2, 1);
   const post = postFactory.makeOne({ createdAt });
@@ -322,8 +322,8 @@ it('queryBuilder where 에 string 형태로 사용하는 경우 조회에 실패
 
   // when
   const result = await postEntityRepository
-    .createQueryBuilder('post')
-    .where('post.created_at = ?', [createdAt])
+    .createQueryBuilder("post")
+    .where("post.created_at = ?", [createdAt])
     .getResult();
 
   // then
@@ -378,7 +378,7 @@ expect(result).toHaveLength(1); // 조회 성공
 
 ```ts
 const result = await postRepository
-  .createQueryBuilder('post')
+  .createQueryBuilder("post")
   .where({ createdAt })
   .getMany();
 ```
@@ -393,16 +393,17 @@ const result = await postRepository
 두 라이브러리 모두 `select` 메소드를 통해 원하는 필드만 지정해서 가져올 수 있다.
 하지만 `TypeORM` 에서는 연관관계 필드 select 에 대한 이슈가 있다.
 
-다음 코드를 살펴보자
+다음 코드를 살펴보자.
+
 ```ts
 const result = await commentRepository
-  .createQueryBuilder('comment')
-  .select(['comment.id', 'comment.post.id'])
+  .createQueryBuilder("comment")
+  .select(["comment.id", "comment.post.id"])
   .where({ post: { id: post.id } })
   .getOneOrFail();
 
-console.log(result) // Comment { id: 1n }
-console.log(result.post) // undefined
+console.log(result); // Comment { id: 1n }
+console.log(result.post); // undefined
 ```
 
 Comment 엔티티의 id 필드와 post_id 필드만 가져오기 위해 select 절에 직접 지정하였다.
@@ -420,9 +421,9 @@ WHERE "comment"."post_id" = $1
 
 ```ts
 const result = await commentRepository
-  .createQueryBuilder('comment')
-  .select(['comment.id', 'post.id'])
-  .innerJoin('comment.post', 'post') // join 지정
+  .createQueryBuilder("comment")
+  .select(["comment.id", "post.id"])
+  .innerJoin("comment.post", "post") // join 지정
   .getOneOrFail();
 ```
 
@@ -432,8 +433,8 @@ const result = await commentRepository
 
 ```ts
 const result = await commentEntityRepository
-  .createQueryBuilder('comment')
-  .select(['id', 'post'])
+  .createQueryBuilder("comment")
+  .select(["id", "post"])
   .where({ post: { id: post.id } })
   .getSingleResult();
 
@@ -444,9 +445,9 @@ console.log(result.post.id); // 값이 존재
 
 ```ts
 const result = await commentEntityRepository
-  .createQueryBuilder('c')
-  .select(['c.id', 'c.like', 'post', 'p.name'])
-  .join('c.post', 'p')
+  .createQueryBuilder("c")
+  .select(["c.id", "c.like", "post", "p.name"])
+  .join("c.post", "p")
   .getSingleResult();
 
 console.log(result.post.unwrap().name); // undefined
@@ -457,9 +458,9 @@ select 구문에 `p.name` 을 선언해 이름필드를 가져오도록 설정�
 
 ```ts
 const result = await commentEntityRepository
-  .createQueryBuilder('c')
-  .select(['c.id', 'c.like', 'post', 'p.name'])
-  .joinAndSelect('c.post', 'p') // post 의 모든 필드 가져옴
+  .createQueryBuilder("c")
+  .select(["c.id", "c.like", "post", "p.name"])
+  .joinAndSelect("c.post", "p") // post 의 모든 필드 가져옴
   .getSingleResult();
 ```
 
@@ -477,7 +478,7 @@ const result = await commentEntityRepository
 await commentEntityRepository.find({
   $and: [
     { post: { id: 100n } },
-    { $or: [{ content: { $like: '%text%' } }, { like: { $gte: 10 } }] },
+    { $or: [{ content: { $like: "%text%" } }, { like: { $gte: 10 } }] },
   ],
 });
 ```
@@ -525,11 +526,11 @@ select in 방식은 기본 엔티티만 먼저 조회 후 각 join 테이블에 
 const result = await commentEntityRepository.findOneOrFail(
   { post: { id: { $lte: post.id } } },
   {
-    populate: ['post'],
+    populate: ["post"],
     strategy: LoadStrategy.SELECT_IN,
-    fields: ['id', 'like', 'post', 'post.name'],
-  },
-)
+    fields: ["id", "like", "post", "post.name"],
+  }
+);
 ```
 
 아래와 같은 두 개의 쿼리가 수행되며 그 결과를 병합해 Comment 인스턴스에 담는다.
@@ -552,12 +553,9 @@ limit 1
 만약 테이블과 관련없는 필드명을 넣은경우는 무시된다.
 
 ```ts
-await commentEntityRepository.findOneOrFail(
-  100n,
-  {
-    populate: ['post', 'post.comments', 'like'], // like 는 무시
-  },
-);
+await commentEntityRepository.findOneOrFail(100n, {
+  populate: ["post", "post.comments", "like"], // like 는 무시
+});
 ```
 
 ### where 절 필드 지정
@@ -580,7 +578,7 @@ insert 에서는 큰 문제는 없으나 update 시 문제가 발생할 수 있�
 다음 테스트 코드를 살펴보자.
 
 ```ts
-it('transaction 테스트', async () => {
+it("transaction 테스트", async () => {
   // given
   const post = PostFactory.make();
   post.comments = [CommentFactory.make(), CommentFactory.make()];
@@ -589,12 +587,12 @@ it('transaction 테스트', async () => {
   // when
   const update = () =>
     getManager().transaction(async (manager) => {
-      post.content = 'new content';
+      post.content = "new content";
       await manager.save(post); // post.comment 도 같이 update 수행
     });
 
   // then
-  await expect(update).rejects.toThrowError('violates not-null constraint');
+  await expect(update).rejects.toThrowError("violates not-null constraint");
 });
 ```
 
@@ -612,12 +610,12 @@ comment 의 내용은 전혀 수정하지 않았기에 post 만 업데이트를 
 
 ```ts
 const post = await postEntityRepository.findOneOrFail(100n, {
-  populate: ['comments'],
+  populate: ["comments"],
 });
 
 // 트랜잭션 내에서 persist 를 직접 호출하지 않아도 update 수행된다
 await orm.em.transactional(async () => {
-  post.content = 'new content';
+  post.content = "new content";
   post.comments[0]!.like = 12345;
 });
 
@@ -639,7 +637,7 @@ await postEntityRepository.persistAndFlush(post);
 
 // 동일한 post 조회
 const newPost = await postEntityRepository.findOneOrFail(post.id, {
-  populate: ['comments'],
+  populate: ["comments"],
 });
 
 // 두 변수는 동일한 인스턴스를 가리킴
