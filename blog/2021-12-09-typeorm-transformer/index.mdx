@@ -6,7 +6,7 @@ tags: [typeorm, transformer, CreateDateColumn]
 
 ### 문제 상황
 
-보통 테이블에 기본으로 넣는 생성시간과, 수정시간 필드를 추가하기 위해 typeorm 사용하는 환경에서는 데코레이터와 상속을 사용한다.
+보통 테이블에 기본으로 넣는 생성시간과, 수정시간 필드를 추가하기 위해 typeorm 사용하는 환경에서는 데코레이터와 상속을 사용한다.  
 예를들어 아래와 같은 클래스를 만든 후 다른 엔티티 클래스가 상속받는 방법으로 구현하게 된다.
 
 <!--truncate-->
@@ -46,7 +46,7 @@ export abstract class BaseEntity {
 
 :::info
 여기서 LocalDateTransformer 는 typeorm 의 ValueTransformer 인터페이스를 구현한 클래스로
-js 의 Date 와 LocalDateTime 간의 변환로직이 있다.
+js 의 Date 와 LocalDateTime 간의 변환로직이 있다.  
 :::
 
 typeorm 공식 저장소에 이와같은 이슈가 올라와 있지만 (2020년 12월) 아직도 해결되지 않고있다.
@@ -90,7 +90,7 @@ export abstract class BaseEntity {
 }
 ```
 
-`@BeforeInsert` 와 `@BeforeUpdate` 는 이름 그대로 테이블에 새로운 row 가 추가되기 전이나 기존 row 수정작업 전에 실행된다.
+`@BeforeInsert` 와 `@BeforeUpdate` 는 이름 그대로 테이블에 새로운 row 가 추가되기 전이나 기존 row 수정작업 전에 실행된다.  
 정상 동작하는지 테스트코드를 작성해보자.
 
 ```ts

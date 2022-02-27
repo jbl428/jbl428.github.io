@@ -4,12 +4,12 @@ authors: jake
 tags: [localstack, testing, aws]
 ---
 
-`localstack` 은 AWS 인프라 시뮬레이터로 Lambda, S3, Dynamodb, Kinesis, SQS, SNS 같은 서비스를 로컬 환경에 올릴 수 있다.
+`localstack` 은 AWS 인프라 시뮬레이터로 Lambda, S3, Dynamodb, Kinesis, SQS, SNS 같은 서비스를 로컬 환경에 올릴 수 있다.  
 이번 글은 이메일 발송 서비스인 `SES` 를 테스트 해보기 위한 설정과정을 기술하고자 한다.
 
 <!--truncate-->
 
-> 과정에 대한 모든 코드는 다음 URL을 참조한다.
+> 과정에 대한 모든 코드는 다음 URL을 참조한다.  
 > https://github.com/jbl428/study-note/tree/master/localstack
 
 ## 환경
@@ -18,13 +18,13 @@ tags: [localstack, testing, aws]
 
 > 본 글을 작성하는 시점에서는 `SES API` 버전이 v2 가 나왔지만 `localstack` 이 지원하지 않아 v1 을 이용하였다.
 
-`localstack` 의 경우 예전 버전은 각 서비스 별로 접속 endpoint 가 달랐지만 지금은 하나로 통합되었다.
+`localstack` 의 경우 예전 버전은 각 서비스 별로 접속 endpoint 가 달랐지만 지금은 하나로 통합되었다.  
 유료버전이 따로 있으며 더 많은 기능을 지원한다고 한다. `SES` 서비스는 무료버전도 지원한다.
 
 ## testcontainers
 
-`testcontainers` 는 도커 컨테이너를 활용해 테스트를 위한 환경을 만들어주는 라이브러리로 코드로 컨테이너를 실행 및 종료 할 수 있는거라 보면된다.
-여러 프로그래밍 언어를 지원하며 가장 많은 star 를 보유한 언어는 자바이다.
+`testcontainers` 는 도커 컨테이너를 활용해 테스트를 위한 환경을 만들어주는 라이브러리로 코드로 컨테이너를 실행 및 종료 할 수 있는거라 보면된다.  
+여러 프로그래밍 언어를 지원하며 가장 많은 star 를 보유한 언어는 자바이다.  
 그래서 localstack 용 모듈을 따로 지원해 편하게 쓸 수 있지만 node.js 용은 없기에 번거로운 과정을 거쳐야한다.
 
 ```sh
@@ -67,17 +67,17 @@ GenericContainer 클래스의 생성자 파라미터로 실행을 원하는 컨�
     .withExposedPorts(4566)
 ```
 
-컨테이너 내부의 특정 포트를 외부의 사용하지 않는 임의의 포트로 expose 해주는 역할을 한다.
-위의 경우 컨테이너의 4566 포트를 외부로 노출시키며 로컬의 미사용 포트번호 중에 임의로 설정해준다.
+컨테이너 내부의 특정 포트를 외부의 사용하지 않는 임의의 포트로 expose 해주는 역할을 한다.  
+위의 경우 컨테이너의 4566 포트를 외부로 노출시키며 로컬의 미사용 포트번호 중에 임의로 설정해준다.  
 이를 통해 여러 컨테이너를 동시에 실행시켜도 각각 다른 포트로 노출되기에 테스트를 병렬로 실행하면서 각 테스트 케이스간의 독립성을 지켜준다.
 
 ```ts
     .withWaitStrategy(Wait.forLogMessage('Execution of "preload_services"'))
 ```
 
-특정 컨테이너는 실행이 완료되도 이후에 초기 세팅과정이 있기 때문에 해당 컨테이너를 온전히 사용하기 까지 기다려야 하는 경우가 발생한다.
-따라서 withWaitStrategy 를 통해 어떤 조건에 해당할 때까지 기다릴 것인지 설정할 수 있다.
-위의 경우는 컨테이너 로그 메세지 중에 Execution of "preload_services" 문구가 포착될 때까지 기다린다는 설정이다.
+특정 컨테이너는 실행이 완료되도 이후에 초기 세팅과정이 있기 때문에 해당 컨테이너를 온전히 사용하기 까지 기다려야 하는 경우가 발생한다.  
+따라서 withWaitStrategy 를 통해 어떤 조건에 해당할 때까지 기다릴 것인지 설정할 수 있다.  
+위의 경우는 컨테이너 로그 메세지 중에 Execution of "preload_services" 문구가 포착될 때까지 기다린다는 설정이다.  
 wait strategy 는 여러가지가 있으며 각 항목은 아래 문서를 참조한다.
 
 https://www.testcontainers.org/features/startup_and_waits/
@@ -92,7 +92,7 @@ withExposedPorts 를 통해 노출한 포트를 알아낸 후 localstackPort 변
 afterAll(() => container.stop());
 ```
 
-테스트가 종료되면 컨테이너를 종료하는 코드이며 사실 testcontainer 는 종료로직을 넣지 않아도 일정 시간동안 활동이 없으면 자동으로 컨테이너를 종료시켜주는 기능이 있다.
+테스트가 종료되면 컨테이너를 종료하는 코드이며 사실 testcontainer 는 종료로직을 넣지 않아도 일정 시간동안 활동이 없으면 자동으로 컨테이너를 종료시켜주는 기능이 있다.  
 ryuk container 라고 불리는 컨테이너가 그 역할을 한다.
 
 https://hub.docker.com/r/testcontainers/ryuk
@@ -108,7 +108,7 @@ const client = new SESClient({
 });
 ```
 
-운영 aws 을 사용하려면 `accessKeyId` 나 `secretAccessKey` 같은 접속정보를 제공해야 하는데 localstack 에서는 빈 문자열이 아닌 임의의 문자열을 지정해도 정상동작함을 확인했다.
+운영 aws 을 사용하려면 `accessKeyId` 나 `secretAccessKey` 같은 접속정보를 제공해야 하는데 localstack 에서는 빈 문자열이 아닌 임의의 문자열을 지정해도 정상동작함을 확인했다.  
 하지만 문서를 보니 S3를 이용하는 경우 test 로 설정하는 것을 권장하기에 따라서 지정한다.
 
 SES 경우 인증된 메일 주소로만 발송주소를 설정할 수 있고 localstack 도 똑같이 메일발송 api 호출 전에 인증 api 를 사용해 메일주소를 등록해야 한다.
