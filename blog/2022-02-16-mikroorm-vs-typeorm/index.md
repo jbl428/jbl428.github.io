@@ -466,7 +466,8 @@ const result = await commentEntityRepository
 
 ## Smart Query Conditions
 
-두 라이브러리 모두 `query builder` 관련 이슈가 존재하지만 `MikroOMR` 의 경우 `Smart Query Conditions` 를 활용하면 대부분의 복잡한 조회조건을 typesafe 하게 만들 수 있다.  
+두 라이브러리 모두 `query builder` 관련 이슈가 존재하지만 `MikroOMR` 의 경우 `Smart Query Conditions` 를 활용하면 복잡한 조회조건을 typesafe 하게 만들 수 있다.  
+따라서 `query builder` 를 사용하지 않아도 대부분의 쿼리를 실행할 수 있다.  
 예를들면 다음 조건을 만족하는 comment 들을 조회하는 상황을 가정해보자.
 
 - post id 가 100
