@@ -62,6 +62,12 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
           style: "dark",
           copyright: `Copyright © ${new Date().getFullYear()} Jake Son. Built with Docusaurus.`,
         },
+        algolia: {
+          appId: "WGKI0UBE1C",
+          apiKey: "50f95121a2872d6735823875be0f12a8",
+          indexName: "jbl428",
+          contextualSearch: true,
+        },
         prism: {
           theme: lightCodeTheme,
           darkTheme: darkCodeTheme,
