@@ -27,7 +27,7 @@ TypeORM 은 `JavaScript` 와 `TypeScript` 환경에서 사용하는 ORM (Object�
 
 > 이와 관련된 글은 [링크](https://medium.com/dailyjs/introducing-mikro-orm-typescript-data-mapper-orm-with-identity-map-9ba58d049e02) 에서 확인할 수 있다.
 
-`MikroOMR` 은 `Data Mapper`, `Unit of Work` 와 `Identity Map` 패턴을 지원한다.  
+`MikroORM` 은 `Data Mapper`, `Unit of Work` 와 `Identity Map` 패턴을 지원한다.  
 공식문서를 살펴보고 직접 예제를 만들어 보면서 느낀점은 `TypeORM` 에서 제대로 동작하지 않았던 **문제가 깔끔하게 해결되며 훨씬 typesafe** 하다는 것이었다.
 
 이제 두 라이브러리를 기능과 타입안정성 측면에서 비교해보자.
@@ -154,7 +154,7 @@ export class Comment extends BaseEntity {
 ### 필드의 NULL 선언
 
 원하는 필드를 `NULL` 로 설정하려면 `TypeORM` 에서는 데코레이터에 직접 `nullable` 값을 true 로 설정해야 한다.  
-하지만 `MikroOMR` 에서는 프로터티 타입을 nullable 로 선언하기만 하면 된다.  
+하지만 `MikroORM` 에서는 프로터티 타입을 nullable 로 선언하기만 하면 된다.  
 이는 더 간결할 뿐만아니라 **ts 타입과 실제 컬럼의 타입의 동일함**을 보장해준다.
 
 실제로 실무에서 데코레이터에는 `nullable` 로 선언했지만 ts 타입을 required 로 선언하는 경우가 많았다.  
@@ -164,7 +164,7 @@ ts 의 `strictNullCheck` 옵션을 활성화하면 nullable 타입을 참조하�
 ### Foreign Key 제약조건 해제
 
 테이블 연관관계 설정 시 `foreign key` 추가를 원하지 않을 때 `TypeORM` 에서는 매번 데코레이터에 `createForeignKeyConstraints` 옵션을 추가해야 한다.  
-하지만 `MikroOMR` 에서는 디비 관련 설정에서 FK 생성여부 기본값을 설정할 수 있다.  
+하지만 `MikroORM` 에서는 디비 관련 설정에서 FK 생성여부 기본값을 설정할 수 있다.  
 다만 스키마 동기화 방법을 두 가지를 지원하는데 `schemaGenerator` 방식은 해당 옵션이 존재하지만 `migration` 방식은 직접 generator 를 구현해야 한다.
 
 ```ts
@@ -193,16 +193,21 @@ const config: MikroOrmModuleOptions = {
 
 ### Index 명
 
+:::info
+TypeORM 에서 Naming strategy 를 통해 인덱스 명을 커스텀하게 지정할 수 있다는게 확인되서 두 라이브러리 간 차이는 없다.
+https://orkhan.gitbook.io/typeorm/docs/naming-strategy
+:::
+
 FK 제약조건을 해제하면 참조 컬럼에 index 또한 생성되지 않는다.  
 하지만 join 성능을 위해 index 는 필요하므로 직접 추가해야 한다.  
-`TypeORM` 에서는 `@Index` 데코레이터를 사용하지만 `MikroOMR` 에서는 `@ManyToOne` 데코레이터의 index 옵션을 사용하면 된다.
+`TypeORM` 에서는 `@Index` 데코레이터를 사용하지만 `MikroORM` 에서는 `@ManyToOne` 데코레이터의 index 옵션을 사용하면 된다.
 
 따로 인덱스명을 지정하지 않은경우 `TypeORM` 아래 사진처럼 알아보기 힘든 이름으로 사용하기에 (PK 도 동일) 에러 발생시 로그를 해석하기 어려워진다.  
 따라서 직접 인덱스명을 지정해야 한다.
 
 ![typeorm-index-name](typeorm-index-name.png)
 
-반면 `MikroOMR` 은 읽기 쉬운 이름으로 생성하기에 직접 이름을 지정할 필요가 없다.
+반면 `MikroORM` 은 읽기 쉬운 이름으로 생성하기에 직접 이름을 지정할 필요가 없다.
 
 ![mikroorm-index-name](mikroorm-index-name.png)
 
@@ -210,12 +215,12 @@ FK 제약조건을 해제하면 참조 컬럼에 index 또한 생성되지 않�
 
 `TypeORM` 은 컬럼명의 네이밍 규칙이 `camelCase` 인 관계로 `snake-case` 을 원하는 경우 직접 이름을 지정해주어야 한다.  
 물론 `namingStrategy` 설정과 `typeorm-naming-strategies` 라이브러리를 활용할 수 있지만 연관관계 컬럼명에는 적용이 안되기에 결국 `JoinColumn` 데코레이터에 직접 지정해야 한다.  
-반면 `MikroOMR` 은 기본값이 `snake-case` 이기에 따로 지정할 필요가 없다.
+반면 `MikroORM` 은 기본값이 `snake-case` 이기에 따로 지정할 필요가 없다.
 
 ## Custom Type
 
 두 라이브러리리 모두 필드에 기본 ts 타입대신 커스텀 타입으로 선언할 수 있는 방법을 제공한다.  
-`TypeORM` 에서는 데코레이터의 transformer 설정이며 `MikroOMR` 은 type 이다.  
+`TypeORM` 에서는 데코레이터의 transformer 설정이며 `MikroORM` 은 type 이다.  
 커스텀 타입을 선언하는 방법은 두 라이브러리 모두 비슷하게 특정 interface 를 구현한 클래스를 만들면 된다.
 
 날짜 관련 필드에 js date 대신 `js-joda` 의 `LocalDateTime` 을 사용하기 위한 커스텀 타입 구현부를 살펴보자.
@@ -236,7 +241,7 @@ export class LocalDateTimeType implements ValueTransformer {
 ```
 
   </TabItem>
-  <TabItem value="MikroOMR" label="MikroOMR">
+  <TabItem value="MikroORM" label="MikroORM">
 
 ```ts
 export class LocalDateTimeType extends Type<LocalDateTime, Date> {
@@ -276,10 +281,10 @@ export class LocalDateTimeType extends Type<LocalDateTime, Date> {
 </Tabs>
 
 두 라이브러리 모두 database 와 Node.js 간의 데이터 처리로직을 메소드에 작성한다.  
-`TypeORM` 의 경우 단순히 from, to 메소드만 제공하지만 `MikroOMR` 은 추가로 여러 상황에 사용되는 메소드를 제공한다.
+`TypeORM` 의 경우 단순히 from, to 메소드만 제공하지만 `MikroORM` 은 추가로 여러 상황에 사용되는 메소드를 제공한다.
 
 > 어떤 메소드를 제공하는 지에 대한 내용은 [문서](https://mikro-orm.io/docs/custom-types) 를 참조한다.  
-> 추가로 `MikroOMR` 에서 기본으로 제공하는 타입도 있다.
+> 추가로 `MikroORM` 에서 기본으로 제공하는 타입도 있다.
 
 #### 이슈
 
@@ -311,7 +316,7 @@ it("queryBuilder where 에 string 형태로 사용하는 경우 조회에 실패
 ```
 
   </TabItem>
-  <TabItem value="MikroOMR" label="MikroOMR">
+  <TabItem value="MikroORM" label="MikroORM">
 
 ```ts
 it("queryBuilder where 에 string 형태로 사용하는 경우 조회에 실패한다", async () => {
@@ -383,7 +388,7 @@ const result = await postRepository
   .getMany();
 ```
 
-추가로 `MikroOMR` 은 where 절에서 엔티티 필드명에 대한 intellisense 를 지원한다.  
+추가로 `MikroORM` 은 where 절에서 엔티티 필드명에 대한 intellisense 를 지원한다.  
 잘못된 필드명을 지정한 경우 타입 에러가 발생하지 않는점은 아쉽지만 오타를 작성할 확률을 낮춰주기 때문에 유용하다.
 
 ![where-hint](where-hint.png)
@@ -429,7 +434,7 @@ const result = await commentRepository
 
 엔티티 파일에 연관관계 컬럼에 대한 필드를 추가로 선언하는 방법(`RelationId` 데코레이터)도 있지만 transformer 가 동작하지 않는 문제와 필드를 가져오는 방법이 두 가지로 나눠지는 문제가 있다.
 
-반면 `MikroOMR` 에서는 위와 같은 문제가 발생하지 않는다.
+반면 `MikroORM` 에서는 위와 같은 문제가 발생하지 않는다.
 
 ```ts
 const result = await commentEntityRepository
@@ -466,7 +471,7 @@ const result = await commentEntityRepository
 
 ## Smart Query Conditions
 
-두 라이브러리 모두 `query builder` 관련 이슈가 존재하지만 `MikroOMR` 의 경우 `Smart Query Conditions` 를 활용하면 복잡한 조회조건을 typesafe 하게 만들 수 있다.  
+두 라이브러리 모두 `query builder` 관련 이슈가 존재하지만 `MikroORM` 의 경우 `Smart Query Conditions` 를 활용하면 복잡한 조회조건을 typesafe 하게 만들 수 있다.  
 따라서 `query builder` 를 사용하지 않아도 대부분의 쿼리를 실행할 수 있다.  
 예를들면 다음 조건을 만족하는 comment 들을 조회하는 상황을 가정해보자.
 
@@ -493,7 +498,7 @@ WHERE "c0"."post_id" = '100'
   AND ("c0"."content" LIKE '%text%' OR "c0"."like" >= 10)
 ```
 
-find 메소드 파라미터의 키 중에 `$` 로 시작하는 것은 `MikroOMR` 에서 지원하는 연산자로 `$and`, `$or` 와 같은 논리연산자와 `like`, `>=` 같은 비교연산자가 있다.  
+find 메소드 파라미터의 키 중에 `$` 로 시작하는 것은 `MikroORM` 에서 지원하는 연산자로 `$and`, `$or` 와 같은 논리연산자와 `like`, `>=` 같은 비교연산자가 있다.  
 만약 조건절에 지원하지 않는 연산자나 잘못된 필드명, 타입에 맞지않는 값을 전달하는 경우 타입에러가 발생하기 때문에 typesafe 한 장점이 있다.
 
 > 지원하는 모든 연산자를 보려면 [링크](https://mikro-orm.io/docs/query-conditions) 를 참조한다.
@@ -507,7 +512,7 @@ find 메소드 파라미터의 키 중에 `$` 로 시작하는 것은 `MikroOMR`
 - join 테이블 지정 옵션(relations) 의 타입이 단순 string 이라 intellisense 지원이 안되고 잘못 입력하면 런타임 에러 발생
 - where 절에 유효하지 않는 필드명을 넣으면 런타임 에러 발생
 
-이제 `MikroOMR` 를 사용하면 어떻게 해결되는지 살펴보자.
+이제 `MikroORM` 를 사용하면 어떻게 해결되는지 살펴보자.
 
 ### join 테이블 컬럼 select
 
@@ -606,7 +611,7 @@ comment 의 내용은 전혀 수정하지 않았기에 post 만 업데이트를 
 
 이와같이 비정상적인 쿼리를 수행할 수 있기에 cascade 옵션 사용은 지양하는게 좋다.
 
-반면 `MikroOMR` 에서는 `Unit of Work` 와 `Identity Map` 패턴으로 인해 위와같은 문제가 발생하지 않는다.  
+반면 `MikroORM` 에서는 `Unit of Work` 와 `Identity Map` 패턴으로 인해 위와같은 문제가 발생하지 않는다.  
 다음 테스트 코드를 살펴보자.
 
 ```ts
@@ -624,10 +629,10 @@ await orm.em.transactional(async () => {
 await postEntityRepository.persistAndFlush(post);
 ```
 
-`MikroOMR` 은 JPA 의 변경감지와 같은 기능이 있어 조회 메소드 결과를 내부적으로 캐시한 후 트랜잭션이 끝나면 두 값을 비교해 변경한 항목에 대해서만 update 를 수행한다.  
+`MikroORM` 은 JPA 의 변경감지와 같은 기능이 있어 조회 메소드 결과를 내부적으로 캐시한 후 트랜잭션이 끝나면 두 값을 비교해 변경한 항목에 대해서만 update 를 수행한다.  
 또한 `TypeORM` 의 save 와 같은 persist 메소드를 직접 호출하지 않아도 트랜잭션이 끝나면 작업을 수행한다.
 
-`MikroOMR` 은 JPA 의 영속성 컨텍스트와 같은 개념이 적용되어 있기에 이미 캐시에 존재하는 데이터를 찾는 경우에는 쿼리를 수행하지 않고 캐시에 있는 것을 바로 전달한다.
+`MikroORM` 은 JPA 의 영속성 컨텍스트와 같은 개념이 적용되어 있기에 이미 캐시에 존재하는 데이터를 찾는 경우에는 쿼리를 수행하지 않고 캐시에 있는 것을 바로 전달한다.
 
 ```ts
 const post = postFactory.makeOne();
@@ -669,7 +674,7 @@ DataTypeNotSupportedError: Data type "timestamptz" in "Comment.createdAt" is not
 ```
 
 기본 `Date` 타입 사용하면 정상적으로 동작하지만 테스트를 위해 커스텀 타입을 포기해야 하는 문제가 발생한다.  
-반면 `MikroOMR` 은 해당 이슈가 발생하지 않으며 커스텀 날짜 타입은 unix time 으로 변환되어 들어간다.
+반면 `MikroORM` 은 해당 이슈가 발생하지 않으며 커스텀 날짜 타입은 unix time 으로 변환되어 들어간다.
 
 ## 마무리
 
@@ -677,5 +682,5 @@ TypeScript 와 같은 정적 언어를 사용할 때의 큰 장점은 컴파일 
 `TypeORM` 을 사용하면서 위와 같은 장점을 얻기를 바랐지만 그동안 사용하면서 느낀점은 이름에 비해 생각보다 typesafe 하지 않다는 것이었다.
 
 또한 여러 이슈가 발생해 해결방법을 찾는데 많은시간을 들였고 라이브러리의 발전속도가 느려 아쉬움이 많았다.  
-이번에 `MikroOMR` 을 살펴보면서 아직 사용자가 많지 않아 문서가 적다는 단점을 제외하면 상당히 잘 만들어진 라이브러리라고 느꼈다.  
+이번에 `MikroORM` 을 살펴보면서 아직 사용자가 많지 않아 문서가 적다는 단점을 제외하면 상당히 잘 만들어진 라이브러리라고 느꼈다.  
 현재 꾸준히 업데이트를 진행하고 있고 [nest.js 공식문서](https://docs.nestjs.com/recipes/mikroorm) 에도 포함되었기 때문에 사용자가 늘어날 가능성이 있다고 생각한다.
