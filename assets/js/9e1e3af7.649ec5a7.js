@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[7641],{7461:function(e){e.exports=JSON.parse('{"permalink":"//page/2","page":2,"postsPerPage":10,"totalPages":2,"totalCount":12,"previousPage":"/","nextPage":null,"blogDescription":"The blog of Jake Son","blogTitle":"Jake Son Blog"}')}}]);
