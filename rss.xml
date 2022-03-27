@@ -4,14 +4,14 @@
         <title>Jake Son Blog Blog</title>
         <link>https://jbl428.github.io/</link>
         <description>Jake Son Blog Blog</description>
-        <lastBuildDate>Wed, 16 Feb 2022 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Sun, 27 Mar 2022 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <item>
             <title><![CDATA[graphql 장점]]></title>
-            <link>https://jbl428.github.io/2022/02/16/graphql-restapi</link>
-            <guid>/2022/02/16/graphql-restapi</guid>
-            <pubDate>Wed, 16 Feb 2022 00:00:00 GMT</pubDate>
+            <link>https://jbl428.github.io/2022/03/27/graphql-restapi</link>
+            <guid>/2022/03/27/graphql-restapi</guid>
+            <pubDate>Sun, 27 Mar 2022 00:00:00 GMT</pubDate>
             <description><![CDATA[이번 글에서는 Node.js 환경에서 REST API 와 GraphQL 을 사용해보면서 느낀점과 GraphQL 을 선호하는 이유를 작성하려고 한다.]]></description>
             <content:encoded><![CDATA[<p>이번 글에서는 Node.js 환경에서 REST API 와 GraphQL 을 사용해보면서 느낀점과 GraphQL 을 선호하는 이유를 작성하려고 한다.<br>
 <!-- -->먼저 나의 이야기를 해보자면 개발자로 전직 후 첫 직장에서는 GraphQL 을 사용하다가 REST 를 사용하는 곳으로 이직하였다.<br>
