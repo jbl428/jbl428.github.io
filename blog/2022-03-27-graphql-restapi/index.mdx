@@ -89,7 +89,48 @@ export type User = {
 
 ### Type safe
 
+위에서 소개한 `graphql-code-generator` 를 활용하면 FE 에서 TypeScript 환경에서 개발 시 API 스팩에 대한 타입 선언과 서버로 요청 시 필요한 파라미터들에 대한 선언을 자동 생성할 수 있다는 장점이 있다.  
+이는 API 와 타입 선언간의 동기화 작업같은 단순한 작업은 컴퓨터에게 맡기고 오직 로직구현에만 집중할 수 있게 만들어준다.  
+또한 Enum 타입을 지원하기에 어떤 열거형 값을 string 으로 선언해서 사용하는 것보다 리팩토링이 편하고 사용하는 곳 추적이 용이하다.  
+BE 에서는 요청값의 검증로직을 작성할 때 타입에 대해서는 신경쓰지 않아도 되는 장점이 있다.  
+예를들어 `class-transformer` 를 사용한다면 `@IsString`, `@IsInt` 같은 타입검증 데코레이터는 넣어줄 필요가 없으며 null 확인 또한 타입 자체를 required 로 선언만 하면 된다.
+
+```ts
+@ObjectType()
+export class Author {
+  @Field((type) => Int) // Int 타입이며 required
+  id: number;
+
+  @Field({ nullable: true }) // string 타입이며 nullable
+  name?: string;
+}
+```
+
+이는 타입검증에 대한 로직은 graphql 서버에게 위임하고 테스트 코드 작성시 입력값 검증에 대해서 REST 보다 더 적은 케이스만 고려해 작성해도 된다는 장점이 있다.  
+GraphQL 은 입력값 뿐만 아니라 응답값도 검증을 하는데 예를들어 `String` 타입으로 선언된 필드가 런타임에서 `null` 이나 `number` 를 반환하는 경우 에러가 발생한다.
+
+```ts
+@ObjectType()
+export class Response {
+  @Field()
+  get name(): string {
+    return 123 as any; // error
+  }
+}
+```
+
+반면 REST 에서는 런타임에서 전혀 다른 타입을 반환해도 에러가 발생하지 않는다.  
+선언된 타입과 다른 타입을 반환하는 경우가 많이 발생하지 않지만 not null 로 기대하는 필드가 런타임에서 null 로 오는 경우는 자주 발생한다.  
+GraphQL 에서는 not null 로 선언된 타입은 런타임에서도 절대 null 로 오지 않음을 보장하므로 FE 는 API 스팩을 믿고 로직을 작성할 수 있다.
+
 ### Versioning
+
+REST 에서는 버전이 크게 바뀌는 경우에 대비해 주로 path 에 버전정보를 넣어 하위 호환성을 대응한다.  
+새로운 버전을 만드는 경우 기존 버전의 파일을 복사해 수정하게 되고 상황에 따라 많은 코드를 중복으로 생성하게 된다.  
+시간이 지나 기존 버전을 더이상 사용하지 않는 상황이 와도 기존 코드를 삭제하는 것을 깜박하는 경우가 많고 죽은 코드로 남게되는 문제가 발생하게 된다.  
+GraphQL 은 클라이언트가 요청하는 필드에 대해서만 응답을 내려주는 방식이므로 버저닝에 대한 필요가 크게 발생하지 않는다.
+BE 에서는 기존 필드에 deprecated 표시를 하고 새로운 필드만 추가하면 되며 FE 에서는 요청 body 에 기존 필드는 지우고 새로운 필드만 지정하면 된다.  
+기존 필드명을 그대로 사용하고 싶다면 alias 를 활용할 수 있다.
 
 ### 단점
 
@@ -105,7 +146,7 @@ api 를 구분하려면 body 를 활용해야 하며 회사에서 사용하는 A
 
 공식적인 파일 업로드에 대한 스팩이 없어 직접 multipart form 지원을 구현하거나 라이브러리를 사용해야 한다.  
 node.js 에서는 `graphql-upload` 가 많이 사용되고 문서도 많아서 큰 문제가 없지만 다른 언어에서는 라이브러리가 없는 경우가 있다.  
-개인적으로 [graphql-kotlin](https://github.com/ExpediaGroup/graphql-kotlin) 으로 파일 업로드를 구현해야 하는 상황이 있었는데 문서가 없어 업로드만 REST API 로 구현하였다.
+최근 [graphql-kotlin](https://github.com/ExpediaGroup/graphql-kotlin) 으로 파일 업로드를 구현해야 하는 상황이 있었는데 문서가 없어 업로드만 REST API 로 구현하였다.
 
 ### 마무리
 
