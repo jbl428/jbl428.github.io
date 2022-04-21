@@ -529,11 +529,12 @@ select in 방식은 기본 엔티티만 먼저 조회 후 각 join 테이블에 
 예를 들면 다음과 같은 코드를 실행한 경우
 
 ```ts
-const result = await commentEntityRepository.findOneOrFail(
-  { post: { id: { $lte: post.id } } },
+// like 수가 100 개가 넘어가는 comment 와 post 정보를 가져온다
+const result = await commentEntityRepository.find(
+  { like: { $gt: 100 } },
   {
     populate: ["post"],
-    strategy: LoadStrategy.SELECT_IN,
+    strategy: LoadStrategy.SELECT_IN, // select in 방식으로 조회
     fields: ["id", "like", "post", "post.name"],
   }
 );
@@ -542,16 +543,19 @@ const result = await commentEntityRepository.findOneOrFail(
 아래와 같은 두 개의 쿼리가 수행되며 그 결과를 병합해 Comment 인스턴스에 담는다.
 
 ```sql
+select "c0"."id", "c0"."like", "c0"."post_id" -- post_id 자동으로 조회
+from "comment" as "c0"
+where "c0"."like" > 100
+
 select "p0"."id", "p0"."name"
 from "post" as "p0"
-where "p0"."id" in ('1')
+where "p0"."id" in ('1', '2', '3') -- 위 쿼리의 결과의 post_id 가 1, 2, 3 인 경우
 order by "p0"."id" asc
-
-select "c0"."id", "c0"."like", "c0"."post_id"
-from "comment" as "c0"
-where "c0"."post_id" <= '1'
-limit 1
 ```
+
+:::info
+TypeORM 도 0.3.0 버전 이후로 `relationLoadStrategy` 옵션을 통해 select in 방식을 사용할 수 있다.
+:::
 
 ### join 테이블 지정
 
