@@ -1,0 +1,109 @@
+---
+title: "kotlin 에서 testcontainers 사용하기"
+authors: jake
+tags: [kotlin, testcontainers]
+---
+
+이전에 node.js 환경에서 `testcontainers` 를 활용한 글을 작성하였다.  
+테스트 코드에 직접 컨테이너를 시작하고 종료하는 로직을 넣어야 했지만 jvm 에서는 annotation 을 활용해 더 간결한 코드를 만들 수 있다.  
+이번에는 Kotlin/Jvm 환경에서 `testcontainers` 를 사용하는 방법을 소개하려고 한다.
+
+<!--truncate-->
+
+## 상황 
+
+s3 를 사용하는 로직을 `junit`, `localstack` 을 활용해 테스트를 하는 상황을 가정해보자.  
+docker 를 활용해 테스트 실행전에 미리 `localstack` 컨테이너를 띄우는 방법이 있지만 번거로울 수 있다.  
+하지만 `testcontainers` 를 사용하면 단일 테스트 실행 속도는 느리지만 사전에 필요한 세팅이 없어서 편리하다.  
+
+## 패키지 설치
+
+java 언어용 `testcontainers` 에서는 `localstack` 전용 모듈을 지원하기 때문에 node.js 보다 편리하게 컨테이너를 실행할 수 있다.  
+gradle 환경에서 다음과 같은 내용을 넣어준다.
+
+```kts
+dependencies {
+  testImplementation("org.testcontainers:testcontainers:1.17.1")
+  testImplementation("org.testcontainers:junit-jupiter:1.17.1")
+  testImplementation("org.testcontainers:localstack:1.17.1")
+}
+```
+
+junit5 용 패키지와 localstack 용 패키지를 함께 설치한 것을 확인할 수 있다.  
+만약 각각의 버전을 명시하는게 번거로운 경우 `BOM` 패키지를 활용해 다음과 같이 설정할 수 있다.
+
+```kts
+dependencies {
+  testImplementation(platform("org.testcontainers:testcontainers-bom:1.17.1"))
+  testImplementation("org.testcontainers:junit-jupiter")
+  testImplementation("org.testcontainers:localstack")
+}
+```
+
+s3 를 위한 aws-sdk 를 설치해야 하는데 이번 예제에서는 Kotlin 용 sdk 를 사용하고자 한다.  
+해당 sdk 는 글 작성 시점에서 개발자 프리뷰 상태이기 때문에 **운영환경 적용은 권장하지 않는다.**
+
+```kts
+dependencies {
+    implementation("aws.sdk.kotlin:s3:0.+")
+    implementation("com.amazonaws:aws-java-sdk-s3:1.12.200")
+}
+```
+
+## 테스트 코드
+
+이제 테스트 코드를 작성할 준비가 되었다.  
+s3 를 실행하는 `localstack` 컨테이너는 다음과 같이 만들 수 있다.  
+해당 컨테이너는 테스트가 끝나면 자동으로 종료된다.
+
+```kt
+// highlight-next-line
+@Testcontainers // testcontainer 를 사용하기 위한 annotaion
+internal class S3UploaderTest {
+  companion object {
+    // highlight-next-line
+    @Container // 컨테이너 설정
+    private val localStack =
+      LocalStackContainer(DockerImageName.parse("localstack/localstack:0.14.0")).apply {
+        // highlight-next-line
+        withServices(LocalStackContainer.Service.S3) // s3 서비스만 실행
+      }
+    lateinit var s3Client: S3Client
+
+    @BeforeAll
+    @JvmStatic
+    fun beforeAll() {
+      // highlight-next-line
+      // localstack 정보를 활용해서 s3client 를 생성한다 
+      s3Client =
+        S3Client {
+          region = localStack.region
+          endpointResolver =
+            StaticEndpointResolver(
+              AwsEndpoint(
+                url = localStack.getEndpointOverride(LocalStackContainer.Service.S3).toString()
+              )
+            )
+          credentialsProvider =
+            StaticCredentialsProvider(Credentials(localStack.accessKey, localStack.secretKey))
+        }
+    }
+  }
+}
+```
+
+`org.testcontainers.containers.localstack.LocalStackContainer` 패키지를 활용해 `localstack` 컨테이너를 띄울 수 있다.  
+`withServices` 메소드를 통해 어떤 aws 서비스를 사용할 것인지 지정할 수 있다.  
+이후 `localstack` 변수를 통해 접속 정보를 가져와 s3client 를 초기화 하였다.  
+이전 node.js 와 다르게 컨테이너를 시작/종료하는 로직과 환경변수 세팅과 같은 작업이 사라진 것을 확인할 수 있다.
+
+## 마무리
+
+`testcontainers` 는 `localstack` 외에도 데이터베이스, Elasticsearch, Nginx 등 여러 모듈을 지원한다.  
+jvm 환경에서는 반복되는 번거로운 로직을 annotation 을 통해 쉽게 만들어 주는 경우가 많다고 생각한다.  
+다만 이번 `testcontainers` 도 그렇고 공식문서에 따로 kotlin 용 예제를 제공하지 않는 경우가 있어 아쉬웠다.  
+앞으로 kotlin 문서도 많아지길 바라본다.
+
+## 참고
+
+- https://www.testcontainers.org/
