@@ -2,7 +2,6 @@
 title: "Github Page 를 GraphQL 스키마 서버로 만들기"
 authors: jake
 tags: [graphql, github, page]
-draft: true
 ---
 
 이번 글에서는 Github Page 를 GraphQL 스키마 서버로 활용하는 과정을 기술하려고 한다.
@@ -91,3 +90,120 @@ codegen 또한 GraphQL 서버로 요청 시 어떤 메소드를 사용할 것인
 
 ## 설정
 
+### Introspection 파일 생성
+
+먼저 `introspection` 요청의 응답 json 을 파일로 저장해야 한다.  
+`graphql-js` 라이브러리는 GraphQL 스키마를 읽어서 `introspection` 결과로 만들어주는 함수를 제공한다.  
+만약 스키마 파일이 존재한다면 해당 파일을 읽어서 `buildSchema` 함수를 통해 스키마 객체로 만든 후 `introspectionFromSchema` 함수를 호출하면 된다.
+
+```ts
+import { readFileSync, writeFileSync } from 'fs';
+import { buildSchema, introspectionFromSchema } from 'graphql';
+
+const schema = readFileSync('스키마 파일 경로');
+
+const introspectionQuery = introspectionFromSchema(
+  buildSchema(schema.toString())
+);
+
+writeFileSync(
+  'introspection.json',
+  // GraphQL 응답은 항상 data 필드안에 들어가므로 아래와같이 감싸주어야 한다
+  JSON.stringify({ data: introspectionQuery })
+);
+```
+
+### Github Action 설정
+
+이제 스키마의 변경이 발생한 경우 Github Page 로 동작하는 스키마 저장소에 올라갈 `introspection` 파일을 갱신하는 작업이 필요하다.  
+BE 저장소의 `main` 브랜치에 커밋이 푸시되면 스키마 저장소의 workflow 를 실행하는 방법으로 해결할 수 있다.  
+해당 workflow 는 BE 저장소를 가져와 `introspection` 파일을 만들고 이를 커밋해 저장소에 push 하는 과정이 필요하다.
+
+:::info
+스키마 저정소를 따로 분리하지 않고 GraphQL 서버 저장소 하나로 통일할 수도 있다.  
+`Github content API` 를 활용하면 저장소에 올라간 파일내용만 응답으로 받을 수 있기에 `introspection` 파일만 Github 에 푸시하면 된다.  
+해당 파일을 가져오는 주소를 알려면 아래 웹 화면에서 `raw` 버튼을 클릭하면 된다.  
+해당 주소를 codegen 에 제공하면 정상적으로 동작한다.
+
+![github-raw](github-raw.png)
+:::
+
+먼저 서로 다른 저장소의 workflow 를 실행해야 하는데 `repository_dispatch` 이벤트를 활용해 해결할 수 있다.  
+다음 블로그 글을 참조하면 토큰 발급이나 설정방법을 확인할 수 있다.
+
+- https://blog.outsider.ne.kr/1589
+
+만약 스키마 저장소가 `santa-close/santa-close.github.io` 라 한다면 GraphQL 서버 저장소의 workflow 파일에 아래와 같은 내용을 넣어준다.  
+SCHEMA_PAGE_TOKEN 는 `Personal access token` 으로 발급방법은 블로그 글을 참조한다.
+
+```yaml
+jobs:
+  gradle:
+    runs-on: ubuntu-latest
+      steps:
+      - name: Trigger dispatch to generate graphql schema
+        run: gh api /repos/santa-close/santa-close.github.io/dispatches -f event_type='schema'
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCHEMA_PAGE_TOKEN }}
+```
+
+스키마 저장소의 workflow 파일에서는 서버 저장소를 checkout 후 `introspection` 파일 생성 후 변경사항을 커밋해 푸시한다.
+
+```yaml
+name: Update graphql introspection
+
+on:
+  repository_dispatch:
+    types: [ schema ] # 이벤트 유형이 schema 일 때 workflow 실행
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout server repo
+        uses: actions/checkout@v3
+        with:
+          repository: santa-close/santa-close-server # 서버 저장소를 먼저 checkout
+          ref: main
+
+      - name: Setup node.js
+        uses: actions/setup-node@v3
+        with:
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Generate introspection
+        run: yarn run generate # 이 명령어는 예시이며 introspection 파일을 특정 경로에 만들어주는 스크립트라 가정하자.
+
+      - name: Checkout main repo
+        uses: actions/checkout@v3
+        with:
+          path: main-repo # with 옵션에 path 가 없다면 본 저장소 (스키마 저장소) 를 checkout 하며 그 위치는 main-repo 가 된다.
+          ref: main
+
+      - name: Commit introspection.json
+        working-directory: ./main-repo
+        continue-on-error: true
+        # introspection 파일을 저장소로 복사하는 cp 명령어는 생성한 파일명과 위치에 따라 달라야한다.
+        # 마지막에 신규 introspection 결과를 저장소에 푸시한다.
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          cp ../introspection.json . 
+          git add introspection.json
+          git commit -m "update introspection"
+          git push 
+```
+
+이제 갱신한 파일을 Github Page 주소를 통해 확인할 수 있으며 해당 url 을 codegen 에 제공하면 정상적으로 동작한다.
+
+## 참고사항
+
+이번 글에서 나온 세팅은 모두 아래 저장소에서 확인할 수 있다.
+
+- 서버 저장소 : https://github.com/santa-close/santa-close-server
+- 스키마 저장소 : https://github.com/santa-close/santa-close.github.io
+- Introspection url: https://santa-close.github.io/introspection.json
