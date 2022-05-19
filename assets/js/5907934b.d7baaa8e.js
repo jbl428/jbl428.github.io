@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[2305],{6070:function(e){e.exports=JSON.parse('{"label":"querydsl","permalink":"/tags/querydsl","allTagsPath":"/tags","count":1}')}}]);

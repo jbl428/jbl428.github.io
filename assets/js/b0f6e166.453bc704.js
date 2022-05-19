@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[6551],{3111:function(e){e.exports=JSON.parse('{"allTagsPath":"/tags","name":"mikroorm","count":1,"permalink":"/tags/mikroorm"}')}}]);
