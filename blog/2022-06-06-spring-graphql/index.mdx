@@ -211,7 +211,62 @@ internal class BookServiceTest(
 
 ## Controller
 
-작성중
+이제 GraphQL 과 연관된 작업을 수행하는 컨트롤러를 작성해보자.  
+REST API 와 동일하게 `@Controller` 를 사용해 컨트롤러를 정의한다.  
+대신 `@GetMapping` 과 같은 어노테이션 대신 `@QueryMapping` 과 `@MutationMapping` 를 사용해야 한다.  
+각각 이름 그대로 Query 와 Mutation 을 위한 것이며 메소드명이 GraphQL 필드명이 된다.  
+또한 GraphQL input 객체는 `@Argument` 어노테이션을 사용해 정의한다.
+
+```kt title="BookController.kt"
+@Controller
+class BookController(private val bookService: BookService) {
+
+    @QueryMapping
+    suspend fun books() = bookService.find()
+
+    @MutationMapping
+    suspend fun createBook(@Argument input: CreateBookInput): Book = bookService.create(input)
+}
+```
+
+REST API 라면 보통 여기까지 작성하면 모든 로직을 완성한 상태지만 GraphQL 에서는 스키마 파일을 작성해야 한다.  
+하지만 그전에 용어에 대한 설명을 하려고한다.  
+
+GraphQL api 를 개발할 때 다음 두 방식중 하나를 선택하게 된다.
+
+- code first 
+- schema first
+
+code first 는 이름 그대로 코드를 먼저 작성하고 GraphQL 스키마를 자동 생성하는 방법이다.  
+반대로 schema first 는 GraphQL 스키마를 먼저 작성하고 코드를 자동 생성하거나 직접 구현하는 방법이다.  
+각각 장단점이 있기에 상황에 따라 선태갛는 것이 좋다.  
+다만 Nest.js 와 달리 Spring GraphQL 은 현재 schema first 방식만 지원한다.
+
+`src/main/resources/graphql` 경로에 `graphqls` 나 `gqls` 확장자를 가진 파일을 생성하면 스프링이 해당 스키마를 읽는다.  
+만약 해당 파일에는 존재하는 api 가 코드에 구현이 안되어있다면 null 을 반환한다.
+
+```graphql
+type Query {
+    books: [Book!]!
+}
+
+type Mutation {
+    createBook(input: CreateBookInput!): Book!
+}
+
+input CreateBookInput {
+    title: String!
+    author: String!
+    isbn: String!
+}
+
+type Book {
+    id: ID!
+    title: String!
+    author: String!
+    isbn: String!
+}
+```
 
 ## Security
 
