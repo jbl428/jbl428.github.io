@@ -284,7 +284,75 @@ class BookController(private val bookService: BookService) {
 
 ### 테스트 코드
 
-작성중
+`Spring for GraphQL` 에서는 GraphQL 컨트롤러 테스트를 위한 기능을 지원한다.  
+먼저 아래 패키지를 추가한다.
+
+```kts
+dependencies {
+    testImplementation("org.springframework.graphql:spring-graphql-test")
+}
+```
+
+해당 패키지는 GraphQL 요청을 위한 여러 종류의 클라이언트를 제공한다.  
+이번 포스트에서는 `HttpGraphQlTester` 를 사용하려고 한다.  
+직접 Client 를 만들 수 있지만 `@AutoConfigureHttpGraphQlTester` 를 사용하면 스프링이 자동으로 클라이언트를 만들어 준다.  
+
+GraphQL 요청 body 는 테스트 코드에 직접 선언해서 사용할 수 있지만 syntax highlighting 이나 indent 를 지키면서 작성하는것이 불편하기에 다른 파일에 작성 후 불러오는 방식을 사용하였다.  
+`src/test/resources/graphql-test` 경로에 아래 파일을 생성한다.  
+
+```graphql title="createBook.gql"
+mutation createBook($input: CreateBookInput!) {
+    createBook(input: $input) {
+        id
+        title
+        author
+        isbn
+    }
+}
+```
+
+:::info
+위처럼 테스트 코드와 요청정보가 다른 파일로 분리되면 두 파일을 이동하면서 로직을 확인해야 하는 불편함이 존재한다.  
+하지만 IntelliJ IDEA 의 [GraphQL](https://plugins.jetbrains.com/plugin/8097-graphql) 플러그인을 사용해 GraphQL 자동완성과 구문 오류를 확인할 수 있는 장점이 있다.
+:::
+
+이제 테스트 코드를 작성해보자.
+
+```kt title="BookControllerTest.kt"
+@SpringBootTest
+@AutoConfigureHttpGraphQlTester
+internal class BookControllerTest(
+    // mokito 대신 mockk 를 통해 bean 을 mocking 하였다
+    @MockkBean
+    private val bookService: BookService,
+    private val graphQlTester: HttpGraphQlTester
+) : StringSpec({
+
+    "create" {
+        // given
+        val input = CreateBookInput("title", "author", "isbn")
+        val book = Book("title", "author", "isbn").also { it.id = "1" }
+        coEvery { bookService.create(any()) } returns book
+
+        // when
+        val response = graphQlTester
+            // documentName 메소드를 통해 요청 body 를 가진 파일명(createBook.gql)을 지정한다
+            .documentName("createBook") 
+            // input 은 variable 메소드를 통해 넣을 수 있다
+            .variable("input", input)
+            .execute()
+
+        // then
+        response
+            // 응답은 JsonPath 를 통해 검증하며 아래는 data 밑의 createBook 필드를 지정한 것이다 
+            .path("createBook")
+            // data.createBook 필드를 Book 클래스로 변환한다
+            .entity(Book::class.java)
+            // 변환한 결과가 book 과 일치하는지 검증한다
+            .isEqualTo(book)
+    }
+})
+```
 
 ## Security
 
