@@ -356,4 +356,136 @@ internal class BookControllerTest(
 
 ## Security
 
-작성중
+> 이번 내용은 Spring Security 와 jwt 인증에 대해 어느정도 알고 있다고 가정하고 작성하였다.
+
+이제 `Spring Security` 를 활용해 jwt 기반 인증을 구현해보자.  
+REST API 를 사용한다면 url path 를 구분자로 하여 인증이 필요한 api 를 정의할 수 있으나 모든 요청이 하나의 url 에서 이루어지는 GraphQL 의 경우 각 컨트롤러의 메소드마다 `@PreAuthorize` 같은 어노테이션을 활용해 인증을 구현한다.  
+먼저 AuthenticationManager 을 생성한다.
+
+```kt title="AuthenticationManager.kt"
+@Component
+class AuthenticationManager : ReactiveAuthenticationManager {
+
+    override fun authenticate(authentication: Authentication): Mono<Authentication> {
+        return authentication.toMono()
+    }
+}
+```
+
+WebFlux 를 사용하기 때문에 ReactiveAuthenticationManager 를 상속받았고 authenticate 메소드는 단순히 파라미터를 Mono 로 감싸 그대로 반환한다.  
+파라미터 authentication 는 jwt 토큰을 파싱한 결과를 담고 있는데 이를 활용한 추가적인 로직이 필요하다면 이 메소드에 넣어준다.  
+이제 본격적인 인증을 설정해보자.
+
+```kt title="SecurityConfig.kt"
+// 아래 import 는 직접 복사해서 넣어주도록 한다. IDE 에서 제대로 자동 import 가 안되는 경우가 있다.
+import org.springframework.security.config.web.server.invoke
+
+@Configuration
+@EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
+class SecurityConfig {
+
+    @Bean
+    fun springWebFilterChain(
+        http: ServerHttpSecurity,
+        manager: AuthenticationManager,
+    ): SecurityWebFilterChain =
+        // 아래 처럼 kotlin dsl 을 사용하려면 상단의 import 구문을 넣어주어야 한다.
+        http {
+            csrf { disable() }
+            authorizeExchange {
+                // 우선 모든 요청은 허용하도록 하고 인증이 필요한 api 에만 어노테이션을 추가하려고 한다.
+                authorize(anyExchange, permitAll)
+            }
+            httpBasic { disable() }
+            addFilterAt(jwtAuthenticationFilter(manager), SecurityWebFiltersOrder.AUTHENTICATION)
+        }
+
+    fun jwtAuthenticationFilter(manager: ReactiveAuthenticationManager): AuthenticationWebFilter {
+        val bearerAuthenticationFilter = AuthenticationWebFilter(manager)
+
+        bearerAuthenticationFilter.setServerAuthenticationConverter { exchange ->
+            /*
+                이곳에서 exchange 를 활용해 jwt 토큰을 파싱하는 로직을 넣어주어야 한다.
+                예제 코드는 kjwt 라이브러리를 활용했는데 함수형 프로그래밍에 익숙하지 않다면 이해하기 어려울 수 있다.
+                하는 일은 요청 Authorizaion 헤더에 존재하는 jwt 토큰을 파싱해 role 필드를 읽는 로직이다.
+            */
+            exchange
+                .request
+                .headers
+                .getOrDefault(HttpHeaders.AUTHORIZATION, emptyList())
+                .firstOrNone()
+                .filter { it.startsWith("Bearer ") }
+                .map { it.substring(7) }
+                .toEither { KJWTVerificationError.InvalidJWT }
+                .flatMap { verifySignature<JWSHMAC256Algorithm>(it, JWT_SECRET) }
+                .flatMap { it.claimValue("role").toEither { KJWTVerificationError.InvalidJWT } }
+                .fold(
+                    ifLeft = { Mono.empty() }, // 토큰 파싱이 실패하면 empty 를 반환한다.
+                    ifRight = {
+                        // 성공하면 토큰에서 가져온 role 값을 SimpleGrantedAuthority 로 감싸서 UsernamePasswordAuthenticationToken 에 넣어준다.
+                        UsernamePasswordAuthenticationToken(
+                            null,
+                            null,
+                            listOf(SimpleGrantedAuthority("ROLE_$it"))
+                        ).toMono()
+                    },
+                )
+        }
+
+        return bearerAuthenticationFilter
+    }
+
+    companion object {
+        // 편의를 위해 secret 값을 간단하게 설정했는데 실제로는 추론하기 어려운 값을 넣어주어야 한다.
+        const val JWT_SECRET = "secret"
+    }
+}
+```
+
+이제 인증을 원하는 api 에 `@PreAuthorize` 어노테이션을 추가해보자.
+
+```kt title="BookController.kt"
+@Controller
+class BookController(private val bookService: BookService) {
+
+    @QueryMapping
+    // ADMIN 권한을 가진 사용자만 접근할 수 있다.
+    @PreAuthorize("hasRole('ADMIN')")
+    suspend fun books(): List<Book> = bookService.find()
+}
+```
+
+이제 books 를 조회하는 경우 유효한 jwt 토큰의 role 값이 ADMIN 이 아닌경우 에러응답을 받게된다.  
+테스트 코드로 검증해보자.
+
+```kt title="BookControllerTest.kt" 
+"find" {
+    // given
+    val book = Book("title", "author", "isbn").also { it.id = "1" }
+    coEvery { bookService.find() } returns listOf(book)
+    val authTester = graphQlTester
+        .mutate()
+        // 헤더에 유효한 jwt 토큰을 넣어준다.
+        .headers { it.setBearerAuth("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQURNSU4ifQ.YugxAPZbmANcCJRY1jC2sYnOhcngLeJpdH7jpEHrB_c") }
+        .build()
+
+    // when
+    val response = authTester
+        .documentName("books")
+        .execute()
+
+    // then
+    response
+        .path("books")
+        .entityList(Book::class.java)
+        .hasSize(1)
+        .contains(book)
+}
+```
+
+테스트 코드에서 jwt 토큰을 넣어 요청하려면 headers 메소드와 setBearerAuth 메소드를 사용해야 한다.  
+주어진 jwt 토큰을 확인해보면 role 값이 ADMIN 이라는 것을 확인할 수 있다.  
+또한 secret 값을 이전 파일에서 설정한 `secret` 으로 넣어준 경우 유효한 jwt 토큰이라는 것도 확인할 수 있다.
+
+![jwt](jwt.png)
