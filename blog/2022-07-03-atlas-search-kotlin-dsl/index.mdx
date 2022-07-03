@@ -1,0 +1,150 @@
+---
+title: "[Spring Data MongoDB] Atlas Search 를 위한 커스텀 Kotlin DSL 만들기"
+authors: jake
+tags: [spring, mongodb, atlas, dsl]
+---
+
+[MongoDB Atlas Search](https://www.mongodb.com/ko-kr/atlas/search) 에서 제공하는 전문 검색 기능을 `Spring Data MongoDB` 으로 조회하기 위한 dsl 을 만드는 과정을 담고있다.
+
+<!--truncate-->
+
+## MongoDB CLI
+
+먼저 MongoDB 콘솔에서 Atlas Search 를 사용하기 위한 방법을 알아보자.  
+공식문서를 확인해보면 [$search aggregation](https://www.mongodb.com/docs/atlas/atlas-search/query-syntax/) 를 사용하는 것을 알 수 있다.  
+예를들면 `movies` 라는 컬렉션에서 있는 `released` 필드를 `keyword` 로 검색한 결과를 10개 가져오는 작업은 다음과 같이 이루어진다.
+
+```js
+db.movies.aggregate([
+  {
+    "$search": {
+      "text": {
+        "path": "released",
+        "query": "keyword"
+      }
+    }
+  },
+  {
+    "$limit": 10
+  },
+  {
+    $project: {
+      "title": 1,
+      "released": 1
+    }
+  }
+])
+```
+
+## MongoTemplate
+
+위 작업을 Spring Data MongoDB 를 통해 조회하는 상황을 가정해보자.  
+repository 를 사용한다면 `@Query` 어노테이션을 활용하거나 복잡한 쿼리를 사용한다면 mongoTemplate 를 활용하게 된다.  
+
+복잡한 쿼리를 수행하는 상황을 가정해 mongoTemplate 의 aggregate 메소드를 사용해보자.  
+첫 번째 파라미터로 각 pipeline 을 담는 하나의 `Aggregation` 인스턴스틀 제공해야 한다.  
+Spring Data MongoDB 에서는 `$limit` 과 `$project` 을 위한 aggregation 을 제공하지만 `$search` 는 그렇지 않기에 직접 생성해야 한다.
+
+```kt
+data class Movie(
+    val title: String,
+    val released: String,
+)
+
+mongoTemplate.aggregate(
+    Aggregation.newAggregation(
+        // highlight-start
+        AggregationOperation {
+            Document(
+                "\$search",
+                Document(
+                    "text",
+                    Document("path", "released").append("query", "keyword")
+                )
+            )
+        },
+        // highlight-end
+        Aggregation.limit(10),
+        Aggregation.project("title", "released"),
+    ),
+    Movie::class.java,
+    Movie::class.java,
+)
+```
+
+하이라이팅 된 코드를 살펴보면 Json 에 매칭되는 Document 인스턴스를 만들고 key 와 value 를 형태에 맞게 넣어준 것을 볼 수 있다.  
+위와 같은 방식을 사용할때는 다음과 같은 불편함이 존재한다.
+
+- 가독성
+
+json 구조를 표현하기 위해 Document 를 사용하고 있는데 복잡한 구조를 만드려면 많은 Document 키워드가 코드상에 존재하게 된다.  
+이로인해 코드를 통해 어떤 json 이 만들어지는지 파악하기 어려울 수 있다.
+
+- typesafe
+
+위 코드에서 Document 가 사용된 곳의 key 부분만 살펴보면 `$search` 와 `text`, `path`, `query` 와 같은 문자열이 보인다.  
+위와같은 문자열은 잘못 입력해도 컴파일 시점에는 에러가 발생하지 않고 실제 쿼리를 수행할 때 발생한다.  
+또한 각 key 의 value 어는 어떤 타입의 값을 주어야 하는지 단서를 제공하지 못한다.  
+만약 `text` 아래에 `query` 값은 필수로 주어야 하는데 제공하지 않는경우 런타임 에러가 발생한다.
+
+## Kotlin DSL
+
+Kotlin DSL 은 json 과 같은 트리구조를 가독성 있는 코드로 표현할 수 있는 방법을 제공해준다.  
+[kotlin-html](https://github.com/kotlin/kotlinx.html) 과 같은 패키지를 살펴보면 html 구조를 코틀린 코드로 표현한 것을 확인할 수 있다.  
+
+```kt
+import kotlinx.browser.*
+import kotlinx.html.*
+import kotlinx.html.dom.*
+
+fun main() {
+    document.body!!.append.div {
+        h1 {
+            +"Welcome to Kotlin/JS!"
+        }
+        p {
+            +"Fancy joining this year's "
+            a("https://kotlinconf.com/") {
+                +"KotlinConf"
+            }
+            +"?"
+        }
+    }
+}
+```
+
+## Custom DSL
+
+위와 같은 DSL 은 코틀린의 **수신 객체 지정 람다**를 활용해서 직접 만들 수 있다.  
+
+:::info
+DSL 에 대한 내용과 만드는 방법에 대한 이해는 다른 블로그나 서적을 참조하도록 한다.
+:::
+
+> 다음 저장소에 모든 코드가 존재한다. [링크](https://github.com/jbl428/study-note/tree/master/kotlin/spring-graphql/src/main/kotlin/com/graphql/sample/aggregation)
+
+직접 만든 DSL 을 활용해 기존 코드를 아래와 같이 바꿀 수 있다.
+
+```kt
+mongoTemplate.aggregate(
+    aggregation {
+        search {
+            text {
+                path { +Movie::released }
+                query("keyword")
+            }
+        }
+        limit(10)
+        project {
+            // KProperty 를 활용해서 클래스의 필드명으로 참조할 수 있게하였다.
+            // 이렇게 하면 추후에 Movie 의 title 필드명을 바꿔도 아래 코드도 같이 바뀔것이다.
+            +Movie::title
+            +Movie::released
+        }
+    },
+    Movie::class.java,
+    Movie::class.java,
+)
+```
+
+이전보다 더 가독성 있고 안전한 코드를 작성할 수 있다는 것을 확인할 수 있다.
