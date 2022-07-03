@@ -74,7 +74,7 @@ internal class S3UploaderTest {
     @JvmStatic
     fun beforeAll() {
       // highlight-next-line
-      // localstack 정보를 활용해서 s3client 를 생성한다 
+      // localstack 정보를 활용해서 s3client 를 생성한다
       s3Client =
         S3Client {
           region = localStack.region

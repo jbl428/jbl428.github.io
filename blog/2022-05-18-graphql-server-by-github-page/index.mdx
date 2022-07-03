@@ -66,7 +66,7 @@ codegen 에서는 위처럼 단순히 type name 뿐만 아니라 모든 스키�
 codegen 이 graphql 서버로 요청할 때 어떤 body 를 사용하는지 확인하려면 `graphql-js` 라이브러리의 `getIntrospectionQuery` 함수를 호출하면 된다.
 
 ```typescript
-import { getIntrospectionQuery } from 'graphql';
+import { getIntrospectionQuery } from "graphql";
 
 console.log(getIntrospectionQuery());
 ```
@@ -97,17 +97,17 @@ codegen 또한 GraphQL 서버로 요청 시 어떤 메소드를 사용할 것인
 만약 스키마 파일이 존재한다면 해당 파일을 읽어서 `buildSchema` 함수를 통해 스키마 객체로 만든 후 `introspectionFromSchema` 함수를 호출하면 된다.
 
 ```ts
-import { readFileSync, writeFileSync } from 'fs';
-import { buildSchema, introspectionFromSchema } from 'graphql';
+import { readFileSync, writeFileSync } from "fs";
+import { buildSchema, introspectionFromSchema } from "graphql";
 
-const schema = readFileSync('스키마 파일 경로');
+const schema = readFileSync("스키마 파일 경로");
 
 const introspectionQuery = introspectionFromSchema(
   buildSchema(schema.toString())
 );
 
 writeFileSync(
-  'introspection.json',
+  "introspection.json",
   // GraphQL 응답은 항상 data 필드안에 들어가므로 아래와같이 감싸주어야 한다
   JSON.stringify({ data: introspectionQuery })
 );
@@ -154,7 +154,7 @@ name: Update graphql introspection
 
 on:
   repository_dispatch:
-    types: [ schema ] # 이벤트 유형이 schema 일 때 workflow 실행
+    types: [schema] # 이벤트 유형이 schema 일 때 workflow 실행
 
 jobs:
   schema:
@@ -170,7 +170,7 @@ jobs:
       - name: Setup node.js
         uses: actions/setup-node@v3
         with:
-          cache: 'yarn'
+          cache: "yarn"
 
       - name: Install dependencies
         run: yarn install
@@ -195,7 +195,7 @@ jobs:
           cp ../introspection.json . 
           git add introspection.json
           git commit -m "update introspection"
-          git push 
+          git push
 ```
 
 이제 갱신한 파일을 Github Page 주소를 통해 확인할 수 있으며 해당 url 을 codegen 에 제공하면 정상적으로 동작한다.

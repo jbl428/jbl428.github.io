@@ -74,7 +74,7 @@ Embedded 에서 특정 기능이 제대로 지원하지 않는 경우나 더 엄
 spring:
   mongodb:
     embedded:
-      version: '5.0.6'
+      version: "5.0.6"
 ```
 
 ## Repository
@@ -211,19 +211,19 @@ internal class BookServiceTest(
 
 ## Controller
 
-이제 GraphQL 과 연관된 작업을 수행하는 컨트롤러를 작성해보자.  
+이제 GraphQL 과 연관된 작업을 수행하는 컨트롤러를 작성해보자.
 
 ### 구현 방법
 
-그전에 용어에 대한 설명을 하려고한다.  
+그전에 용어에 대한 설명을 하려고한다.
 
 GraphQL api 를 개발할 때 다음 두 방식중 하나를 선택하게 된다.
 
-- code first 
+- code first
 - schema first
 
 code first 는 이름 그대로 코드를 먼저 작성하고 GraphQL 스키마를 자동 생성하는 방법이다.  
-반대로 schema first 는 GraphQL 스키마를 먼저 작성하고 코드를 자동 생성하거나 직접 구현하는 방법이다.  
+반대로 schema first 는 GraphQL 스키마를 먼저 작성하고 코드를 자동 생성하거나 직접 구현하는 방법이다.
 
 code first 방식은 실제 코드와 스키마가 항상 일치하는 것을 보장하지만 FE 에서 필요한 스키마를 위해서 백엔드 작업을 기다려야 한다.  
 schema first 방식은 반대로 스키마를 먼저 만들기에 FE, BE 동시 개발이 가능하지만 스키마와 실제코드간의 불일치가 발생하지 않도록 주의해야 한다.
@@ -237,24 +237,24 @@ schema first 방식은 반대로 스키마를 먼저 만들기에 FE, BE 동시 
 
 ```graphql title="schema.graphqls"
 type Query {
-    books: [Book!]!
+  books: [Book!]!
 }
 
 type Mutation {
-    createBook(input: CreateBookInput!): Book!
+  createBook(input: CreateBookInput!): Book!
 }
 
 input CreateBookInput {
-    title: String!
-    author: String!
-    isbn: String!
+  title: String!
+  author: String!
+  isbn: String!
 }
 
 type Book {
-    id: ID!
-    title: String!
-    author: String!
-    isbn: String!
+  id: ID!
+  title: String!
+  author: String!
+  isbn: String!
 }
 ```
 
@@ -295,19 +295,19 @@ dependencies {
 
 해당 패키지는 GraphQL 요청을 위한 여러 종류의 클라이언트를 제공한다.  
 이번 포스트에서는 `HttpGraphQlTester` 를 사용하려고 한다.  
-직접 Client 를 만들 수 있지만 `@AutoConfigureHttpGraphQlTester` 를 사용하면 스프링이 자동으로 클라이언트를 만들어 준다.  
+직접 Client 를 만들 수 있지만 `@AutoConfigureHttpGraphQlTester` 를 사용하면 스프링이 자동으로 클라이언트를 만들어 준다.
 
 GraphQL 요청 body 는 테스트 코드에 직접 선언해서 사용할 수 있지만 syntax highlighting 이나 indent 를 지키면서 작성하는것이 불편하기에 다른 파일에 작성 후 불러오는 방식을 사용하였다.  
-`src/test/resources/graphql-test` 경로에 아래 파일을 생성한다.  
+`src/test/resources/graphql-test` 경로에 아래 파일을 생성한다.
 
 ```graphql title="createBook.gql"
 mutation createBook($input: CreateBookInput!) {
-    createBook(input: $input) {
-        id
-        title
-        author
-        isbn
-    }
+  createBook(input: $input) {
+    id
+    title
+    author
+    isbn
+  }
 }
 ```
 
@@ -337,14 +337,14 @@ internal class BookControllerTest(
         // when
         val response = graphQlTester
             // documentName 메소드를 통해 요청 body 를 가진 파일명(createBook.gql)을 지정한다
-            .documentName("createBook") 
+            .documentName("createBook")
             // input 은 variable 메소드를 통해 넣을 수 있다
             .variable("input", input)
             .execute()
 
         // then
         response
-            // 응답은 JsonPath 를 통해 검증하며 아래는 data 밑의 createBook 필드를 지정한 것이다 
+            // 응답은 JsonPath 를 통해 검증하며 아래는 data 밑의 createBook 필드를 지정한 것이다
             .path("createBook")
             // data.createBook 필드를 Book 클래스로 변환한다
             .entity(Book::class.java)
@@ -459,7 +459,7 @@ class BookController(private val bookService: BookService) {
 이제 books 를 조회하는 경우 유효한 jwt 토큰의 role 값이 ADMIN 이 아닌경우 에러응답을 받게된다.  
 테스트 코드로 검증해보자.
 
-```kt title="BookControllerTest.kt" 
+```kt title="BookControllerTest.kt"
 "find" {
     // given
     val book = Book("title", "author", "isbn").also { it.id = "1" }

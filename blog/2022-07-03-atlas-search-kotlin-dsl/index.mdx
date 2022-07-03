@@ -17,29 +17,29 @@ tags: [spring, mongodb, atlas, dsl]
 ```js
 db.movies.aggregate([
   {
-    "$search": {
-      "text": {
-        "path": "released",
-        "query": "keyword"
-      }
-    }
+    $search: {
+      text: {
+        path: "released",
+        query: "keyword",
+      },
+    },
   },
   {
-    "$limit": 10
+    $limit: 10,
   },
   {
     $project: {
-      "title": 1,
-      "released": 1
-    }
-  }
-])
+      title: 1,
+      released: 1,
+    },
+  },
+]);
 ```
 
 ## MongoTemplate
 
 위 작업을 Spring Data MongoDB 를 통해 조회하는 상황을 가정해보자.  
-repository 를 사용한다면 `@Query` 어노테이션을 활용하거나 복잡한 쿼리를 사용한다면 mongoTemplate 를 활용하게 된다.  
+repository 를 사용한다면 `@Query` 어노테이션을 활용하거나 복잡한 쿼리를 사용한다면 mongoTemplate 를 활용하게 된다.
 
 복잡한 쿼리를 수행하는 상황을 가정해 mongoTemplate 의 aggregate 메소드를 사용해보자.  
 첫 번째 파라미터로 각 pipeline 을 담는 하나의 `Aggregation` 인스턴스틀 제공해야 한다.  
@@ -90,7 +90,7 @@ json 구조를 표현하기 위해 Document 를 사용하고 있는데 복잡한
 ## Kotlin DSL
 
 Kotlin DSL 은 json 과 같은 트리구조를 가독성 있는 코드로 표현할 수 있는 방법을 제공해준다.  
-[kotlin-html](https://github.com/kotlin/kotlinx.html) 과 같은 패키지를 살펴보면 html 구조를 코틀린 코드로 표현한 것을 확인할 수 있다.  
+[kotlin-html](https://github.com/kotlin/kotlinx.html) 과 같은 패키지를 살펴보면 html 구조를 코틀린 코드로 표현한 것을 확인할 수 있다.
 
 ```kt
 import kotlinx.browser.*
@@ -115,7 +115,7 @@ fun main() {
 
 ## Custom DSL
 
-위와 같은 DSL 은 코틀린의 **수신 객체 지정 람다**를 활용해서 직접 만들 수 있다.  
+위와 같은 DSL 은 코틀린의 **수신 객체 지정 람다**를 활용해서 직접 만들 수 있다.
 
 :::info
 DSL 에 대한 내용과 만드는 방법에 대한 이해는 다른 블로그나 서적을 참조하도록 한다.
