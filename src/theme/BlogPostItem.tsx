@@ -1,16 +1,19 @@
 import React, { useEffect, useRef } from "react";
 import OriginalBlogPostItem from "@theme-original/BlogPostItem";
+// @ts-expect-error internal code
+import { useBlogPost } from "@docusaurus/theme-common/internal";
 import { useColorMode } from "@docusaurus/theme-common";
 
 const utterancesSelector = "iframe.utterances-frame";
 
 function BlogPostItem(props) {
-  const { isDarkTheme } = useColorMode();
-  const utterancesTheme = isDarkTheme ? "github-dark" : "github-light";
+  const { colorMode } = useColorMode();
+  const { isBlogPostPage } = useBlogPost();
+  const utterancesTheme = colorMode === "dark" ? "github-dark" : "github-light";
   const containerRef = useRef(null);
 
   useEffect(() => {
-    if (!props.isBlogPostPage) return;
+    if (!isBlogPostPage) return;
 
     const utterancesEl = containerRef.current.querySelector(utterancesSelector);
 
@@ -43,7 +46,7 @@ function BlogPostItem(props) {
   return (
     <>
       <OriginalBlogPostItem {...props} />
-      {props.isBlogPostPage && <div ref={containerRef} />}
+      {isBlogPostPage && <div ref={containerRef} />}
     </>
   );
 }
