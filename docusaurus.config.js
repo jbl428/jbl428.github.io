@@ -71,7 +71,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
         prism: {
           theme: lightCodeTheme,
           darkTheme: darkCodeTheme,
-          additionalLanguages: ["haskell", "kotlin"],
+          additionalLanguages: ["haskell", "kotlin", "toml", "docker"],
         },
       }),
   }
