@@ -97,7 +97,7 @@ processes = []
 [build]
   # 빌드에 사용할 도커 이미지
   # 만약 직접 Dockfile 를 만드는 경우라면 아래 라인을 삭제한다
-  builder = "heroku/buildpacks:20" 
+  builder = "heroku/buildpacks:20"
 
 [env]
   PORT = "8080" # 환경변수 설정
@@ -117,6 +117,7 @@ Nest.js 의 기본 서비스 포트는 3000 이지만 fly.toml 의 internal_port
 ```ts
 await app.listen(process.env.PORT || 3000);
 ```
+
 :::
 
 ## Dockerfile 생성
