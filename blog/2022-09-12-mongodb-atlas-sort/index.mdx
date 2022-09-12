@@ -344,6 +344,68 @@ db.movies.aggregate([
 이런 경우 `pivot` 값 또한 큰 값으로 넣어주어서 score 가 커질 수 있도록 해야한다.
 :::
 
+## 2차 정렬
+
+특정 필드를 기준으로 정렬 시 같은 값을 가지는 문서끼리는 새로운 필드로 정렬이 필요한 상황이 생길 수 있다.  
+예를들면 `movies` 컬렉션을 `runtime` 으로 정렬하고 같은 `runtime` 을 가지는 문서들은 `released` 를 기준으로 정렬하는 경우이다.  
+이를 `mongot` 에서 수행하기 위해서는 각 필드별로 score 의 가중치를 다르게 주는 방법을 사용해야 한다.  
+`path score function` 과 `near operator` 를 모두 사용하여 구현하는데 단 1차 정렬필드가 자연수어야 한다.
+
+> 자연수가 아니지만 특정 소수점 자리 밑으로는 항상 0 이라는 것이 보장된다면 `multiply score function` 을 적용해서 자연수로 만들어 적용하면 된다.
+
+`path score function` 으로 1차 정렬 필드를 지정해 자연수 score 를 얻고 `near operator` 로 2차 정렬 필드를 지정해 합산하면 된다.  
+`near operator` 로 계산된 score 는 1보다 클 수 없기에 `path score function` 으로 계산된 score 가 5인 문서는 아무리 near 값이 높아도 6인 문서보다 score 가 클 수 없게된다.
+
+```js
+db.movies.aggregate([
+  {
+    $search: {
+      compound: {
+        must: [
+          {
+            near: {
+              /* highlight-start */
+              // 2차 정렬 필드에 near operator 를 사용
+              origin: ISODate("2020-01-01T00:00:00.000+00:00"),
+              pivot: 1000000000,
+              path: "released",
+              score: {
+                function: {
+                  // 두 개의 score 를 합산
+                  add: [
+                    // runtime 값을 score 로 사용
+                    { path: { value: "runtime", undefined: 0 } },
+                    // near 로 계산한 score 를 의미
+                    { score: "relevance" },
+                  ],
+                },
+              },
+              /* highlight-end */
+            },
+          },
+        ],
+        filter: [{ text: { path: "fullplot", query: "the" } }],
+      },
+    },
+  },
+  { $skip: 1025 },
+  { $limit: 10 },
+  {
+    $project: {
+      _id: 0,
+      title: 1,
+      runtime: 1,
+      released: 1,
+      score: { $meta: "searchScore" }, // score 를 결과에 포함
+    },
+  },
+]);
+```
+
+![path-and-near](path-and-near.png)
+
+결과를 보면 `runtime` 이 큰 항목이 먼저 나오며 `runtime` 이 같은 문서들은 released 기준으로 최신순으로 정렬된 것을 확인할 수 있다.
+
 ## 참고자료
 
 - [Atlas Search Architecture](https://www.mongodb.com/docs/atlas/atlas-search/atlas-search-overview/#fts-architecture)
