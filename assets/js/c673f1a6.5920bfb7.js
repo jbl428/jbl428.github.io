@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[7640],{851:function(a){a.exports=JSON.parse('{"label":"atlas","permalink":"/tags/atlas","allTagsPath":"/tags","count":1}')}}]);

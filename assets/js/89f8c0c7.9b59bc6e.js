@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[6398],{4246:function(e){e.exports=JSON.parse('{"permalink":"/tags/mongodb","page":1,"postsPerPage":10,"totalPages":1,"totalCount":2,"blogDescription":"The blog of Jake Son","blogTitle":"Jake Son Blog"}')}}]);
