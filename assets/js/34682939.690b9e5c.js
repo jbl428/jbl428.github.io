@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[407],{7030:function(e){e.exports=JSON.parse('{"label":"hexagonal","permalink":"/tags/hexagonal","allTagsPath":"/tags","count":1}')}}]);
