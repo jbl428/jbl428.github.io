@@ -105,7 +105,7 @@ domain은 모두 순수한 클래스만 가지고 있으며 핵심적인 비즈�
 
 프로젝트를 진행하면서 느낀점과 고민을 정리해보았다.
 
-### fp-ts
+### fp-ts 의존성
 
 `fp-ts`는 외부 라이브러리이기에 어느 영역까지 사용을 허용할지 고민이 많았다.  
 예를들어 도메인 클래스의 유효성 검증 메소드를 생각해보자.  
@@ -116,31 +116,32 @@ class PhoneVerification {
   // ...생략
   verify(code: string, now = new Date()): void {
     if (this.code !== code) {
-      throw new MismatchedCodeException()
+      throw new MismatchedCodeException();
     }
 
     if (this.isExpired(now)) {
-      throw new ExpiredCodeException()
+      throw new ExpiredCodeException();
     }
   }
 }
 ```
 
 위 메소드를 사용하는 곳은 서비스 영역인데 순수메소드 형태를 유지하기 위해 `tryCatch`를 사용해 `Either`로 만들어야 하는 불편함이 존재한다.  
-또한 메소드의 구현부를 읽어야만 해당 메소드가 어떤 에러를 던지는지 파악할 수 있다는 단점이 있다.
+또한 메소드의 구현부를 읽어야만 해당 메소드가 어떤 에러를 던지는지 파악할 수 있다는 단점이 있다.  
+이는 **메소드의 시그니쳐만 읽어도 어떤 에러가 발생하는지 파악**할 수 있는 `Either`의 장점을 포기해야 하는 상황이었다.
 
 하지만 도메인 클래스 내부에서 `Either`를 반환하게 만들면 `fp-ts`라는 외부 라이브러리에 대한 의존성이 생기므로 가장 순수해야 할 영역이 오염된다.  
 물론 `Either`와 같은 대수적 자료형은 직접 클래스 형태로 구현할 수 있지만 `Higher Kinded Type`을 구현하기 어려워 `map`, `chain`함수의 타입추론이 까다로워진다.
 
 ```typescript
 // 외부 의존성
-import { Either, left, right } from 'fp-ts/Either';
+import { Either, left, right } from "fp-ts/Either";
 
 class PhoneVerification {
   // ...생략
   verify(
     code: string,
-    now = new Date(),
+    now = new Date()
   ): Either<ExpiredCodeException | MismatchedCodeException, void> {
     if (this.code !== code) {
       return left(new MismatchedCodeException());
@@ -154,6 +155,8 @@ class PhoneVerification {
   }
 }
 ```
+
+여러 고민끝에 다음과 같은 결론을 내렸다.
 
 `Haskell`과 같은 순수 함수형 언어에서는 `Either`와 같은 대수적 자료형을 기본제공하기에 도메인 내부에서 사용하는데 문제가 없다.  
 그래서 `fp-ts`의 자료형들을 **node.js의 확장된 내장타입**으로 생각하고 사용하기로 했다.  
@@ -171,14 +174,14 @@ class PhoneVerification {
 예를들어 datadog을 모니터링에 사용하는 경우 아래 코드처럼 span을 생성해 실행시간을 측정해보면 데이터베이스 상태와 관계없이 매우 짧은 일정한 시간을 가진다.
 
 ```typescript
-import tracer from 'dd-trace';
+import tracer from "dd-trace";
 
 class ChatQueryRepositoryAdapter {
   override unreadCount(
     shareDealId: string,
-    userId: string,
+    userId: string
   ): TaskEither<DBError, number> {
-    return tracer.trace('ChatQueryRepositoryAdapter.unreadCount', () =>
+    return tracer.trace("ChatQueryRepositoryAdapter.unreadCount", () =>
       pipe(
         tryCatchDB(() =>
           this.prisma.chat.count({
@@ -187,9 +190,9 @@ class ChatQueryRepositoryAdapter {
               userId,
               message: { is: { unread: true } },
             },
-          }),
-        ),
-      ),
+          })
+        )
+      )
     );
   }
 }
@@ -210,26 +213,124 @@ export abstract class BaseException extends Error {
 
 위 클래스를 상속받아 도메인 에러클래스를 만들어 사용하면 된다.
 
-[//]: # (### 의존성 주입)
+### 의존성 주입
 
-[//]: # ()
-[//]: # (Nest.js에서는 의존성 주입을 원하는 클래스에 `@Injectable`데코레이터를 사용해야 한다.)
+Nest.js를 사용하면서 얻을 수 있는 가장 큰 혜택은 의존성 주입이라고 생각한다.  
+`@Injectable` 데코레이터를 사용해 원하는 클래스를 주입가능한 클래스로 만들 수 있으며 동시에 생성자에 선언한 항목을 런타임에 주입받을 수 있다.  
+포트와 어댑터 패턴을 적용한 환경이라면 보통 어댑터는 포트 인터페이스를 구현하며 또 다른 포트 인터페이스를 주입받아 사용한다.
 
-[//]: # ()
-[//]: # (- Nest.js의존성 제거)
+```typescript
+import { Injectable } from "@nestjs/common";
 
-[//]: # (- @Inject는 잘못 지정할 가능성이 있다.)
+@Injectable()
+export class ShareDealCommandService implements ShareDealCommandUseCase {
+  // 포트 인터페이스 구현
+  constructor(
+    private readonly shareDealRepositoryPort: ShareDealRepositoryPort // 포트 인터페이스 주입
+  ) {}
+}
+```
 
-[//]: # (- 번거로움)
+JVM이라면 포트를 interface로 정의하고 어댑터가 해당 interface를 구현하는 것이 일반적이다.  
+TypeScript에서는 동일하게 interface를 지원하지만 Nest.js의 provider로 사용할 수 없는 문제가 있다.  
+TypeScript의 interface는 컴파일 타임에만 사용되고 트랜스파일 단계에서 무시되기 때문에 Nest.js가 해당 interface를 인식하지 못한다.
 
-[//]: # ()
-[//]: # (### prisma)
+이를 해결하기 위해 `@Inject` 데코레이터를 사용하거나 interface대신 abstract class를 사용하는 방안이 있다.  
+개인적으로 `@Inject` 데코레이터를 사용하는 것을 선호하지 않는데 다음과 같은 이유 때문이다.
 
-[//]: # ()
-[//]: # (- 도메인 클래스와 orm클래스 두 번 만들지 않아도 된다.)
+- `@Inject` 데코레이터를 사용하는 클래스는 Nest.js에 의존성이 생긴다.
+- 데코레이터에 지정하는 token과 매칭되는 interface를 잘못 지정해도 컴파일 타임에는 에러가 발생하지 않는다.
+- 매번 생성자 파라미터에 데코레이터 + 인터페이스를 선언해야 하는 번거로움이 있다.
 
-[//]: # (- graphql과 연결이 없어서 생산성 측면에서는 좋지않다.)
+특히 두 번째 이유는 **코드를 잘못 작성하고 있다는 피드백을 런타임까지 가야 받을 수 있는 점**은 치명적이라고 생각하기에 abstract class를 사용하였다.
 
-[//]: # (- 지도 관련 기능이 부족하다.)
+```typescript
+import { Injectable } from "@nestjs/common";
 
-[//]: # ()
+@Injectable()
+export class ShareDealCommandService {
+  constructor(
+    // token과 매칭되는 interface를 잘못 지정해도 에러가 발생하지 않는다.
+    @Inject(CHAT_REPOSITORY_PORT_TOKEN)
+    private readonly shareDealRepositoryPort: ShareDealRepositoryPort
+  ) {}
+}
+```
+
+### Nest.js 의존성
+
+프로젝트를 진행하면서 각 클래스가 Nest.js와의 의존성도 최대한 줄이려는 노력을 하였다.  
+즉 비스니스 로직을 포함하는 클래스는 최대한 순수하게 가져갈 수 있도록 하였다.  
+예를들면 환경변수를 사용하는 클래스가 있다면 보통은 Nest.js의 `ConfigService`를 주입받아 사용한다.
+
+```typescript
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+
+@Injectable()
+export class ShareDealCommandService {
+  constructor(private readonly configService: ConfigService) {}
+}
+```
+
+이는 위 클래스의 유닛 테스트에서도 `ConfigService`를 직접 만들어 주입해야 함을 의미한다.  
+만약 미래에 Nest.js 대신 다른 프레임워크를 적용하려고 할 때 수정해야 하는 항목이 많아지게 된다.
+
+이를 위해 `ConfigService`를 추상화한 `ConfigServicePort`를 만드는 방법이 있지만 이번에는 원하는 환경변수 값을 직접 주입하는 방법을 사용하였다.  
+Nest.js에서는 의존성 주입에 사용하는 provider를 만들기 위한 여러가지 방법을 제공하는데 그 중 `useFactory`를 사용하였다.
+
+```typescript
+export class JwtStrategy {
+  // 원하는 환경변수를 직접 선언한다.
+  constructor(private readonly jwtSecret: string) {}
+}
+
+@Module({
+  providers: [
+    {
+      provide: JwtStrategy,
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
+        // 모듈 선언부에서 직접 configService를 활용해 원하는 환경변수를 주입한다.
+        new JwtStrategy(configService.getOrThrow("JWT_SECRET" )),
+    },
+  ],
+  exports: [PushMessagePort],
+})
+export class PushMessageModule {}
+```
+
+모듈 선언 파일에서는 Nest.js의 의존성을 가지는게 전혀 문제가 되지 않으므로 이곳에서 configService를 사용하였다.  
+
+추가로 유닛 테스트에서도 가능하면 `@nestjs/testing` 패키지를 사용하지 않고 직접 의존성을 주입하였다.
+
+```typescript
+describe('ChatQueryService', () => {
+  // stub과 mock을 활용해 의존성 생성
+  const shareDealQueryRepositoryPort = mock<ShareDealQueryRepositoryPort>();
+  const chatQueryRepositoryPort = mock<ChatQueryRepositoryPort>();
+  const userQueryRepositoryPort = mock<UserQueryRepositoryPort>();
+  const eventEmitter = new StubEventEmitter();
+  // 직접 의존성 주입
+  const shareDealCommandService = new ChatQueryService(
+    shareDealQueryRepositoryPort,
+    chatQueryRepositoryPort,
+    userQueryRepositoryPort,
+    eventEmitter,
+  );
+});
+```
+
+더 극단적으로 의존성을 제거하려면 `@Injectable` 데코레이터조차 사용하지 않고 모듈 선언부에서 주입해주는 방법도 있다.  
+하지만 이는 의존성이 하나 추가 될 때마다 모듈 선언부도 같이 수정해야 하는 번거로움이 있으며 앞서 이야기한 Nest.js의 장점을 제대로 활용하지 못한다고 생각한다.  
+그래서 해당 데코레이터의 사용만 허용하였으며 추후에 다른 프레임워크를 쓴다고 해도 데코레이터명이나 import경로만 수정하면 되기에 변경의 어려움은 없을거라고 생각한다.
+
+### prisma
+
+[//]: #
+[//]: # "### prisma"
+[//]: #
+[//]: # "- 도메인 클래스와 orm클래스 두 번 만들지 않아도 된다."
+[//]: # "- graphql과 연결이 없어서 생산성 측면에서는 좋지않다."
+[//]: # "- 지도 관련 기능이 부족하다."
+[//]: #
