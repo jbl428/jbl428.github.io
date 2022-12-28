@@ -364,3 +364,6 @@ const dist2 = Distributions.uniform([1, 2, 3, 4]);
 
 const joinDist = join(dist1, dist2);
 ```
+
+만약 `join`과 같은 함수를 직접 구현했다면 확률변수와 확률을 모두 고려하는 로직을 직접 구현해야 했을 것이다.  
+하지만 `liftA2`를 사용하면 오직 **확률변수의 결합로직**만 고려하면 되기에 더 편리하다.
