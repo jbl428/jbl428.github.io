@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[9567],{3386:function(e){e.exports=JSON.parse('{"label":"monad","permalink":"/tags/monad","allTagsPath":"/tags","count":2}')}}]);
