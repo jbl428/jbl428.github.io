@@ -1,0 +1,366 @@
+---
+title: "Typescript로 확률 Monad 구현하기 - 1"
+description: Typescript로 확률분포를 위한 Monad를 구현하는 과정을 소개한다.
+authors: jake
+tags: [probability, monad, typescript]
+---
+
+최근에 [Probability Monads from scratch in 100 lines of Haskell](https://dennybritz.com/posts/probability-monads-from-scratch/) 글을 읽어보았는데 내용이 꽤 재밌어서 Typescript로 구현한 과정을 소개하고자 한다.
+
+해당 글은 haskell을 사용해 확률분포를 표현하는 Monad를 만들어서 간단한 확률을 구하는 과정을 담고있다.  
+보통 순수 함수형 언어에서 주로 사용하는 `Either`, `State`같은 Monad 대신 언뜻 보기에는 관련이 없어보이는 확률분포 계산에 Monad를 활용하는 것이 신기했다.  
+그래서 나에게 조금 더 익숙한 언어인 Typescript로 구현해보았다.
+
+> 모든 구현 코드는 [Github](https://github.com/jbl428/study-note/blob/master/functional-programming/probability-monad/Distributions.ts)에 올려두었다.
+
+<!--truncate-->
+
+## Distributions(확률분포) 정의
+
+먼저 [확률분포](https://ko.wikipedia.org/wiki/%ED%99%95%EB%A5%A0_%EB%B6%84%ED%8F%AC)를 의미하는 `Distributions` 타입을 정의한다.  
+확률분포는 크게 이산확률분포와 연속확률분포가 있는데 이번 글에서는 이산확률분포만 다루기로 한다.
+
+이산확률분포의 한 가지 예로 주사위를 던져서 나오는 각 숫자의 확률을 구하는 것이 있다.  
+나올 수 있는 숫자는 1부터 6까지 총 6가지가 있고 각 숫자가 나올 확률은 1/6이다.  
+이를 Typescript로 표현하면 다음과 같다.
+
+```typescript
+enum Dice {
+  One = 1,
+  Two,
+  Three,
+  Four,
+  Five,
+  Six,
+}
+
+type Probability = number;
+
+type Distributions<RANDOM_VARIABLE> = [RANDOM_VARIABLE, Probability][];
+
+const distributions: Distributions<Dice> = [
+  [Dice.One, 1 / 6],
+  [Dice.Two, 1 / 6],
+  [Dice.Three, 1 / 6],
+  [Dice.Four, 1 / 6],
+  [Dice.Five, 1 / 6],
+  [Dice.Six, 1 / 6],
+];
+```
+
+`Distributions` 타입은 확률변수(random variable)를 뜻하는 임의의 타입 `RANDOM_VARIABLE`와 그 확률을 뜻하는 `Probability`로 이루어진 튜플의 배열이다.  
+이처럼 커스텀 타입을 정의해서 확률분포를 표현할 수 있지만 generic 클래스를 사용해서 프로퍼티, 팩토리 메서드를 활용하고자 한다.
+
+```typescript
+type Probability = number;
+
+export class Distributions<RANDOM_VARIABLE> {
+  readonly #value: [RANDOM_VARIABLE, Probability][];
+
+  private constructor(value: [RANDOM_VARIABLE, Probability][]) {
+    this.#value = value;
+  }
+
+  static of<RANDOM_VARIABLE>(
+    value: [RANDOM_VARIABLE, Probability][]
+  ): Distributions<RANDOM_VARIABLE> {
+    return new Distributions(value);
+  }
+
+  get value(): [RANDOM_VARIABLE, Probability][] {
+    return this.#value;
+  }
+}
+```
+
+사실 팩토리 메서드에서는 다음과 같은 추가 작업을 수행해야 올바른 확률분포를 만들 수 있다.
+
+- 중복된 확률변수가 있다면 각 확률을 더해 하나로 통합
+- 각 확률의 합이 1이 되도록 정규화(normalize)
+
+위 과정을 구현한 최종 팩토리 메서드 코드는 다음과 같다.
+
+```typescript
+  static of<RANDOM_VARIABLE>(
+    value: [RANDOM_VARIABLE, Probability][]
+  ): Distributions<RANDOM_VARIABLE> {
+    const grouped = value.reduce((acc, [variable, prob]) => {
+      acc.set(variable, (acc.get(variable) ?? 0) + prob);
+
+      return acc;
+    }, new Map<RANDOM_VARIABLE, Probability>());
+
+    const sum = Array.from(grouped.values()).reduce((acc, prob) => acc + prob);
+    const normalized = Array.from(grouped.entries()).map(
+      ([variable, prob]) =>
+        [variable, prob / sum] as [RANDOM_VARIABLE, Probability]
+    );
+
+    return new Distributions(normalized);
+  }
+```
+
+> Javascript의 부동소수점 표현방식으로 인해 정규화 이후 확률의 합이 1이 되지 않는 경우가 있다.  
+> 또한 앞으로 소개할 확률 계산에도 실제 값과 약간의 오차가 생길 수 있다.  
+> 이번 포스트의 목적은 정확한 계산보다 구현에 초점을 맞추기 위함이므로 이 점을 참고해주길 바란다.
+
+편의를 위해 각 확률변수의 확률이 동일한 경우에 사용할 수 있는 `uniform` 메서드를 추가한다.
+
+```typescript
+  static uniform<RANDOM_VARIABLE>(
+    variables: RANDOM_VARIABLE[]
+  ): Distributions<RANDOM_VARIABLE> {
+    const prob = 1 / variables.length;
+
+    return new Distributions(variables.map((variable) => [variable, prob]));
+  }
+```
+
+이러면 공평한 동전던지기를 표현하는 확률분포를 다음과 같이 만들 수 있다.
+
+```typescript
+enum Coin {
+  Head,
+  Tail,
+}
+const dice = Distributions.uniform([Coin.Head, Coin.Tail]);
+
+console.log(dice.value); // [['HEAD', 0.5], ['TAIL', 0.5]]
+```
+
+## Event(사건) 계산
+
+확률분포를 만들었으니 이제 특정 사건에 대한 확률을 계산할 수 있도록 구현해보자.  
+사건에 대한 정의는 확률변수를 인자로 받고 boolean을 반환하는 함수로 만들었고 이를 `Event` 타입으로 정의했다.
+
+```typescript
+type Event<RANDOM_VARIABLE> = (variable: RANDOM_VARIABLE) => boolean;
+```
+
+이제 `Distributions` 클래스에 `evaluate` 메서드를 추가해보자.  
+이 메서드는 사건을 받아서 해당 사건에 해당하는 확률만 필터링한 총합을 반환한다.
+
+```typescript
+  evaluate(event: Event<RANDOM_VARIABLE>): Probability {
+    return this.#value.reduce(
+      (acc, [variable, prob]) => (event(variable) ? acc + prob : acc),
+      0
+    );
+  }
+```
+
+`evaluate` 메소드를 활용하면 주사위를 던졌을 때 짝수가 나오는 확률을 계산할 수 있다.
+
+```typescript
+const dice = Distributions.uniform([
+  Dice.One,
+  Dice.Two,
+  Dice.Three,
+  Dice.Four,
+  Dice.Five,
+  Dice.Six,
+]);
+const evenEvent = (dice: Dice) => dice % 2 === 0;
+
+console.log(dice.evaluate(evenEvent)); // 0.5
+```
+
+## Functor와 주변확률분포
+
+기본적인 확률분포 정의가 끝났으니 이제 `Distributions`를 Monad로 만들기 위한 작업을 해보자.  
+`Distribution`가 Monad를 만족하려면 우선 Functor, Applicative를 만족해야 한다.
+
+먼저 Functor를 만족하려면 `map` 함수를 구현해야 한다.  
+`map` 함수는 `임의의 확률변수 A를 받아서 확률변수 B로 변환하는 함수`를 인자로 받아 `확률분포를 변환하는 함수`를 반환한다.
+
+```typescript
+declare function map<A, B>(
+  f: (a: A) => B
+): (fa: Distributions<A>) => Distributions<B>;
+```
+
+구현은 다음과 같다.
+
+> `map` 함수를 `Distribution` 클래스의 메서드로 만들 수 있지만 이번에는 추후에 소개할 pipeline을 표현하기 위해 일반함수로 구현했다.
+
+```typescript
+export const map =
+  <A, B>(f: (a: A) => B) =>
+  (fa: Distributions<A>): Distributions<B> =>
+    Distributions.of(fa.value.map(([variable, prob]) => [f(variable), prob]));
+```
+
+위 로직은 주어진 확률분포 fa의 내부를 순회하면서 확률변수만 주어진 함수를 통해 변환한 후 새로운 확률분포를 만든다.  
+구현부만 본다면 이 함수가 크게 유용해 보이지 않지만 [결합확률분포](https://ko.wikipedia.org/wiki/%EA%B2%B0%ED%95%A9%EB%B6%84%ED%8F%AC)의 [주변확률분포](https://ko.wikipedia.org/wiki/%EC%A3%BC%EB%B3%80_%EB%B6%84%ED%8F%AC)을 쉽게 계산할 수 있도록 도와준다.
+
+결합확률분포의 예제로 다음과 같은 두 확률변수에 대한 표를 생각할 수 있다.  
+X, Y 모두 0과 1의 값을 가지며 각 값이 나올 수 있는 경우를 표현하였다.
+
+| Y\X | 0   | 1   |
+| --- | --- | --- |
+| 0   | 0.2 | 0.1 |
+| 1   | 0.4 | 0.3 |
+
+위 내용을 코드로 표현하면 다음과 같다.
+
+```typescript
+type JoinVariable = [X: number, Y: number];
+
+const dist = Distributions.of<JoinVariable>([
+  [[0, 0], 0.2],
+  [[0, 1], 0.4],
+  [[1, 0], 0.1],
+  [[1, 1], 0.3],
+]);
+```
+
+`map`함수를 활용하면 X 또는 Y에 대한 주변확률분포를 쉽게 계산할 수 있다.
+
+> `map`의 인자로 제공하는 함수의 타입추론을 위해 `fp-ts`의 `pipe` 함수를 사용했다.
+
+```typescript
+import { pipe } from "fp-ts/function";
+
+const marginalX = pipe(
+  dist,
+  map(([x, _]) => x)
+);
+const marginalY = pipe(
+  dist,
+  map(([_, y]) => y)
+);
+
+console.log(marginalX(dist).value); // [[0, 0.6], [1, 0.4]]
+console.log(marginalY(dist).value); // [[0, 0.3], [1, 0.7]]
+```
+
+## Applicative Functor와 결합확률분포
+
+이전 장에서 소개한 결합확률분포를 구하기 위해 여러개의 확률분포를 결합하는 과정이 필요하다.  
+두 개의 사건 x, y가 있을 때, x와 y가 서로 독립이라면 다음과 같은 공식을 사용해 결합확률분포를 구할 수 있다.
+
+```
+P(x,y) = P(x)P(y)
+```
+
+이를 구현하기 위한 함수 `join`의 시그니쳐를 생각해보자.  
+인자로 두 개의 `Distributions`를 받으며 두 분포를 결합한 새로운 `Distributions`를 반환하는 형태일 것이다.
+
+```typescript
+declare function join<A, B, C>(
+  fa: Distributions<A>,
+  fb: Distributions<B>
+): Distributions<C>;
+```
+
+위 함수를 직접 구현할 수 있겠지만 이번에는 `구현하기 더 쉬운 형태의 함수`를 `join`으로 변환해주는 함수를 구현해보자.  
+여기서 말하는 `구현하기 쉬운 형태의 함수`란 확률변수간의 변환만 다루는 함수를 의미한다.
+
+```typescript
+declare function joinVariables<A, B, C>(a: A, b: B): C;
+```
+
+위와 같은 함수는 순수 함수형 언어에서는 보통 Application Functor를 사용해 구현한다.  
+`Distributions`가 Application Functor를 만족하기 위해 다음과 같은 함수를 구현해야 한다.
+
+> 함수의 이름 `ap`는 `fp-ts`의 이름 컨벤션을 따왔다.
+
+```typescript
+declare function ap<A, B>(
+  fa: Distributions<A>
+): (fab: Distributions<(a: A) => B>) => Distributions<B>;
+```
+
+실제 구현은 다음과 같다.
+
+```typescript
+export const ap =
+  <A, B>(fa: Distributions<A>) =>
+  (fab: Distributions<(a: A) => B>): Distributions<B> =>
+    Distributions.of(
+      fab.value.flatMap(
+        ([f, prob1]) =>
+          fa.value.map(([a, prob2]) => [f(a), prob1 * prob2]) as [
+            B,
+            Probability
+          ][]
+      )
+    );
+```
+
+구현로직을 보면 fab변수는 `함수의 확률분포`라는 점이 특이하며 일반적인 확률분포 fa와 결합하게 된다.  
+두 확률분포를 순회하면서 `f(a)`를 통해 새로운 확률변수를 생성하고 `prob1 * prob2`를 통해 각 확률을 곱한다.
+
+함수의 구현은 조금 복잡한 편이지만 사용법은 간단하다.
+
+```typescript
+// 두 확률변수를 결합하는 함수를 커링
+const joinVariables = (a: number) => (b: number) => `(${a}, ${b})`;
+
+// 임의의 확률분포 정의
+const dist1 = Distributions.uniform([1, 2]);
+const dist2 = Distributions.uniform([1, 2, 3, 4]);
+
+// map과 ap를 사용해 결합확률분포 계산
+const joinDist = pipe(dist1, map(joinDist), ap(dist2));
+
+console.log(joinDist.value);
+/*
+  [
+    ["(1, 1)", 0.125],
+    ["(1, 2)", 0.125],
+    ["(1, 3)", 0.125],
+    ["(1, 4)", 0.125],
+    ["(2, 1)", 0.125],
+    ["(2, 2)", 0.125],
+    ["(2, 3)", 0.125],
+    ["(2, 4)", 0.125],
+  ]
+ */
+```
+
+위 예제에서는 두 개의 확률변수만 다루었지만 더 많은 확률변수에도 같은 방식으로 적용할 수 있다.  
+joinVariables 에 우선 map을 적용한 후 이후에는 인자의 개수에 맞게 ap를 적용하면 된다.
+
+```typescript
+pipe(dist1, map(joinVariables), ap(dist2), ap(dist3), ap(dist4) ...)
+```
+
+:::info
+haskell에서는 위 로직을 더 간결하게 표현할 수 있다.  
+`<$>`를 map, `<*>`를 ap로 생각하면 된다.
+
+```haskell
+joinVariables <$> dist1 <*> dist2 <*> dist3 <*> dist4 ...
+```
+
+:::
+
+위 예제에서는 joinVariables가 항상 커링함수여야 하는 단점이 존재한다.
+
+> haskell에서는 모든 함수가 자동으로 커링되기 때문에 이런 문제는 없다.
+
+이를 해결하기 위해 다음과 같은 `liftA2` 함수를 만들어 사용할 수 있다.
+
+```typescript
+export const liftA2 =
+  <A, B, C>(f: (a: A, b: B) => C) =>
+  (fa: Distributions<A>, fb: Distributions<B>): Distributions<C> =>
+    pipe(
+      fa,
+      map((a) => (b: B) => f(a, b)),
+      ap(fb)
+    );
+```
+
+`liftA2`는 앞서 이야기한 `구현하기 더 쉬운 형태의 함수`를 `join`으로 변환해주는 함수의 한 예로 볼 수 있다.
+
+```typescript
+const joinVariables = (a: number, b: number) => `(${a}, ${b})`;
+const join = liftA2(joinVariables);
+
+const dist1 = Distributions.uniform([1, 2]);
+const dist2 = Distributions.uniform([1, 2, 3, 4]);
+
+const joinDist = join(dist1, dist2);
+```
