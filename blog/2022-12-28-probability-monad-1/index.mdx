@@ -123,9 +123,9 @@ enum Coin {
   Head,
   Tail,
 }
-const dice = Distributions.uniform([Coin.Head, Coin.Tail]);
+const coin = Distributions.uniform([Coin.Head, Coin.Tail]);
 
-console.log(dice.value); // [['HEAD', 0.5], ['TAIL', 0.5]]
+console.log(coin.value); // [['HEAD', 0.5], ['TAIL', 0.5]]
 ```
 
 ## Event(사건) 계산
