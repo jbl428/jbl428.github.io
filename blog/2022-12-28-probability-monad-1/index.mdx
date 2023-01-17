@@ -302,7 +302,7 @@ const dist1 = Distributions.uniform([1, 2]);
 const dist2 = Distributions.uniform([1, 2, 3, 4]);
 
 // map과 ap를 사용해 결합확률분포 계산
-const joinDist = pipe(dist1, map(joinDist), ap(dist2));
+const joinDist = pipe(dist1, map(joinVariables), ap(dist2));
 
 console.log(joinDist.value);
 /*
