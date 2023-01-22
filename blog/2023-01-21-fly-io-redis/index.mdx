@@ -1,0 +1,109 @@
+---
+title: "fly.io 에서 제공하는 redis 사용하기"
+description: fly.io에서 제공하는 redis 를 사용하는 방법에 대한 소개와 ioredis로 접근하는 경우 발생하는 문제상황 해결방안 공유
+authors: jake
+tags: [redis, ioredis, fly.io]
+---
+
+[fly.io](https://fly.io) 에서는 웹 어플리케이션에서 자주 사용하는 redis 인스턴스를 제공한다.  
+무료플랜도 지원하기 때문에 필요한 상황에서 유용하게 사용할 수 있다.  
+이번 포스트에서는 redis 인스턴스 생성 방법과 `ioredis` 를 사용할 경우 발생하는 접속문제 해결방안을 공유하고자 한다.
+
+<!--truncate-->
+
+## 인스턴스 생성
+
+fly.io에서 제공하는 redis는 사실 [upstash](https://docs.upstash.com/redis)에서 제공하는 서비스를 사용한다.  
+하지만 인스턴스를 만들기 위해 따로 해당 사이트에 가입할 필요없으며 flycli를 사용해 쉽게 생성할 수 있다.
+
+생성한 redis는 기본적으로 같은 Organization에 속한 서버들에서만 접속할 수 있다.
+fly.io를 사용하는 프로젝트(fly.toml 파일이 있는 곳)로 이동한 후 아래 명령어를 수행하여 redis를 생성한다.
+
+```bash
+flyctl redis create
+```
+
+본인의 계정에 Organization이 여러개 존재한다면 어떤 항목에 생성할 것인지 물어보며 원하는 것을 선택한다.  
+이후 인스턴스 이름을 물어보는데 적절한 값을 넣어준다.  
+다음으로 redis 인스턴스의 지역을 선택하게 되는데 접속하려는 서버와 같은 지역을 선택하도록 한다.  
+추가로 replica 지역은 선택사항으로 원하는 항목을 선택한다.  
+마지막으로 plan을 선택할 수 있다.
+
+```bash
+? Choose a Redis database name (leave blank to generate one): bae-no
+? Choose a primary region (can't be changed later) Tokyo, Japan (nrt)
+
+Upstash Redis can evict objects when memory is full. This is useful when caching in Redis. This setting can be changed later.
+Learn more at https://fly.io/docs/reference/redis/#memory-limits-and-object-eviction-policies
+? Would you like to enable eviction? Yes
+? Optionally, choose one or more replica regions (can be changed later): Paris, France (cdg)
+? Select an Upstash Redis plan  [Use arrows to move, type to filter]
+> Free: 100 MB Max Data Size
+  200M: 200 MB Max Data Size
+  3G: 3 GB Max Data Size
+```
+
+## 접속정보 확인
+
+접속정보는 다음 명령어를 통해 확인할 수 있다.  
+출력되는 정보 중 `Private URL`은 접속정보로 활용되니 복사해두록 한다.
+
+```bash
+flyctl redis status bae-no
+
+Redis
+  ID             = 9Xaqy10XJanPjuYlgV1
+  Name           = bae-no
+  Plan           = Free
+  Primary Region = nrt
+  Read Regions   =
+  Private URL    = redis://default:xxxxxxxx@fly-bae-no.upstash.io
+```
+
+## redis-cli로 접속하기
+
+만약 외부에서 redis에 직접 접속해서 명령어를 입력하고 싶다면 아래 명령어를 활용한다.  
+redis-cli를 사용하므로 먼저 로컬에 해당 프로그램을 설치해야 한다.
+
+```bash
+flyctl redis connect
+? Select a database to connect to bae-no (nrt) personal
+Proxying local port 16379 to remote [fdaa:0:8b80:0:1::4]:6379
+127.0.0.1:16379> ping
+PONG
+```
+
+## ioredis로 접속하기
+
+Node.js환경에서 redis를 위해 사용하는 라이브러리로 `ioredis`가 있다.  
+fly.io서버에서 이 라이브러리리를 활용해 redis를 접속하려는 경우 아래와 같은 에러가 발생하는 경우가 있다.
+
+```
+2023-01-21T13:18:12.613 app[6c7fb858] nrt [info] Error: getaddrinfo ENOTFOUND fly-bae-no.upstash.io
+2023-01-21T13:18:12.613 app[6c7fb858] nrt [info] at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:107:26) {
+2023-01-21T13:18:12.613 app[6c7fb858] nrt [info] errno: -3007,
+2023-01-21T13:18:12.613 app[6c7fb858] nrt [info] code: 'ENOTFOUND',
+2023-01-21T13:18:12.613 app[6c7fb858] nrt [info] syscall: 'getaddrinfo',
+2023-01-21T13:18:12.613 app[6c7fb858] nrt [info] hostname: 'fly-bae-no.upstash.io'
+2023-01-21T13:18:12.613 app[6c7fb858] nrt [info] }
+```
+
+이럴 때에는 접속정보에 `Private URL`을 제공하고 끝에 `?family=6`값을 추가하면 해결된다.
+
+```typescript
+const Redis = require("ioredis");
+
+const client = new Redis(
+  "redis://default:********@fly-bae-no.upstash.io:6379?family=6"
+);
+```
+
+만약 `graphql-redis-subscriptions`라이브러리를 사용하는 경우에는 다음과 같이 넣어주도록 한다.
+
+```typescript
+import { RedisPubSub } from "graphql-redis-subscriptions";
+
+const pubsub = new RedisPubSub({
+  connection: "redis://default:********@fly-bae-no.upstash.io:6379?family=6",
+});
+```
