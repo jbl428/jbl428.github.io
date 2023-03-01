@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[3213],{4142:function(e){e.exports=JSON.parse('{"label":"open-telemetry","permalink":"/tags/open-telemetry","allTagsPath":"/tags","count":1}')}}]);
