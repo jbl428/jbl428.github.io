@@ -1,5 +1,6 @@
 ---
-title: "MikroORM 과 TypeORM 비교"
+title: "MikroORM과 TypeORM 비교"
+slug: "MikroORM과-TypeORM-비교"
 authors: jake
 tags: [mikroorm, typeorm]
 ---
