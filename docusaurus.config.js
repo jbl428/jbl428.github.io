@@ -10,7 +10,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
     url: "https://jbl428.github.io",
     baseUrl: "/",
     onBrokenLinks: "throw",
-    onBrokenMarkdownLinks: "warn",
+    onBrokenMarkdownLinks: "throw",
     favicon: "img/favicon.ico",
     organizationName: "jbl428",
     projectName: "jbl428.github.io",
