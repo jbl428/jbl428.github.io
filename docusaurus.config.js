@@ -47,7 +47,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
           title: "Jake Son Blog",
           logo: {
             alt: "Jake Son Blog",
-            src: "img/gopher.svg",
+            src: "img/gopher.png",
           },
           items: [
             { to: "/archive", label: "Archive", position: "left" },
