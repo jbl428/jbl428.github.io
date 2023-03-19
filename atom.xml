@@ -9,8 +9,8 @@
     <icon>https://jbl428.github.io/img/favicon.ico</icon>
     <entry>
         <title type="html"><![CDATA[Open Telemetry와 Effect-TS로 Nest.js 애플리케이션 모니터링하기]]></title>
-        <id>https://jbl428.github.io/Open-Telemetry와-Effect-TS로-Nest.js-애플리케이션-모니터링하기</id>
-        <link href="https://jbl428.github.io/Open-Telemetry와-Effect-TS로-Nest.js-애플리케이션-모니터링하기"/>
+        <id>https://jbl428.github.io/2023/03/01/Open-Telemetry와-Effect-TS로-Nest.js-애플리케이션-모니터링하기</id>
+        <link href="https://jbl428.github.io/2023/03/01/Open-Telemetry와-Effect-TS로-Nest.js-애플리케이션-모니터링하기"/>
         <updated>2023-03-01T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Open Telemetry와 Effect-TS를 활용해 Nest.js 애플리케이션을 모니터링하는 방법을 설명합니다.]]></summary>
         <content type="html"><![CDATA[<p>요즘에는 웹 어플리케이션의 모니터링을 위해 Datadog과 같은 도구를 사용한다.<br>
@@ -56,8 +56,8 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[Effect-TS로 테스트 가능하고 효율적인 코드 작성하기]]></title>
-        <id>https://jbl428.github.io/Effect-TS로-테스트-가능하고-효율적인-코드-작성하기</id>
-        <link href="https://jbl428.github.io/Effect-TS로-테스트-가능하고-효율적인-코드-작성하기"/>
+        <id>https://jbl428.github.io/2023/02/11/Effect-TS로-테스트-가능하고-효율적인-코드-작성하기</id>
+        <link href="https://jbl428.github.io/2023/02/11/Effect-TS로-테스트-가능하고-효율적인-코드-작성하기"/>
         <updated>2023-02-11T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[부작용을 효율적으로 다루기 위한 라이브러리인 Effect-TS의 메인테이너의 발표영상 내용을 정리해보았다.]]></summary>
         <content type="html"><![CDATA[<p>대수적 자료형을 제공하는 Typescript 라이브러리인 fp-ts의 메인테이너 <a href="https://github.com/gcanti" target="_blank" rel="noopener noreferrer">Giulio Canti</a>의 최근 활동을 보면 <a href="https://github.com/fp-ts" target="_blank" rel="noopener noreferrer">fp-ts</a>그룹 내의 저장소에 작업을 하는것을 볼 수 있다.</p><p><img loading="lazy" alt="gcanti-profile" src="/assets/images/gcanti-profile-049f0ba8c0e071de16c6cfb5620bb53f.png" width="1842" height="1208" class="img_ev3q"></p><p>그 중에서 <a href="https://github.com/fp-ts/core" target="_blank" rel="noopener noreferrer">core</a> 저장소를 보면 해당 프로젝트의 목적이 <code>@effect</code> 생태계와의 통합을 위한 것이라고 한다.<br>
@@ -97,8 +97,8 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[fly.io 에서 제공하는 redis 사용하기]]></title>
-        <id>https://jbl428.github.io/fly.io-에서-제공하는-redis-사용하기</id>
-        <link href="https://jbl428.github.io/fly.io-에서-제공하는-redis-사용하기"/>
+        <id>https://jbl428.github.io/2023/01/21/fly.io-에서-제공하는-redis-사용하기</id>
+        <link href="https://jbl428.github.io/2023/01/21/fly.io-에서-제공하는-redis-사용하기"/>
         <updated>2023-01-21T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[fly.io에서 제공하는 redis 를 사용하는 방법에 대한 소개와 ioredis로 접근하는 경우 발생하는 문제상황 해결방안 공유]]></summary>
         <content type="html"><![CDATA[<p><a href="https://fly.io" target="_blank" rel="noopener noreferrer">fly.io</a> 에서는 웹 어플리케이션에서 자주 사용하는 redis 인스턴스를 제공한다.<br>
@@ -123,11 +123,11 @@ fly.io를 사용하는 프로젝트(fly.toml 파일이 있는 곳)로 이동한 
     </entry>
     <entry>
         <title type="html"><![CDATA[Typescript로 확률 Monad 구현하기 - 2]]></title>
-        <id>https://jbl428.github.io/Typescript로-확률-Monad-구현하기-2</id>
-        <link href="https://jbl428.github.io/Typescript로-확률-Monad-구현하기-2"/>
+        <id>https://jbl428.github.io/2022/12/29/Typescript로-확률-Monad-구현하기-2</id>
+        <link href="https://jbl428.github.io/2022/12/29/Typescript로-확률-Monad-구현하기-2"/>
         <updated>2022-12-29T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Typescript로 확률분포를 위한 Monad를 구현하는 과정을 소개한다.]]></summary>
-        <content type="html"><![CDATA[<blockquote><p><a href="/Typescript로-확률-Monad-구현하기-1">이전 포스트</a>에서 이어지는 내용입니다.</p></blockquote><h2 class="anchor anchorWithStickyNavbar_LWe7" id="이항확률분포">이항확률분포<a href="#이항확률분포" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h2><p>Applicative Functor를 활용하면 <a href="https://ko.wikipedia.org/wiki/%EC%9D%B4%ED%95%AD_%EB%B6%84%ED%8F%AC" target="_blank" rel="noopener noreferrer">이항확률분포</a>를 계산할 수 있다.<br>
+        <content type="html"><![CDATA[<blockquote><p><a href="/2022/12/28/Typescript로-확률-Monad-구현하기-1">이전 포스트</a>에서 이어지는 내용입니다.</p></blockquote><h2 class="anchor anchorWithStickyNavbar_LWe7" id="이항확률분포">이항확률분포<a href="#이항확률분포" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h2><p>Applicative Functor를 활용하면 <a href="https://ko.wikipedia.org/wiki/%EC%9D%B4%ED%95%AD_%EB%B6%84%ED%8F%AC" target="_blank" rel="noopener noreferrer">이항확률분포</a>를 계산할 수 있다.<br>
 <!-- -->이항확률분포란 동전 던지기와 같이 독립적인 시행의 결과가 성공 또는 실패 두 가지로만 이루어진 경우의 확률분포를 말한다.</p><p>앞면이 나올 확률이 0.3인 동전을 10번 던졌을 때 앞면이 나오는 횟수의 확률분포를 계산해보자.<br>
 <!-- -->먼저 하나의 시행에 대한 확률분포를 만드는데 확률변수는 0(뒷면), 1(앞면)으로 설정한다.</p><div class="language-typescript codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-typescript codeBlock_bY9V thin-scrollbar"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token keyword" style="color:#00009f">const</span><span class="token plain"> dist </span><span class="token operator" style="color:#393A34">=</span><span class="token plain"> Distributions</span><span class="token punctuation" style="color:#393A34">.</span><span class="token function" style="color:#d73a49">of</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">[</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  </span><span class="token punctuation" style="color:#393A34">[</span><span class="token number" style="color:#36acaa">0</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> </span><span class="token number" style="color:#36acaa">0.7</span><span class="token punctuation" style="color:#393A34">]</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  </span><span class="token punctuation" style="color:#393A34">[</span><span class="token number" style="color:#36acaa">1</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> </span><span class="token number" style="color:#36acaa">0.3</span><span class="token punctuation" style="color:#393A34">]</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token punctuation" style="color:#393A34">]</span><span class="token punctuation" style="color:#393A34">)</span><span class="token punctuation" style="color:#393A34">;</span><br></span></code></pre><div class="buttonGroup__atx"><button type="button" aria-label="클립보드에 코드 복사" title="복사" class="clean-btn"><span class="copyButtonIcons_eSgA" aria-hidden="true"><svg class="copyButtonIcon_y97N" viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg class="copyButtonSuccessIcon_LjdS" viewBox="0 0 24 24"><path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div><p>각 시행은 독립적이므로 위 확률분포를 10개 생성한 후 결합하면 원하는 이항확률분포를 얻을 수 있다.</p><div class="language-typescript codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-typescript codeBlock_bY9V thin-scrollbar"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token keyword" style="color:#00009f">const</span><span class="token plain"> dists </span><span class="token operator" style="color:#393A34">=</span><span class="token plain"> </span><span class="token builtin">Array</span><span class="token punctuation" style="color:#393A34">.</span><span class="token function" style="color:#d73a49">from</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">{</span><span class="token plain"> length</span><span class="token operator" style="color:#393A34">:</span><span class="token plain"> </span><span class="token number" style="color:#36acaa">10</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">}</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"> </span><span class="token operator" style="color:#393A34">=&gt;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  Distributions</span><span class="token punctuation" style="color:#393A34">.</span><span class="token function" style="color:#d73a49">of</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">[</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><span class="token punctuation" style="color:#393A34">[</span><span class="token number" style="color:#36acaa">0</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> </span><span class="token number" style="color:#36acaa">0.7</span><span class="token punctuation" style="color:#393A34">]</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><span class="token punctuation" style="color:#393A34">[</span><span class="token number" style="color:#36acaa">1</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> </span><span class="token number" style="color:#36acaa">0.3</span><span class="token punctuation" style="color:#393A34">]</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  </span><span class="token punctuation" style="color:#393A34">]</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token punctuation" style="color:#393A34">)</span><span class="token punctuation" style="color:#393A34">;</span><br></span></code></pre><div class="buttonGroup__atx"><button type="button" aria-label="클립보드에 코드 복사" title="복사" class="clean-btn"><span class="copyButtonIcons_eSgA" aria-hidden="true"><svg class="copyButtonIcon_y97N" viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg class="copyButtonSuccessIcon_LjdS" viewBox="0 0 24 24"><path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div><p>우선 확률변수 간의 결합로직을 생각해보자.<br>
 <!-- -->우리가 원하는 확률변수는 앞면이 나오는 횟수이고 앞면이 나오는 경우를 1로 설정했기 때문에 모든 확률변수를 더하면 된다.<br>
@@ -156,8 +156,8 @@ fly.io를 사용하는 프로젝트(fly.toml 파일이 있는 곳)로 이동한 
     </entry>
     <entry>
         <title type="html"><![CDATA[Typescript로 확률 Monad 구현하기 - 1]]></title>
-        <id>https://jbl428.github.io/Typescript로-확률-Monad-구현하기-1</id>
-        <link href="https://jbl428.github.io/Typescript로-확률-Monad-구현하기-1"/>
+        <id>https://jbl428.github.io/2022/12/28/Typescript로-확률-Monad-구현하기-1</id>
+        <link href="https://jbl428.github.io/2022/12/28/Typescript로-확률-Monad-구현하기-1"/>
         <updated>2022-12-28T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Typescript로 확률분포를 위한 Monad를 구현하는 과정을 소개한다.]]></summary>
         <content type="html"><![CDATA[<p>최근에 <a href="https://dennybritz.com/posts/probability-monads-from-scratch/" target="_blank" rel="noopener noreferrer">Probability Monads from scratch in 100 lines of Haskell</a> 글을 읽어보았는데 내용이 꽤 재밌어서 Typescript로 구현한 과정을 소개하고자 한다.</p><p>해당 글은 haskell을 사용해 확률분포를 표현하는 Monad를 만들어서 간단한 확률을 구하는 과정을 담고있다.<br>
@@ -193,8 +193,8 @@ fly.io를 사용하는 프로젝트(fly.toml 파일이 있는 곳)로 이동한 
     </entry>
     <entry>
         <title type="html"><![CDATA[배달비 노노 프로젝트을 진행하며]]></title>
-        <id>https://jbl428.github.io/배달비-노노-프로젝트을-진행하며</id>
-        <link href="https://jbl428.github.io/배달비-노노-프로젝트을-진행하며"/>
+        <id>https://jbl428.github.io/2022/11/07/배달비-노노-프로젝트을-진행하며</id>
+        <link href="https://jbl428.github.io/2022/11/07/배달비-노노-프로젝트을-진행하며"/>
         <updated>2022-11-07T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[사이드 프로젝트로 진행하고 있는 배달비 노노 백엔드 서버에 대한 소개와 기술적인 고민에 대한 내용을 담았다.]]></summary>
         <content type="html"><![CDATA[<p>사이드 프로젝트로 진행하고 있는 <a href="https://github.com/bae-no/bae-no-server" target="_blank" rel="noopener noreferrer">배달비 노노 백엔드 서버</a>에 대한 소개와 기술적인 고민에 대한 내용을 담았다.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="프로젝트-소개">프로젝트 소개<a href="#프로젝트-소개" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h2><p>배달비 노노 프로젝트는 이름 그대로 주문 음식의 배달비를 줄일 수 있는 기회를 제공해준다.<br>
@@ -253,8 +253,8 @@ fly.io를 사용하는 프로젝트(fly.toml 파일이 있는 곳)로 이동한 
     </entry>
     <entry>
         <title type="html"><![CDATA[MongoDB Atlas Search로 컬럼기반 정렬하기]]></title>
-        <id>https://jbl428.github.io/MongoDB-Atlas-Search로-컬럼기반-정렬하기</id>
-        <link href="https://jbl428.github.io/MongoDB-Atlas-Search로-컬럼기반-정렬하기"/>
+        <id>https://jbl428.github.io/2022/09/12/MongoDB-Atlas-Search로-컬럼기반-정렬하기</id>
+        <link href="https://jbl428.github.io/2022/09/12/MongoDB-Atlas-Search로-컬럼기반-정렬하기"/>
         <updated>2022-09-12T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[이번 포스트는 MongoDB Atlas 를 활용해 페이지네이션을 구현할 때 정렬을 relevance 기반이 아닌 컬럼을 기준으로 할 때의 문제와 개선점을 다룬다.]]></summary>
         <content type="html"><![CDATA[<p>이번 포스트는 MongoDB Atlas 를 활용해 페이지네이션을 구현할 때 정렬을 relevance 기반이 아닌 컬럼을 기준으로 할 때의 문제와 개선점을 다룬다.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="예제-데이터">예제 데이터<a href="#예제-데이터" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h2><p>먼저 예제로 활용할 데이터를 만들어보자.<br>
@@ -302,8 +302,8 @@ fly.io를 사용하는 프로젝트(fly.toml 파일이 있는 곳)로 이동한 
     </entry>
     <entry>
         <title type="html"><![CDATA[Mogenius를 활용한 도커 컨테이너 배포]]></title>
-        <id>https://jbl428.github.io/Mogenius를-활용한-도커-컨테이너-배포</id>
-        <link href="https://jbl428.github.io/Mogenius를-활용한-도커-컨테이너-배포"/>
+        <id>https://jbl428.github.io/2022/09/09/Mogenius를-활용한-도커-컨테이너-배포</id>
+        <link href="https://jbl428.github.io/2022/09/09/Mogenius를-활용한-도커-컨테이너-배포"/>
         <updated>2022-09-09T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[이전 포스트에서 적은 fly.io 와 비슷한 서비스를 제공하는 Mogenius 를 활용한 도커 컨테이너 배포에 대한 내용을 다룬다.]]></summary>
         <content type="html"><![CDATA[<p>이전 포스트에서 적은 fly.io 와 비슷한 서비스를 제공하는 Mogenius 를 활용한 도커 컨테이너 배포에 대한 내용을 다룬다.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="flyio-단점">Fly.io 단점<a href="#flyio-단점" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h2><p>Fly.io 는 무료로 사용할 수 있는 서비스이지만, 무료 플랜에서 256MB 의 메모리만 지원하는 단점이 있다.<br>
@@ -356,8 +356,8 @@ fly.io를 사용하는 프로젝트(fly.toml 파일이 있는 곳)로 이동한 
     </entry>
     <entry>
         <title type="html"><![CDATA[Fly.io를 활용한 도커 컨테이너 배포]]></title>
-        <id>https://jbl428.github.io/Fly.io를-활용한-도커-컨테이너-배포</id>
-        <link href="https://jbl428.github.io/Fly.io를-활용한-도커-컨테이너-배포"/>
+        <id>https://jbl428.github.io/2022/08/27/Fly.io를-활용한-도커-컨테이너-배포</id>
+        <link href="https://jbl428.github.io/2022/08/27/Fly.io를-활용한-도커-컨테이너-배포"/>
         <updated>2022-08-27T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[호스팅 서버로 이용중인 Heroku 가 11월 이후로 더 이상 무료플랜을 지원하지 않아 이전부터 눈여겨본 Fly.io 로 이전한 과정을 담고있다.]]></summary>
         <content type="html"><![CDATA[<p>호스팅 서버로 이용중인 Heroku 가 11월 이후로 더 이상 무료플랜을 지원하지 않아 이전부터 눈여겨본 <code>Fly.io</code> 로 이전한 과정을 담고있다.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="flyio">Fly.io<a href="#flyio" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h2><p><a href="https://fly.io" target="_blank" rel="noopener noreferrer">Fly.io</a>는 도커 컨테이너를 쉽게 배포할 수 있는 플랫폼이다.<br>
@@ -393,8 +393,8 @@ fly.io를 사용하는 프로젝트(fly.toml 파일이 있는 곳)로 이동한 
     </entry>
     <entry>
         <title type="html"><![CDATA[[Spring Data MongoDB] Atlas Search 를 위한 커스텀 Kotlin DSL 만들기]]></title>
-        <id>https://jbl428.github.io/[Spring-Data-MongoDB]-Atlas-Search를-위한-커스텀-Kotlin-DSL-만들기</id>
-        <link href="https://jbl428.github.io/[Spring-Data-MongoDB]-Atlas-Search를-위한-커스텀-Kotlin-DSL-만들기"/>
+        <id>https://jbl428.github.io/2022/07/03/[Spring-Data-MongoDB]-Atlas-Search를-위한-커스텀-Kotlin-DSL-만들기</id>
+        <link href="https://jbl428.github.io/2022/07/03/[Spring-Data-MongoDB]-Atlas-Search를-위한-커스텀-Kotlin-DSL-만들기"/>
         <updated>2022-07-03T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[MongoDB Atlas Search 에서 제공하는 전문 검색 기능을 Spring Data MongoDB 으로 조회하기 위한 dsl 을 만드는 과정을 담고있다.]]></summary>
         <content type="html"><![CDATA[<p><a href="https://www.mongodb.com/ko-kr/atlas/search" target="_blank" rel="noopener noreferrer">MongoDB Atlas Search</a> 에서 제공하는 전문 검색 기능을 <code>Spring Data MongoDB</code> 으로 조회하기 위한 dsl 을 만드는 과정을 담고있다.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="mongodb-cli">MongoDB CLI<a href="#mongodb-cli" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h2><p>먼저 MongoDB 콘솔에서 Atlas Search 를 사용하기 위한 방법을 알아보자.<br>
@@ -420,8 +420,8 @@ fly.io를 사용하는 프로젝트(fly.toml 파일이 있는 곳)로 이동한 
     </entry>
     <entry>
         <title type="html"><![CDATA[Kotlin + Spring GraphQL + Spring Security 사용하기]]></title>
-        <id>https://jbl428.github.io/Kotlin-Spring-GraphQL-Spring-Security-사용하기</id>
-        <link href="https://jbl428.github.io/Kotlin-Spring-GraphQL-Spring-Security-사용하기"/>
+        <id>https://jbl428.github.io/2022/06/06/Kotlin-Spring-GraphQL-Spring-Security-사용하기</id>
+        <link href="https://jbl428.github.io/2022/06/06/Kotlin-Spring-GraphQL-Spring-Security-사용하기"/>
         <updated>2022-06-06T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[이번 포스트에서는 Spring for GraphQL 프로젝트가 GA 되어 샘플 프로젝트를 만드는 과정을 기술하려고 한다.]]></summary>
         <content type="html"><![CDATA[<p>이번 포스트에서는 <code>Spring for GraphQL</code> 프로젝트가 GA 되어 샘플 프로젝트를 만드는 과정을 기술하려고 한다.<br>
@@ -470,8 +470,8 @@ fly.io를 사용하는 프로젝트(fly.toml 파일이 있는 곳)로 이동한 
     </entry>
     <entry>
         <title type="html"><![CDATA[Github Page를 GraphQL 스키마 서버로 만들기]]></title>
-        <id>https://jbl428.github.io/Github-Page를-GraphQL-스키마-서버로-만들기</id>
-        <link href="https://jbl428.github.io/Github-Page를-GraphQL-스키마-서버로-만들기"/>
+        <id>https://jbl428.github.io/2022/05/18/Github-Page를-GraphQL-스키마-서버로-만들기</id>
+        <link href="https://jbl428.github.io/2022/05/18/Github-Page를-GraphQL-스키마-서버로-만들기"/>
         <updated>2022-05-18T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[이번 글에서는 Github Page 를 GraphQL 스키마 서버로 활용하는 과정을 기술하려고 한다.]]></summary>
         <content type="html"><![CDATA[<p>이번 글에서는 Github Page 를 GraphQL 스키마 서버로 활용하는 과정을 기술하려고 한다.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="상황">상황<a href="#상황" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h2><p>최근 GraphQL 을 사용하는 사이드 프로젝트를 진행하고 있는데 FE 에서 <a href="https://www.graphql-code-generator.com/" target="_blank" rel="noopener noreferrer">graphql-codegen</a> 을 활용해 스키마 타입정보를 만들어야 하는 (codegen) 상황이 생겼다.<br>
@@ -508,8 +508,8 @@ fly.io를 사용하는 프로젝트(fly.toml 파일이 있는 곳)로 이동한 
     </entry>
     <entry>
         <title type="html"><![CDATA[kotlin에서 testcontainers 사용하기]]></title>
-        <id>https://jbl428.github.io/kotlin에서-testcontainers-사용하기</id>
-        <link href="https://jbl428.github.io/kotlin에서-testcontainers-사용하기"/>
+        <id>https://jbl428.github.io/2022/04/30/kotlin에서-testcontainers-사용하기</id>
+        <link href="https://jbl428.github.io/2022/04/30/kotlin에서-testcontainers-사용하기"/>
         <updated>2022-04-30T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[이전에 node.js 환경에서 testcontainers 를 활용한 글을 작성하였다.]]></summary>
         <content type="html"><![CDATA[<p>이전에 node.js 환경에서 <code>testcontainers</code> 를 활용한 글을 작성하였다.<br>
@@ -537,8 +537,8 @@ fly.io를 사용하는 프로젝트(fly.toml 파일이 있는 곳)로 이동한 
     </entry>
     <entry>
         <title type="html"><![CDATA[graphql 장점]]></title>
-        <id>https://jbl428.github.io/graphql-장점</id>
-        <link href="https://jbl428.github.io/graphql-장점"/>
+        <id>https://jbl428.github.io/2022/03/27/graphql-장점</id>
+        <link href="https://jbl428.github.io/2022/03/27/graphql-장점"/>
         <updated>2022-03-27T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[이번 글에서는 Node.js 환경에서 REST API 와 GraphQL 을 사용해보면서 느낀점과 GraphQL 을 선호하는 이유를 작성하려고 한다.]]></summary>
         <content type="html"><![CDATA[<p>이번 글에서는 Node.js 환경에서 REST API 와 GraphQL 을 사용해보면서 느낀점과 GraphQL 을 선호하는 이유를 작성하려고 한다.<br>
@@ -577,8 +577,8 @@ BE 에서는 기존 필드에 deprecated 표시를 하고 새로운 필드만 �
     </entry>
     <entry>
         <title type="html"><![CDATA[MikroORM과 TypeORM 비교]]></title>
-        <id>https://jbl428.github.io/MikroORM과-TypeORM-비교</id>
-        <link href="https://jbl428.github.io/MikroORM과-TypeORM-비교"/>
+        <id>https://jbl428.github.io/2022/02/16/MikroORM과-TypeORM-비교</id>
+        <link href="https://jbl428.github.io/2022/02/16/MikroORM과-TypeORM-비교"/>
         <updated>2022-02-16T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[이번 글은 ts 환경에서 주로 사용되는 ORM 인 TypeORM 를 사용하면서 발생한 문제점을 소개하고 또 다른 ORM 인 MikroORM 에서 어떻게 해결하고 있는지에 대한 내용을 담고있다.]]></summary>
         <content type="html"><![CDATA[<p>이번 글은 ts 환경에서 주로 사용되는 ORM 인 <code>TypeORM</code> 를 사용하면서 발생한 문제점을 소개하고 또 다른 ORM 인 <code>MikroORM</code> 에서 어떻게 해결하고 있는지에 대한 내용을 담고있다.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="typeorm">TypeORM<a href="#typeorm" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h2><p>TypeORM 은 <code>JavaScript</code> 와 <code>TypeScript</code> 환경에서 사용하는 ORM (Object–relational mapping) 이다.<br>
@@ -640,8 +640,8 @@ BE 에서는 기존 필드에 deprecated 표시를 하고 새로운 필드만 �
     </entry>
     <entry>
         <title type="html"><![CDATA[Kotlin으로 지연평가 구현하기]]></title>
-        <id>https://jbl428.github.io/Kotlin으로-지연평가-구현하기</id>
-        <link href="https://jbl428.github.io/Kotlin으로-지연평가-구현하기"/>
+        <id>https://jbl428.github.io/2022/01/30/Kotlin으로-지연평가-구현하기</id>
+        <link href="https://jbl428.github.io/2022/01/30/Kotlin으로-지연평가-구현하기"/>
         <updated>2022-01-30T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[지연평가는 함수형 프로그래밍에서 자주 등장하는 개념이며 어떤 표현식의 값을 필요로 할 때까지 평가를 미루는 방법이다.]]></summary>
         <content type="html"><![CDATA[<p>지연평가는 함수형 프로그래밍에서 자주 등장하는 개념이며 어떤 표현식의 값을 필요로 할 때까지 평가를 미루는 방법이다.<br>
@@ -678,8 +678,8 @@ BE 에서는 기존 필드에 deprecated 표시를 하고 새로운 필드만 �
     </entry>
     <entry>
         <title type="html"><![CDATA[ts-morph로 개발 컨벤션 검증 자동화하기]]></title>
-        <id>https://jbl428.github.io/ts-morph로-개발-컨벤션-검증-자동화하기</id>
-        <link href="https://jbl428.github.io/ts-morph로-개발-컨벤션-검증-자동화하기"/>
+        <id>https://jbl428.github.io/2022/01/08/ts-morph로-개발-컨벤션-검증-자동화하기</id>
+        <link href="https://jbl428.github.io/2022/01/08/ts-morph로-개발-컨벤션-검증-자동화하기"/>
         <updated>2022-01-08T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[최근에 typescript 환경에서 개발 컨벤션을 확인하는 작업을 자동화하는 방법을 찾다가 ts-morph 를 도입하게 된 과정을 기술하려고 한다.]]></summary>
         <content type="html"><![CDATA[<p>최근에 typescript 환경에서 개발 컨벤션을 확인하는 작업을 자동화하는 방법을 찾다가 <code>ts-morph</code> 를 도입하게 된 과정을 기술하려고 한다.</p><blockquote><p>관련 코드는 아래 링크에서 확인할 수 있다.</p></blockquote><ul><li><a href="https://github.com/jbl428/study-note/tree/master/ts-morph" target="_blank" rel="noopener noreferrer">https://github.com/jbl428/study-note/tree/master/ts-morph</a></li></ul><h2 class="anchor anchorWithStickyNavbar_LWe7" id="컨벤션">컨벤션<a href="#컨벤션" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h2><p>아래와 같은 <code>TypeORM</code> 엔티티 파일이 있다고 가정한다.</p><div class="language-ts codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockTitle_Ktv7">Profile.entity.ts</div><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-ts codeBlock_bY9V thin-scrollbar"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token keyword" style="color:#00009f">import</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">{</span><span class="token plain"> Column</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> Entity</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> PrimaryGeneratedColumn </span><span class="token punctuation" style="color:#393A34">}</span><span class="token plain"> </span><span class="token keyword" style="color:#00009f">from</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">"typeorm"</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token decorator at operator" style="color:#393A34">@</span><span class="token decorator function" style="color:#d73a49">Entity</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token keyword" style="color:#00009f">export</span><span class="token plain"> </span><span class="token keyword" style="color:#00009f">class</span><span class="token plain"> </span><span class="token class-name">Profile</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  </span><span class="token decorator at operator" style="color:#393A34">@</span><span class="token decorator function" style="color:#d73a49">PrimaryGeneratedColumn</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  id</span><span class="token operator" style="color:#393A34">:</span><span class="token plain"> </span><span class="token builtin">number</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  </span><span class="token decorator at operator" style="color:#393A34">@</span><span class="token decorator function" style="color:#d73a49">Column</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  name</span><span class="token operator" style="color:#393A34">:</span><span class="token plain"> </span><span class="token builtin">string</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  </span><span class="token decorator at operator" style="color:#393A34">@</span><span class="token decorator function" style="color:#d73a49">Column</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  email</span><span class="token operator" style="color:#393A34">:</span><span class="token plain"> </span><span class="token builtin">string</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token punctuation" style="color:#393A34">}</span><br></span></code></pre><div class="buttonGroup__atx"><button type="button" aria-label="클립보드에 코드 복사" title="복사" class="clean-btn"><span class="copyButtonIcons_eSgA" aria-hidden="true"><svg class="copyButtonIcon_y97N" viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg class="copyButtonSuccessIcon_LjdS" viewBox="0 0 24 24"><path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div><div class="language-ts codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockTitle_Ktv7">Post.entity.ts</div><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-ts codeBlock_bY9V thin-scrollbar"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token keyword" style="color:#00009f">import</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  Column</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  Entity</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  Index</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  JoinColumn</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  ManyToOne</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  PrimaryGeneratedColumn</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token punctuation" style="color:#393A34">}</span><span class="token plain"> </span><span class="token keyword" style="color:#00009f">from</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">"typeorm"</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token keyword" style="color:#00009f">import</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">{</span><span class="token plain"> Profile </span><span class="token punctuation" style="color:#393A34">}</span><span class="token plain"> </span><span class="token keyword" style="color:#00009f">from</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">"./Profile.entity"</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token decorator at operator" style="color:#393A34">@</span><span class="token decorator function" style="color:#d73a49">Entity</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line theme-code-block-highlighted-line" style="color:#393A34"><span class="token plain"></span><span class="token decorator at operator" style="color:#393A34">@</span><span class="token decorator function" style="color:#d73a49">Index</span><span class="token punctuation" style="color:#393A34">(</span><span class="token string" style="color:#e3116c">"idx_post_1"</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">[</span><span class="token string" style="color:#e3116c">"profile"</span><span class="token punctuation" style="color:#393A34">]</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"> </span><span class="token comment" style="color:#999988;font-style:italic">// profile_id 에 인덱스를 추가</span><span class="token plain"></span><br></span><span class="token-line theme-code-block-highlighted-line" style="color:#393A34"><span class="token plain"></span><span class="token decorator at operator" style="color:#393A34">@</span><span class="token decorator function" style="color:#d73a49">Index</span><span class="token punctuation" style="color:#393A34">(</span><span class="token string" style="color:#e3116c">"idx_post_2"</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">[</span><span class="token string" style="color:#e3116c">"status"</span><span class="token punctuation" style="color:#393A34">]</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"> </span><span class="token comment" style="color:#999988;font-style:italic">// status 필드에 인덱스를 추가</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token keyword" style="color:#00009f">export</span><span class="token plain"> </span><span class="token keyword" style="color:#00009f">class</span><span class="token plain"> </span><span class="token class-name">Post</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">{</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  </span><span class="token decorator at operator" style="color:#393A34">@</span><span class="token decorator function" style="color:#d73a49">PrimaryGeneratedColumn</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  id</span><span class="token operator" style="color:#393A34">:</span><span class="token plain"> </span><span class="token builtin">number</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  </span><span class="token decorator at operator" style="color:#393A34">@</span><span class="token decorator function" style="color:#d73a49">Column</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  content</span><span class="token operator" style="color:#393A34">:</span><span class="token plain"> </span><span class="token builtin">string</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  </span><span class="token decorator at operator" style="color:#393A34">@</span><span class="token decorator function" style="color:#d73a49">Column</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">  status</span><span class="token operator" style="color:#393A34">:</span><span class="token plain"> </span><span class="token builtin">string</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line theme-code-block-highlighted-line" style="color:#393A34"><span class="token plain">  </span><span class="token comment" style="color:#999988;font-style:italic">// profile 과 1:n 관계이지만 FK 를 설정하지 않음</span><span class="token plain"></span><br></span><span class="token-line theme-code-block-highlighted-line" style="color:#393A34"><span class="token plain">  </span><span class="token decorator at operator" style="color:#393A34">@</span><span class="token decorator function" style="color:#d73a49">ManyToOne</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"> </span><span class="token operator" style="color:#393A34">=&gt;</span><span class="token plain"> Profile</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">{</span><span class="token plain"> createForeignKeyConstraints</span><span class="token operator" style="color:#393A34">:</span><span class="token plain"> </span><span class="token boolean" style="color:#36acaa">false</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">}</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line theme-code-block-highlighted-line" style="color:#393A34"><span class="token plain">  </span><span class="token comment" style="color:#999988;font-style:italic">// profile 연관관계 필드 추가</span><span class="token plain"></span><br></span><span class="token-line theme-code-block-highlighted-line" style="color:#393A34"><span class="token plain">  </span><span class="token decorator at operator" style="color:#393A34">@</span><span class="token decorator function" style="color:#d73a49">JoinColumn</span><span class="token punctuation" style="color:#393A34">(</span><span class="token punctuation" style="color:#393A34">{</span><span class="token plain"> name</span><span class="token operator" style="color:#393A34">:</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">"profile_id"</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> referencedColumnName</span><span class="token operator" style="color:#393A34">:</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">"id"</span><span class="token plain"> </span><span class="token punctuation" style="color:#393A34">}</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line theme-code-block-highlighted-line" style="color:#393A34"><span class="token plain">  profile</span><span class="token operator" style="color:#393A34">:</span><span class="token plain"> Profile</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token punctuation" style="color:#393A34">}</span><br></span></code></pre><div class="buttonGroup__atx"><button type="button" aria-label="클립보드에 코드 복사" title="복사" class="clean-btn"><span class="copyButtonIcons_eSgA" aria-hidden="true"><svg class="copyButtonIcon_y97N" viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg class="copyButtonSuccessIcon_LjdS" viewBox="0 0 24 24"><path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div><p><code>Post</code> 엔티티는 <code>Profile</code> 과 1:N 관계이고 <code>profile_id</code> 필드가 있지만 외래키를 추가하지 않고 대신 class 상단에 <code>@Index</code> 데코레이터를 이용해 인덱스를 추가한다.<br>
@@ -710,8 +710,8 @@ BE 에서는 기존 필드에 deprecated 표시를 하고 새로운 필드만 �
     </entry>
     <entry>
         <title type="html"><![CDATA[kotlin 환경에서 Querydsl 설정하기]]></title>
-        <id>https://jbl428.github.io/kotlin-환경에서-Querydsl-설정하기</id>
-        <link href="https://jbl428.github.io/kotlin-환경에서-Querydsl-설정하기"/>
+        <id>https://jbl428.github.io/2022/01/05/kotlin-환경에서-Querydsl-설정하기</id>
+        <link href="https://jbl428.github.io/2022/01/05/kotlin-환경에서-Querydsl-설정하기"/>
         <updated>2022-01-05T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[최근에 코틀린과 스프링을 활용해 사이드 프로젝트를 하면서 querydsl 사용을 위해 세팅한 작업을 남기려고 한다.]]></summary>
         <content type="html"><![CDATA[<p>최근에 코틀린과 스프링을 활용해 사이드 프로젝트를 하면서 querydsl 사용을 위해 세팅한 작업을 남기려고 한다.<br>
@@ -731,8 +731,8 @@ BE 에서는 기존 필드에 deprecated 표시를 하고 새로운 필드만 �
     </entry>
     <entry>
         <title type="html"><![CDATA[TypeORM CreateDateColumn 데코레이터와 value transformer 문제]]></title>
-        <id>https://jbl428.github.io/TypeORM-CreateDateColumn-데코레이터와-value-transformer-문제</id>
-        <link href="https://jbl428.github.io/TypeORM-CreateDateColumn-데코레이터와-value-transformer-문제"/>
+        <id>https://jbl428.github.io/2021/12/09/TypeORM-CreateDateColumn-데코레이터와-value-transformer-문제</id>
+        <link href="https://jbl428.github.io/2021/12/09/TypeORM-CreateDateColumn-데코레이터와-value-transformer-문제"/>
         <updated>2021-12-09T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[문제 상황]]></summary>
         <content type="html"><![CDATA[<h3 class="anchor anchorWithStickyNavbar_LWe7" id="문제-상황">문제 상황<a href="#문제-상황" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h3><p>보통 테이블에 기본으로 넣는 생성시간과, 수정시간 필드를 추가하기 위해 typeorm 사용하는 환경에서는 데코레이터와 상속을 사용한다.<br>
@@ -749,8 +749,8 @@ js 의 Date 와 LocalDateTime 간의 변환로직이 있다.  </p></div></div><p
     </entry>
     <entry>
         <title type="html"><![CDATA[Promise와 Monad - 2]]></title>
-        <id>https://jbl428.github.io/Promise와-Monad-2</id>
-        <link href="https://jbl428.github.io/Promise와-Monad-2"/>
+        <id>https://jbl428.github.io/2021/11/28/Promise와-Monad-2</id>
+        <link href="https://jbl428.github.io/2021/11/28/Promise와-Monad-2"/>
         <updated>2021-11-28T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[이전 글에서는 promise 를 반환하는 함수들을 then 을 이용해 합성하는 과정을 살펴보았다.]]></summary>
         <content type="html"><![CDATA[<p>이전 글에서는 promise 를 반환하는 함수들을 then 을 이용해 합성하는 과정을 살펴보았다.<br>
@@ -773,8 +773,8 @@ js 의 Date 와 LocalDateTime 간의 변환로직이 있다.  </p></div></div><p
     </entry>
     <entry>
         <title type="html"><![CDATA[Promise와 Monad - 1]]></title>
-        <id>https://jbl428.github.io/Promise와-Monad-1</id>
-        <link href="https://jbl428.github.io/Promise와-Monad-1"/>
+        <id>https://jbl428.github.io/2021/11/07/Promise와-Monad-1</id>
+        <link href="https://jbl428.github.io/2021/11/07/Promise와-Monad-1"/>
         <updated>2021-11-07T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[예전 node.js 의 많은 비동기 함수는 결과를 함수로 받는 콜백형태로 이루어져 있었다.]]></summary>
         <content type="html"><![CDATA[<p>예전 <code>node.js</code> 의 많은 비동기 함수는 결과를 함수로 받는 콜백형태로 이루어져 있었다.<br>
@@ -810,8 +810,8 @@ nodejs 개발자에게 친숙한 promise 를 활용해 monad 를 어떻게 활�
     </entry>
     <entry>
         <title type="html"><![CDATA[Localstack을 활용한 AWS SES 통합테스트]]></title>
-        <id>https://jbl428.github.io/Localstack을-활용한-AWS-SES-통합테스트</id>
-        <link href="https://jbl428.github.io/Localstack을-활용한-AWS-SES-통합테스트"/>
+        <id>https://jbl428.github.io/2021/10/31/Localstack을-활용한-AWS-SES-통합테스트</id>
+        <link href="https://jbl428.github.io/2021/10/31/Localstack을-활용한-AWS-SES-통합테스트"/>
         <updated>2021-10-31T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[localstack 은 AWS 인프라 시뮬레이터로 Lambda, S3, Dynamodb, Kinesis, SQS, SNS 같은 서비스를 로컬 환경에 올릴 수 있다.]]></summary>
         <content type="html"><![CDATA[<p><code>localstack</code> 은 AWS 인프라 시뮬레이터로 Lambda, S3, Dynamodb, Kinesis, SQS, SNS 같은 서비스를 로컬 환경에 올릴 수 있다.<br>
@@ -837,8 +837,8 @@ nodejs 개발자에게 친숙한 promise 를 활용해 monad 를 어떻게 활�
     </entry>
     <entry>
         <title type="html"><![CDATA[함수형 프로그래밍 관련 자료]]></title>
-        <id>https://jbl428.github.io/함수형-프로그래밍-관련-자료</id>
-        <link href="https://jbl428.github.io/함수형-프로그래밍-관련-자료"/>
+        <id>https://jbl428.github.io/2021/10/21/함수형-프로그래밍-관련-자료</id>
+        <link href="https://jbl428.github.io/2021/10/21/함수형-프로그래밍-관련-자료"/>
         <updated>2021-10-21T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[그동안 함수형 프로그래밍에 대한 공부를 하면서 보았던 자료들을 이곳에 기록하려고 한다.]]></summary>
         <content type="html"><![CDATA[<p>그동안 함수형 프로그래밍에 대한 공부를 하면서 보았던 자료들을 이곳에 기록하려고 한다.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="서적">서적<a href="#서적" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h2><h3 class="anchor anchorWithStickyNavbar_LWe7" id="함수형-사고-neal-ford">함수형 사고 (Neal Ford)<a href="#함수형-사고-neal-ford" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h3><p>메모이제이션 개념에 대해 처음 알게된 책이다.</p><h3 class="anchor anchorWithStickyNavbar_LWe7" id="함수형-자바스크립트-luis-atencio">함수형 자바스크립트 (Luis Atencio)<a href="#함수형-자바스크립트-luis-atencio" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h3><p>자바스크립트로 하는 함수형 프로그래밍 책으로 읽은것은 기억나는데 딱히 기억에 남는 내용은 없었다.</p><h3 class="anchor anchorWithStickyNavbar_LWe7" id="grokking-simplicity-taming-complex-software-with-functional-thinking-eric-normand">Grokking Simplicity Taming complex software with functional thinking (Eric Normand)<a href="#grokking-simplicity-taming-complex-software-with-functional-thinking-eric-normand" class="hash-link" aria-label="제목으로 바로 가기" title="제목으로 바로 가기">​</a></h3><p>프로그램을 Action, Calculation, Data 로 나누어 생각하고 함수형 프로그래밍을 전염성이 강하고 테스트 하기 힘든 Action 을 Calculation 으로 만드는 패러다임으로 설명하고 있다.<br>
@@ -860,8 +860,8 @@ nodejs 개발자에게 친숙한 promise 를 활용해 monad 를 어떻게 활�
     </entry>
     <entry>
         <title type="html"><![CDATA[Docusaurus에 utterances 연동]]></title>
-        <id>https://jbl428.github.io/Docusaurus에-utterances-연동</id>
-        <link href="https://jbl428.github.io/Docusaurus에-utterances-연동"/>
+        <id>https://jbl428.github.io/2021/10/19/Docusaurus에-utterances-연동</id>
+        <link href="https://jbl428.github.io/2021/10/19/Docusaurus에-utterances-연동"/>
         <updated>2021-10-19T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[utterances 는 GitHub 이슈 를 이용해서 원하는 사이트의 댓글 기능을 만들어주는 서비스이다.]]></summary>
         <content type="html"><![CDATA[<p><a href="https://utteranc.es/" target="_blank" rel="noopener noreferrer">utterances</a> 는 <code>GitHub 이슈</code> 를 이용해서 원하는 사이트의 댓글 기능을 만들어주는 서비스이다.<br>
@@ -888,8 +888,8 @@ nodejs 개발자에게 친숙한 promise 를 활용해 monad 를 어떻게 활�
     </entry>
     <entry>
         <title type="html"><![CDATA[Docusaurus를 이용한 블로그 구축]]></title>
-        <id>https://jbl428.github.io/Docusaurus를-이용한-블로그-구축</id>
-        <link href="https://jbl428.github.io/Docusaurus를-이용한-블로그-구축"/>
+        <id>https://jbl428.github.io/2021/10/17/Docusaurus를-이용한-블로그-구축</id>
+        <link href="https://jbl428.github.io/2021/10/17/Docusaurus를-이용한-블로그-구축"/>
         <updated>2021-10-17T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[기술 블로그를 위해 어떤 플랫폼을 사용할지 고민하다가 직장 동료가 Docusaurus 를 추천해주었다.]]></summary>
         <content type="html"><![CDATA[<p>기술 블로그를 위해 어떤 플랫폼을 사용할지 고민하다가 직장 동료가 <code>Docusaurus</code> 를 추천해주었다.<br>
