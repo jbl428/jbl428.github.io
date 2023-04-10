@@ -35,7 +35,7 @@
     "@types/react-helmet": "^6.1.6",
     "@types/react-router-dom": "^5.3.3",
     "prettier": "2.8.7",
-    "typescript": "^5.0.3"
+    "typescript": "^5.0.4"
   },
   "browserslist": {
     "production": [
