@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[5797],{8701:function(e){e.exports=JSON.parse('{"permalink":"/tags/spring","page":1,"postsPerPage":10,"totalPages":1,"totalCount":2,"blogDescription":"The blog of Jake Son","blogTitle":"Jake Son Blog"}')}}]);

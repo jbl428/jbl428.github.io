@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[3876],{3260:function(e){e.exports=JSON.parse('{"label":"Mogenius","permalink":"/tags/mogenius","allTagsPath":"/tags","count":1}')}}]);
