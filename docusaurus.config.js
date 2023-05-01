@@ -1,5 +1,4 @@
-const lightCodeTheme = require("prism-react-renderer/themes/github");
-const darkCodeTheme = require("prism-react-renderer/themes/dracula");
+const { themes } = require("prism-react-renderer");
 
 // With JSDoc @type annotations, IDEs can provide config autocompletion
 /** @type {import('@docusaurus/types').Config} */
@@ -69,8 +68,8 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
           contextualSearch: true,
         },
         prism: {
-          theme: lightCodeTheme,
-          darkTheme: darkCodeTheme,
+          theme: themes.github,
+          darkTheme: themes.dracula,
           additionalLanguages: ["haskell", "kotlin", "toml", "docker"],
         },
       }),
