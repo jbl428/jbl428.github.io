@@ -2,10 +2,10 @@
 title: "Kotlin + Spring GraphQL + Spring Security 사용하기"
 slug: "2022/06/06/Kotlin-Spring-GraphQL-Spring-Security-사용하기"
 authors: jake
-tags: [string, graphql, security, jwt]
+tags: [spring, graphql, security, jwt]
 ---
 
-이번 포스트에서는 `Spring for GraphQL` 프로젝트가 GA 되어 샘플 프로젝트를 만드는 과정을 기술하려고 한다.  
+이번 포스트에서는 `Spring for GraphQL` 프로젝트가 GA 되어 샘플 프로젝트를 만드는 과정을 기술하려고 한다.
 다음과 같은 기술을 사용해서 구현하였다.
 
 - [Kotlin](https://kotlinlang.org)
@@ -21,16 +21,16 @@ tags: [string, graphql, security, jwt]
 
 ## 초기 프로젝트 세팅
 
-[Spring Initializr](https://start.spring.io) 에 접속해서 초기 스프링 프로젝트 세팅을 시작한다.  
-`Gradle Project` 를 선택하고 Language 는 `Kotlin` 을 선택한다.  
+[Spring Initializr](https://start.spring.io) 에 접속해서 초기 스프링 프로젝트 세팅을 시작한다.
+`Gradle Project` 를 선택하고 Language 는 `Kotlin` 을 선택한다.
 의존성은 아래 화면에 보이는 것을 선택하면 된다.
 
 ![spring-initializr](spring-initializr.png)
 
 ## MongoDB 설정
 
-보통 스프링 프로젝트에서 [Spring Data JPA](https://spring.io/projects/spring-data-jpa) 를 활용하는 예제가 많다.  
-하지만 코틀린에서는 엔티티 선언시 `data class` 를 사용하지 못하고 필드를 `var` 로 선언해야 하는 등 여러 문제가 있다.  
+보통 스프링 프로젝트에서 [Spring Data JPA](https://spring.io/projects/spring-data-jpa) 를 활용하는 예제가 많다.
+하지만 코틀린에서는 엔티티 선언시 `data class` 를 사용하지 못하고 필드를 `var` 로 선언해야 하는 등 여러 문제가 있다.
 그래서 이번에는 코틀린을 잘 지원하는 `Spring Data MongoDB` 를 사용하며 reactive 기반의 프로젝트를 만들어보려고 한다.
 
 먼저 docker-compose.yml 파일을 생성해 아래와 같은 내용을 넣어준다.
@@ -48,7 +48,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: test
 ```
 
-이제 `docker-compose up` 명령어를 실행하면 27017 포트에 MongoDB 서버가 실행된다.  
+이제 `docker-compose up` 명령어를 실행하면 27017 포트에 MongoDB 서버가 실행된다.
 프로젝트 환경변수 파일을 통해 디비 접속정보를 넣어준다.
 
 ```yaml title="src/main/resources/application.yml"
@@ -63,11 +63,11 @@ spring:
       authentication-database: admin
 ```
 
-테스트 코드에서는 실제 해당 서버를 사용하지 않고 `Embedded MongoDB` 데이터베이스를 사용할 수 있다.  
+테스트 코드에서는 실제 해당 서버를 사용하지 않고 `Embedded MongoDB` 데이터베이스를 사용할 수 있다.
 아래와 같이 version 에 원하는 버전을 넣어주면 해당버전으로 동작하는 내장 데이터베이스를 사용한다.
 
 :::info
-위와 같은 내장 데이터베이스로 하는 테스트가 실제 서버에서 하는 테스트를 완전히 대체할 수 없다.  
+위와 같은 내장 데이터베이스로 하는 테스트가 실제 서버에서 하는 테스트를 완전히 대체할 수 없다.
 Embedded 에서 특정 기능이 제대로 지원하지 않는 경우나 더 엄격한 테스트를 원한다면 실제 디비서버로 테스트 해야한다.
 :::
 
@@ -80,7 +80,7 @@ spring:
 
 ## Repository
 
-단순한 예제를 위해 `Book` document 를 의미하는 클래스를 생성한다.  
+단순한 예제를 위해 `Book` document 를 의미하는 클래스를 생성한다.
 JPA 와 달리 `data class` 로 선언할 수 있으며 필요한 annotation 개수도 적다.
 
 ```kt title="Book.kt"
@@ -116,8 +116,8 @@ interface BookRepository : ReactiveMongoRepository<Book, String>
 
 ## Service
 
-이번 예제에서는 `Book` 를 생성하고 조회하는 로직만 구현하려고 한다.  
-`BookService` 는 `BookRepository` 를 이용하여 `Book` 를 생성하고 조회한다.  
+이번 예제에서는 `Book` 를 생성하고 조회하는 로직만 구현하려고 한다.
+`BookService` 는 `BookRepository` 를 이용하여 `Book` 를 생성하고 조회한다.
 Kotlin 의 suspend 함수와 `kotlinx-coroutines-reactor` 패키지에서 제공하는 확장함수를 활용하면 기존 reactive 기반에서 사용하는 `Mono`, `Flux` 사용을 대체할 수 있다.
 
 ```kt title="BookService.kt"
@@ -143,8 +143,8 @@ class BookService(private val bookRepository: BookRepository) {
 }
 ```
 
-위 서비스 로직을 `Embedded MongoDb` 를 활용해 테스트 코드를 작성해보자.  
-테스트 프레임워크는 `Junit` 대신 코틀린 dsl 을 활용하는 `kotest` 를 사용했다.  
+위 서비스 로직을 `Embedded MongoDb` 를 활용해 테스트 코드를 작성해보자.
+테스트 프레임워크는 `Junit` 대신 코틀린 dsl 을 활용하는 `kotest` 를 사용했다.
 junit 에서는 suspend 함수를 테스트하려면 `runBlocking` 함수를 사용해야 하는 등 번거로운 작업이 필요한지만 kotest 는 test scope 자체가 suspend 함수를 지원하기에 더 간결한 코드를 작성할 수 있다.
 
 먼저 다음 패키지를 설치해야 한다.
@@ -223,17 +223,17 @@ GraphQL api 를 개발할 때 다음 두 방식중 하나를 선택하게 된다
 - code first
 - schema first
 
-code first 는 이름 그대로 코드를 먼저 작성하고 GraphQL 스키마를 자동 생성하는 방법이다.  
+code first 는 이름 그대로 코드를 먼저 작성하고 GraphQL 스키마를 자동 생성하는 방법이다.
 반대로 schema first 는 GraphQL 스키마를 먼저 작성하고 코드를 자동 생성하거나 직접 구현하는 방법이다.
 
-code first 방식은 실제 코드와 스키마가 항상 일치하는 것을 보장하지만 FE 에서 필요한 스키마를 위해서 백엔드 작업을 기다려야 한다.  
+code first 방식은 실제 코드와 스키마가 항상 일치하는 것을 보장하지만 FE 에서 필요한 스키마를 위해서 백엔드 작업을 기다려야 한다.
 schema first 방식은 반대로 스키마를 먼저 만들기에 FE, BE 동시 개발이 가능하지만 스키마와 실제코드간의 불일치가 발생하지 않도록 주의해야 한다.
 
 > 글 작성일 기준 Spring GraphQL 은 schema first 방식만 지원한다.
 
 ### 스키마 작성
 
-`src/main/resources/graphql` 경로에 `graphqls` 나 `gqls` 확장자를 가진 파일을 생성하면 스프링이 해당 스키마를 읽는다.  
+`src/main/resources/graphql` 경로에 `graphqls` 나 `gqls` 확장자를 가진 파일을 생성하면 스프링이 해당 스키마를 읽는다.
 이번에는 간단한 예제로 책을 생성하고 목록을 조회하는 api 를 구현한다고 가정하자.
 
 ```graphql title="schema.graphqls"
@@ -261,14 +261,14 @@ type Book {
 
 ### 컨트롤러 작성
 
-이제 위 스키마에 대응하는 컨트롤러 코드를 작성해보자.  
-우선 REST API 와 동일하게 `@Controller` 를 사용해 컨트롤러를 정의한다.  
-REST API 와 다른점은 `@GetMapping` 과 같은 어노테이션 대신 `@QueryMapping` 과 `@MutationMapping` 를 사용한다.  
-각각 이름 그대로 Query 와 Mutation 을 위한 것이며 메소드명이 GraphQL 필드명이 된다.  
+이제 위 스키마에 대응하는 컨트롤러 코드를 작성해보자.
+우선 REST API 와 동일하게 `@Controller` 를 사용해 컨트롤러를 정의한다.
+REST API 와 다른점은 `@GetMapping` 과 같은 어노테이션 대신 `@QueryMapping` 과 `@MutationMapping` 를 사용한다.
+각각 이름 그대로 Query 와 Mutation 을 위한 것이며 메소드명이 GraphQL 필드명이 된다.
 메소드의 반환값은 요청의 응답으로 매핑된다.
 
-GraphQL input 객체는 `@Argument` 어노테이션을 사용해 정의한다.  
-객체의 타입이 `CreateBookInput` 이며 스키마에 정의한 input 명과 일치하지만 꼭 일치할 필요는 없다.  
+GraphQL input 객체는 `@Argument` 어노테이션을 사용해 정의한다.
+객체의 타입이 `CreateBookInput` 이며 스키마에 정의한 input 명과 일치하지만 꼭 일치할 필요는 없다.
 다만 객체의 프로퍼티명과 타입이 input 에 지정한 것과 같아야 올바르게 작동한다.
 
 ```kt title="BookController.kt"
@@ -285,7 +285,7 @@ class BookController(private val bookService: BookService) {
 
 ### 테스트 코드
 
-`Spring for GraphQL` 에서는 GraphQL 컨트롤러 테스트를 위한 기능을 지원한다.  
+`Spring for GraphQL` 에서는 GraphQL 컨트롤러 테스트를 위한 기능을 지원한다.
 먼저 아래 패키지를 추가한다.
 
 ```kts
@@ -294,11 +294,11 @@ dependencies {
 }
 ```
 
-해당 패키지는 GraphQL 요청을 위한 여러 종류의 클라이언트를 제공한다.  
-이번 포스트에서는 `HttpGraphQlTester` 를 사용하려고 한다.  
+해당 패키지는 GraphQL 요청을 위한 여러 종류의 클라이언트를 제공한다.
+이번 포스트에서는 `HttpGraphQlTester` 를 사용하려고 한다.
 직접 Client 를 만들 수 있지만 `@AutoConfigureHttpGraphQlTester` 를 사용하면 스프링이 자동으로 클라이언트를 만들어 준다.
 
-GraphQL 요청 body 는 테스트 코드에 직접 선언해서 사용할 수 있지만 syntax highlighting 이나 indent 를 지키면서 작성하는것이 불편하기에 다른 파일에 작성 후 불러오는 방식을 사용하였다.  
+GraphQL 요청 body 는 테스트 코드에 직접 선언해서 사용할 수 있지만 syntax highlighting 이나 indent 를 지키면서 작성하는것이 불편하기에 다른 파일에 작성 후 불러오는 방식을 사용하였다.
 `src/test/resources/graphql-test` 경로에 아래 파일을 생성한다.
 
 ```graphql title="createBook.gql"
@@ -313,7 +313,7 @@ mutation createBook($input: CreateBookInput!) {
 ```
 
 :::info
-위처럼 테스트 코드와 요청정보가 다른 파일로 분리되면 두 파일을 이동하면서 로직을 확인해야 하는 불편함이 존재한다.  
+위처럼 테스트 코드와 요청정보가 다른 파일로 분리되면 두 파일을 이동하면서 로직을 확인해야 하는 불편함이 존재한다.
 하지만 IntelliJ IDEA 의 [GraphQL](https://plugins.jetbrains.com/plugin/8097-graphql) 플러그인을 사용해 GraphQL 자동완성과 구문 오류를 확인할 수 있는 장점이 있다.
 :::
 
@@ -359,8 +359,8 @@ internal class BookControllerTest(
 
 > 이번 내용은 Spring Security 와 jwt 인증에 대해 어느정도 알고 있다고 가정하고 작성하였다.
 
-이제 `Spring Security` 를 활용해 jwt 기반 인증을 구현해보자.  
-REST API 를 사용한다면 url path 를 구분자로 하여 인증이 필요한 api 를 정의할 수 있으나 모든 요청이 하나의 url 에서 이루어지는 GraphQL 의 경우 각 컨트롤러의 메소드마다 `@PreAuthorize` 같은 어노테이션을 활용해 인증을 구현한다.  
+이제 `Spring Security` 를 활용해 jwt 기반 인증을 구현해보자.
+REST API 를 사용한다면 url path 를 구분자로 하여 인증이 필요한 api 를 정의할 수 있으나 모든 요청이 하나의 url 에서 이루어지는 GraphQL 의 경우 각 컨트롤러의 메소드마다 `@PreAuthorize` 같은 어노테이션을 활용해 인증을 구현한다.
 먼저 AuthenticationManager 을 생성한다.
 
 ```kt title="AuthenticationManager.kt"
@@ -373,8 +373,8 @@ class AuthenticationManager : ReactiveAuthenticationManager {
 }
 ```
 
-WebFlux 를 사용하기 때문에 ReactiveAuthenticationManager 를 상속받았고 authenticate 메소드는 단순히 파라미터를 Mono 로 감싸 그대로 반환한다.  
-파라미터 authentication 는 jwt 토큰을 파싱한 결과를 담고 있는데 이를 활용한 추가적인 로직이 필요하다면 이 메소드에 넣어준다.  
+WebFlux 를 사용하기 때문에 ReactiveAuthenticationManager 를 상속받았고 authenticate 메소드는 단순히 파라미터를 Mono 로 감싸 그대로 반환한다.
+파라미터 authentication 는 jwt 토큰을 파싱한 결과를 담고 있는데 이를 활용한 추가적인 로직이 필요하다면 이 메소드에 넣어준다.
 이제 본격적인 인증을 설정해보자.
 
 ```kt title="SecurityConfig.kt"
@@ -457,7 +457,7 @@ class BookController(private val bookService: BookService) {
 }
 ```
 
-이제 books 를 조회하는 경우 유효한 jwt 토큰의 role 값이 ADMIN 이 아닌경우 에러응답을 받게된다.  
+이제 books 를 조회하는 경우 유효한 jwt 토큰의 role 값이 ADMIN 이 아닌경우 에러응답을 받게된다.
 테스트 코드로 검증해보자.
 
 ```kt title="BookControllerTest.kt"
@@ -485,8 +485,8 @@ class BookController(private val bookService: BookService) {
 }
 ```
 
-테스트 코드에서 jwt 토큰을 넣어 요청하려면 headers 메소드와 setBearerAuth 메소드를 사용해야 한다.  
-주어진 jwt 토큰을 확인해보면 role 값이 ADMIN 이라는 것을 확인할 수 있다.  
+테스트 코드에서 jwt 토큰을 넣어 요청하려면 headers 메소드와 setBearerAuth 메소드를 사용해야 한다.
+주어진 jwt 토큰을 확인해보면 role 값이 ADMIN 이라는 것을 확인할 수 있다.
 또한 secret 값을 이전 파일에서 설정한 `secret` 으로 넣어준 경우 유효한 jwt 토큰이라는 것도 확인할 수 있다.
 
 ![jwt](jwt.png)

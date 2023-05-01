@@ -2,7 +2,7 @@
 title: "Mogenius를 활용한 도커 컨테이너 배포"
 slug: "2022/09/09/Mogenius를-활용한-도커-컨테이너-배포"
 authors: jake
-tags: [Mogenius, CI/CD, Docker, MySQL, Spring]
+tags: [mogenius, ci/cd, docker, mysql, spring]
 ---
 
 이전 포스트에서 적은 fly.io 와 비슷한 서비스를 제공하는 Mogenius 를 활용한 도커 컨테이너 배포에 대한 내용을 다룬다.
@@ -11,14 +11,14 @@ tags: [Mogenius, CI/CD, Docker, MySQL, Spring]
 
 ## Fly.io 단점
 
-Fly.io 는 무료로 사용할 수 있는 서비스이지만, 무료 플랜에서 256MB 의 메모리만 지원하는 단점이 있다.  
+Fly.io 는 무료로 사용할 수 있는 서비스이지만, 무료 플랜에서 256MB 의 메모리만 지원하는 단점이 있다.
 그래서 Spring Boot + JPA 를 사용하는 프로젝트를 배포할 때 OOM 에러가 발생하여 다른 서비스를 찾아보게 되었다.
 
 ## Mogenius
 
-[Mogenius](https://mogenius.io/) 도 도커 컨테이너 배포를 지원하는 서비스로 쿠버네티스 기반으로 동작한다.  
-저장소에 있는 Dockerfile 을 읽어서 이미지를 생성하고 배포한다.  
-GitHub 과 연동하여 특정 브랜치에 커밋이 푸시되면 자동으로 배포가 동작한다.  
+[Mogenius](https://mogenius.io/) 도 도커 컨테이너 배포를 지원하는 서비스로 쿠버네티스 기반으로 동작한다.
+저장소에 있는 Dockerfile 을 읽어서 이미지를 생성하고 배포한다.
+GitHub 과 연동하여 특정 브랜치에 커밋이 푸시되면 자동으로 배포가 동작한다.
 CD 설정을 직접 해야하는 fly.io 와 달리 자동으로 설정해주기 때문에 편리하다.
 
 글 작성 시점으로 무료 플랜에서는 다음 햘당량을 받을 수 있다.
@@ -32,11 +32,11 @@ CD 설정을 직접 해야하는 fly.io 와 달리 자동으로 설정해주기 
 추후에 달라질 수 있는 내용이라 공식 사이트에서 직접 확인하는 것을 권장한다.
 :::
 
-메모리를 1GB 지원하기에 MySQL 컨테이너를 띄우기 용이하다.  
-fly.io 에서는 결제정보를 입력해야 추가 사용량을 받을 수 있지만 Mogenius 회원가입만 해도 위의 사용량을 받을 수 있다.  
+메모리를 1GB 지원하기에 MySQL 컨테이너를 띄우기 용이하다.
+fly.io 에서는 결제정보를 입력해야 추가 사용량을 받을 수 있지만 Mogenius 회원가입만 해도 위의 사용량을 받을 수 있다.
 특히 fly.io 에서 잘못 사용하다가 무료 사용량이 초과해 원치않는 비용이 청구될 수 있지만 Mogenius 에는 그런 걱정이 없다.
 
-다만 Mogenius 는 fly.io 와 달리 작성일 기준으로 독일 리전만 지원한다.  
+다만 Mogenius 는 fly.io 와 달리 작성일 기준으로 독일 리전만 지원한다.
 하지만 개발용도로 사용할 목적이라면 큰 문제는 아니다.
 
 ## MySQL 컨테이너
@@ -45,15 +45,15 @@ fly.io 에서는 결제정보를 입력해야 추가 사용량을 받을 수 있
 
 ### 회원가입
 
-먼저 [Sign Up](https://studio.mogenius.com/user/registration) 에 접속하여 회원가입을 한다.  
-아직 소셜 로그인 기능은 없어서 직접 이메일 주소를 입력해야 한다.  
+먼저 [Sign Up](https://studio.mogenius.com/user/registration) 에 접속하여 회원가입을 한다.
+아직 소셜 로그인 기능은 없어서 직접 이메일 주소를 입력해야 한다.
 Sign Up 버튼을 누르면 입력한 이메일로 인증 메일이 오는데, 인증을 완료하면 로그인이 가능하다.
 
 ![regester](regester.png)
 
 ### Cloudspace 생성
 
-로그인을 완료하면 Cloudspace 를 생성을 위한 페이지에 접속하게 된다.  
+로그인을 완료하면 Cloudspace 를 생성을 위한 페이지에 접속하게 된다.
 `Create Cloudspace` 버튼을 눌러서 다음으로 진행한다.
 
 ![cloudspace](cloudspace.png)
@@ -75,7 +75,7 @@ Sign Up 버튼을 누르면 입력한 이메일로 인증 메일이 오는데, �
 - `Use a template`: Mogenius 에서 제공하는 템플릿을 활용해 샘플 컨테이너 배포
 - `Container Imgae`: DockerHub 같은 컨테이너 저장소의 이미지를 활용해 배포
 
-첫 번째 방법은 저장소에 있는 Dockerfile 을 활용하며 두 번째는 Mogenius 에서 제공하는 샘플용 저장소를 활용한다.  
+첫 번째 방법은 저장소에 있는 Dockerfile 을 활용하며 두 번째는 Mogenius 에서 제공하는 샘플용 저장소를 활용한다.
 Dockerfile 을 활용해 커스텀한 설정이 필요한 경우가 아니라면 세 번째 방법을 사용할 수 있다.
 공식 mysql 이미지를 그대로 사용할 것이기에 `Container Image` 를 선택한다.
 
@@ -83,27 +83,27 @@ Dockerfile 을 활용해 커스텀한 설정이 필요한 경우가 아니라면
 
 ### 컨테이너 이미지 설정
 
-이제 컨테이너 설정을 하게되는데 사실 docker 에 익숙한 사람이라면 문서없이도 설정할 수 있을 정도로 간단하다.  
-`Service Name` 에 원하는 서비스 이름을 넣어주고 `Container Image` 에는 사용할 이미지를 입력한다.  
-[mysql](https://hub.docker.com/_/mysql) 공식 이미지를 사용할 것이기에 `mysql` 을 입력한다.  
+이제 컨테이너 설정을 하게되는데 사실 docker 에 익숙한 사람이라면 문서없이도 설정할 수 있을 정도로 간단하다.
+`Service Name` 에 원하는 서비스 이름을 넣어주고 `Container Image` 에는 사용할 이미지를 입력한다.
+[mysql](https://hub.docker.com/_/mysql) 공식 이미지를 사용할 것이기에 `mysql` 을 입력한다.
 원하는 경우 태그까지 넣어서 특정 버전으로 고정할 수도 있다.
 
 ![image-name](image-name.png)
 
 #### Resource limits
 
-Settings 의 Resource limits 에 컨테이너에 할당할 자원량을 배정할 수 있다.  
-Mogenius 는 유효한 이메일 계정만 있으면 제한없이 계정을 만들 수 있으므로 여러 컨테이너를 각각 다른 계정을 활용해 띄울 수 있다.  
+Settings 의 Resource limits 에 컨테이너에 할당할 자원량을 배정할 수 있다.
+Mogenius 는 유효한 이메일 계정만 있으면 제한없이 계정을 만들 수 있으므로 여러 컨테이너를 각각 다른 계정을 활용해 띄울 수 있다.
 그래서 모든 할당량을 다 배정해도 무방하다.
 
 ![resource](resource.png)
 
 #### Environment Variables
 
-Environment Variables 에는 컨테이너 내부에서 사용할 환경변수와 volume mount 설정을 할 수 있다.  
+Environment Variables 에는 컨테이너 내부에서 사용할 환경변수와 volume mount 설정을 할 수 있다.
 `Add Variable` 을 눌러 각 항목을 추가하며 Type 을 선택해 환경변수나 volume mount 를 추가할 수 있다.
 
-Plaintext 을 선택해 평문으로 환경변수를 넣어줄 수 있으며 `Volumn Mount` 를 선택해 mysql data 를 저장할 디렉토리를 지정할 수 있다.  
+Plaintext 을 선택해 평문으로 환경변수를 넣어줄 수 있으며 `Volumn Mount` 를 선택해 mysql data 를 저장할 디렉토리를 지정할 수 있다.
 다음과 같은 설정을 추가한다.
 
 > 좌측 메뉴의 `File Browser` 를 통해 손쉽게 볼륨 데이터를 확인할 수 있다.
@@ -127,16 +127,16 @@ Plaintext 을 선택해 평문으로 환경변수를 넣어줄 수 있으며 `Vo
 
 #### Ports
 
-Port 설정은 컨테이너 내부포트를 외부로 노출하기 위한 용도로 쓰인다.  
-사실 하나의 cloudspace 에서 웹과 디비 서비스를 추가해 사용한다면 컨테이너 끼리만 통신하게 설정할 수 있다.  
-보안을 강화하려면 디비는 외부로 노출하지 않는것이 좋지만 웹을 다른 cloudspace 에서 띄우는 경우라 설정하였다.  
+Port 설정은 컨테이너 내부포트를 외부로 노출하기 위한 용도로 쓰인다.
+사실 하나의 cloudspace 에서 웹과 디비 서비스를 추가해 사용한다면 컨테이너 끼리만 통신하게 설정할 수 있다.
+보안을 강화하려면 디비는 외부로 노출하지 않는것이 좋지만 웹을 다른 cloudspace 에서 띄우는 경우라 설정하였다.
 Type 은 `TCP` 를 선택하고 외부 포트는 `3306` 을 입력하고 `Expose` 에 체크된 것을 확인한다.
 
 ![port](port.png)
 
 ### 외부 접속 url 확인
 
-`Create Service` 버튼을 눌러 컨테이너를 생성하면 외부에서 접속할 수 있는 주소와 포트가 설정되며 이를통해 접속할 수 있다.  
+`Create Service` 버튼을 눌러 컨테이너를 생성하면 외부에서 접속할 수 있는 주소와 포트가 설정되며 이를통해 접속할 수 있다.
 서비스 상세 페이지에서 `Hostname` 을 누르고 `External hostname` 항목에 보이는 url 을 기억해둔다.
 
 ![external-url](external-url.png)
@@ -149,11 +149,11 @@ Type 은 `TCP` 를 선택하고 외부 포트는 `3306` 을 입력하고 `Expose
 
 ### 저장소 설정
 
-우선 도커 이미지를 빌드하기 위한 Dockerfile 을 저장소 루트에 생성한다.  
+우선 도커 이미지를 빌드하기 위한 Dockerfile 을 저장소 루트에 생성한다.
 예제 프로젝트는 gradle 과 멀티모듈을 사용하며 server-app 모듈을 빌드하고 생성한 jar 파일을 실행하도록 설정하였다.
 
 :::caution
-Mogenius 는 보안을 위해 컨테이너를 root 계정으로 실행하는 것을 허용하지 않는다.  
+Mogenius 는 보안을 위해 컨테이너를 root 계정으로 실행하는 것을 허용하지 않는다.
 따라서 Dockerfile 에서 root 가 아닌 게정으로 프로그램을 실행하도록 설정해야 한다.
 :::
 
@@ -191,22 +191,22 @@ spring:
 
 ### 서비스 등록
 
-이번에는 `Bring your own code` 를 선택해 웹서버를 추가해보자.  
+이번에는 `Bring your own code` 를 선택해 웹서버를 추가해보자.
 `Service name` 에 원하는 값을 넣어주고 `Repository` 에서 GitHub 계정을 연결해 저장소를 선택할할 수 있도록 만든다.
 
 :::info
 GitHub 계정 연동없이 public 저장소 url 을 활용할 수 있지만 CI/CD 가 설정되지 않는다.
 :::
 
-연결이 완료되었으면 `Git Repository` 항목에서 배포를 원하는 저장소를 선택하고 `Git Branch` 에서 자동빌드를 원하는 브랜치를 선택한다.  
+연결이 완료되었으면 `Git Repository` 항목에서 배포를 원하는 저장소를 선택하고 `Git Branch` 에서 자동빌드를 원하는 브랜치를 선택한다.
 Dockerfile 이 프로젝트 루트가 아닌 다른곳에 있거나 빌드를 실행할 디렉토를 다르게 가져가려면 `Dockerfile Name`, `Docker Context` 를 수정한다.
 
 ![web-name](web-name.png)
 
-`Environment Variables` 에서는 앞서 application-live.yml 에서 필요로하는 환경변수를 등록하면 된다.  
+`Environment Variables` 에서는 앞서 application-live.yml 에서 필요로하는 환경변수를 등록하면 된다.
 추가로 `SPRING_PROFILES_ACTIVE` 의 값을 `live` 로 설정해 spring 프로필을 `live` 로 설정한다.
 
-value 에 일부 특수문자가 들어가는 경우 환경변수 등록이 안되는 경우가 있는데 그럴 때에는 `Key Vault` 를 활용한다.  
+value 에 일부 특수문자가 들어가는 경우 환경변수 등록이 안되는 경우가 있는데 그럴 때에는 `Key Vault` 를 활용한다.
 쿠버네티스의 secret 과 비슷한 기능으로 민감한 정보를 암호화해 저장한 후 컨테이너 내부에서는 복호화한 값을 사용하게 된다.
 
 ![key-vault](key-vault.png)
@@ -215,17 +215,17 @@ value 에 일부 특수문자가 들어가는 경우 환경변수 등록이 안�
 
 ![add-key-vault](add-key-valut.png)
 
-Ports 항목에서 내부 포트는 8080 Type 은 HTTPS 로 설정하도록 한다.  
+Ports 항목에서 내부 포트는 8080 Type 은 HTTPS 로 설정하도록 한다.
 이러면 외부에서 https 접속할 수 있는 url 을 얻을 수 있고 http -> https 리디렉트 설정까지 자동으로 이루어진다.
 
 ![web-port](web-port.png)
 
-`Create Service` 버튼을 누르면 모든 설정이 완료된다.  
+`Create Service` 버튼을 누르면 모든 설정이 완료된다.
 이후 생성된 url 을 통해 서버가 정상적으로 동작하는지 확인해본다.
 
 ## 마무리
 
-지금까지 Mogenious 를 사용한 컨테이너 배포를 살펴보았다.  
-아직 서비스가 생긴지 얼마 지나지 않아 서비스가 지속적으로 유지될지 여부는 불투명하지만 그 전까지는 유용하게 사용할 수 있을거같다.  
-아직 문서가 부족한 편이지만 설정 자체가 간단한 편이라 큰 어려움 없이 진행할 수 있을거라 생각한다.  
+지금까지 Mogenious 를 사용한 컨테이너 배포를 살펴보았다.
+아직 서비스가 생긴지 얼마 지나지 않아 서비스가 지속적으로 유지될지 여부는 불투명하지만 그 전까지는 유용하게 사용할 수 있을거같다.
+아직 문서가 부족한 편이지만 설정 자체가 간단한 편이라 큰 어려움 없이 진행할 수 있을거라 생각한다.
 추가로 비슷한 기능을 제공하는 [Render](https://render.com) 라는 서비스도 있는데 추후에 살펴보도록 하겠다.
