@@ -146,10 +146,10 @@ class TestClass {
 
 데코레이터 기반 라이브러리들은 위와 같은 정보를 `reflect-metadata`에서 제공하는 `Reflect.defineMetadata` 메소드를 통해 메타데이터로 저장하기 위해 사용한다.
 
-> Reflect.defineMetadata 대신 자체 내부 전역변수를 사용하는 라이브러도 있다.
+> Reflect.defineMetadata 대신 자체 내부 전역변수를 사용하는 라이브러리도 있다.
 
 ```ts
-const injectablae: ClassDecorator = (target) => {
+const injectable: ClassDecorator = (target) => {
   Reflect.defineMetadata(
     "key", // 이후 메타데이터를 가져오기 위해 사용할 키
     "injectable", // 저장할 메타데이터
@@ -545,7 +545,7 @@ __decorate([
 ### TypeScript 5.0 Decorator
 
 최근 TypeScript 5.0 이상에서는 새로운 형태의 데코레이터를 지원한다.  
-하지만 이번 포트스에서는 해당 내용을 다루지는 않았는데 다음과 같은 이유 때문이다.
+하지만 이번 포스트에서는 해당 내용을 다루지는 않았는데 다음과 같은 이유 때문이다.
 
 - 메소드 파라미터 데코레이터 미지원
 - `emitDecoratorMetadata` 옵션 미지원
