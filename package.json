@@ -16,7 +16,7 @@
     "format": "prettier --write blog"
   },
   "dependencies": {
-    "@docusaurus/core": "^2.4.0",
+    "@docusaurus/core": "^2.4.1",
     "@docusaurus/preset-classic": "^2.4.0",
     "@giscus/react": "^2.2.8",
     "@mdx-js/react": "^1.6.22",
