@@ -3,7 +3,7 @@ title: "Nest.js의 injector는 어떻게 생성자에 지정한 의존성 대상
 slug: "2023/05/01/nest-js의-injector는-어떻게-생성자에-지정한-의존성-대상을-알아낼까"
 description: "Nest.js의 injector가 생성자에 지정한 주입대상을 찾는 방법을 소개합니다"
 authors: jake
-tags: [nest.js, injector, circular dependency]
+tags: [nest.js, injector]
 ---
 
 최근 Nest.js의 기본 기능을 직접 구현해보는 스터디를 진행하였다.  
@@ -506,7 +506,7 @@ class AppModule {}
 다음과 같은 코드를 살펴보자.
 
 ```ts
-const methodDecorator: MethodDecorator = () => {}
+const methodDecorator: MethodDecorator = () => {};
 
 class A {}
 
@@ -525,13 +525,18 @@ class Test {
 컴파일한 결과는 다음과 같다.
 
 ```js
-__decorate([
+__decorate(
+  [
     methodDecorator,
     __metadata("design:type", Function),
     // highlight-next-line
     __metadata("design:paramtypes", [Object, Promise, Array, Array, Object]),
-    __metadata("design:returntype", void 0)
-], Test.prototype, "method", null);
+    __metadata("design:returntype", void 0),
+  ],
+  Test.prototype,
+  "method",
+  null
+);
 ```
 
 `design:paramtypes` 항목을 보면 정확한 타입정보를 출력해주지 않는 것을 알 수 있다.  
