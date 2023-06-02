@@ -18,6 +18,10 @@ const { themes } = require("prism-react-renderer");
       defaultLocale: "ko",
       locales: ["ko"],
     },
+    markdown: {
+      mermaid: true,
+    },
+    themes: ["@docusaurus/theme-mermaid"],
 
     presets: [
       [

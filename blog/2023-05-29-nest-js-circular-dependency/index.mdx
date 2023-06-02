@@ -4,7 +4,6 @@ slug: "2023/05/01/nest-js는-어떻게-순환-참조-문제를-해결할까"
 description: "Nest.js가 순환 참조 문제를 해결하는 방법을 소개합니다."
 authors: jake
 tags: [nest.js, injector, circular dependency]
-draft: true
 ---
 
 이전 포스트에서는 Nest.js의 injector 구현을 살펴보았다.  
@@ -342,7 +341,7 @@ export function Inject<T = any>(token?: T) {
     if (!param.forwardRef) {
       return param;
     }
-    // param이 forwardRef인 경우 대상 클래스의 forwardRef 프로퍼티도 true로 설정
+    // param이 forwardRef인 경우 대상 클래스의 forwardRef 프로퍼티를 true로 설정
     wrapper.forwardRef = true;
     // 함수를 호출하여 의존성 타입(token)을 반환
     return param.forwardRef();
@@ -354,7 +353,7 @@ export function Inject<T = any>(token?: T) {
 
 위 코드에서 독특한 점은 의존성 중 하나가 순환 참조인 경우, 해당 클래스의 `forwardRef` 프로퍼티를 true로 설정한다는 것이다.  
 즉 **내가 누군가를 순환 참조하고 있다면, 누군가 나를 순환 참조 하고 있다**는 의미라고 볼 수 있다.  
-또한 `Injector`는 **순환 참조를 가지는 클래스와 아닌 클래스의 인스턴스를 만드는 방식이 다르기에** 이를 구분하기 위해 `forwardRef` 프로퍼티를 사용한다.
+또한 `Injector`는 **순환 참조를 가지는 클래스와 순환 참조가 없는 일반 클래스의 인스턴스를 만드는 방식이 다르기에** 이를 구분하기 위해 `forwardRef` 프로퍼티를 사용한다.
 
 ## 순환 참조를 가지는 클래스의 인스턴스 생성
 
@@ -370,7 +369,7 @@ export function Inject<T = any>(token?: T) {
 - `A`의 인스턴스가 아직 없으므로 생성해야 한다.
 
 위와 같이 서로가 서로를 생성해야 하는 상황이 발생해 둘 중 하나를 먼저 생성할 수 없다.  
-이를 해결하기 위해 Nest.js의 내부 클래스 중 하나인 `InstanceWrapper`에는 `createPrototype` 메소드가 있다.
+이를 해결하기 위해 Nest.js의 내부 클래스 중 하나인 `InstanceWrapper`에는 `createPrototype` 메서드가 있다.
 
 ```ts title="packages/core/injector/instance-wrapper.ts"
   public createPrototype(contextId: ContextId) {
@@ -390,3 +389,99 @@ Nest.js가 실행되면 모든 의존성에 대한 `InstanceWrapper` 인스턴�
 `createPrototype` 메서드를 보면 마지막에 `Object.create`를 활용했는데 **클래스의 생성자 호출없이 인스턴스를 생성하는 기능을 제공**한다.  
 이를 통해 순환 참조가 있는 경우라고 하더라도 서로의 인스턴스 없이 자신의 인스턴스를 생성할 수 있다.  
 물론 생성자를 호출하지 않았기 때문에 내부 프로퍼티는 모두 undefined가 되며 `Injector`가 이후 두 인스턴스간의 연결작업을 수행해 문제를 해결한다.
+
+## 순환 참조를 가진 인스턴스끼리 연결
+
+내부 프로퍼티가 없는 빈 인스턴스를 생성하였으니 이제 두 인스턴스를 연결해야 한다.  
+이전 포스트에서 살펴본 `loadInstance`를 다시 살펴보자.
+
+```ts
+  public async loadInstance<T>(
+    wrapper: InstanceWrapper<T>,
+    collection: Map<InstanceToken, InstanceWrapper>,
+    moduleRef: Module,
+    contextId = STATIC_CONTEXT,
+    inquirer?: InstanceWrapper,
+  )
+```
+
+이 메서드의 역할은 첫 번째 파라미터인 `wrapper`의 인스턴스를 생성하는 것이며 이를 위해 나머지 인자들을 활용한다.  
+실제 로직은 더 복잡하지만 이번 포스트 주제로 한정해서 설명하면 다음과 같은 로직을 가지고있다.
+
+- wrapper가 이미 인스턴스가 생성된 상태(resolved)라면 아무런 작업을 하지 않는다.
+- wrapper의 의존성들을 파악한다. 의존성 중에 하나라도 순환 참조를 가지고 있다면 wrapper의 `forwardRef` 프로퍼티를 true로 설정한다.
+- 각 의존성들을 순회하며 의존성의 인스턴스를 생성한다. 여기서 의존성의 `forwardRef` 여부에 따라 다르게 동작한다.
+  - 의존성이 `forwardRef`를 가지는 경우 의존성의 `InstanceWrapper`를 그대로 사용한다.
+  - 그 외의 경우 `loadInstance` 메서드를 재귀호출해 의존성의 인스턴스를 먼저 생성한다.
+- 의존성의 인스턴스를 활용해 wrapper의 인스턴스를 생성한다. (instantiateClass 메서드)
+
+위 로직에서 눈여겨 볼 점은 wapper의 의존성이 `forwardRef`를 가지는 경우 의존성의 `InstanceWrapper`를 그대로 사용한다는 점이다.  
+이는 순환 참조를 가지는 의존성을 만들기 위해 계속 `loadInstance` 메서드를 호출해 무한루프에 빠지는 것을 방지하기 위함이다.
+
+마지막으로 `instantiateClass` 메서드에서 인스턴스를 생성하는 코드를 살펴보자.
+
+```ts
+instanceHost.instance = wrapper.forwardRef
+  ? Object.assign(
+      instanceHost.instance,
+      new (metatype as Type<any>)(...instances)
+    )
+  : new (metatype as Type<any>)(...instances);
+```
+
+위 코드에서 각 변수의 의미는 다음과 같다.
+
+- `instanceHost.instance`: Object.create로 생성한 wrapper의 빈 인스턴스
+- `metatype`: wrapper의 생성자
+- `instances`: wrapper의 의존성 인스턴스들
+
+위 코드를 보면 wapper의 `forwardRef`가 true인 경우 `Object.assign`을 통해 기존 빈 인스턴스에 신규 인스턴스를 병합하는 것을 볼 수 있다.  
+이렇게 하는 이유는 순환 참조를 가지는 경우 누군가가 `instanceHost.instance`를 참조할 가능성이 생기고 이를 위해 기존 인스턴스를 유지해야 하기 때문이다.  
+이해를 돕기위해 `Object.assign`을 사용하지 않으면 어떤 문제가 발생하는지 살펴보자.
+
+A, B 두 클래스가 있고 서로를 의존성으로 가지는 상황을 가정하자.  
+A는 순환 참조가 없는 C 클래스를 추가로 의존성으로 가지고 있다.
+
+초기에는 `Object.create`를 통해 각각 빈 인스턴스가 생성된다.
+
+```mermaid
+flowchart LR
+  id1(A);
+  id2(B);
+  id3(C);
+  style id1 stroke-dasharray: 5 5
+  style id2 stroke-dasharray: 5 5
+  style id3 stroke-dasharray: 5 5
+```
+
+만약 A에 대해 `loadInstance`가 호출되면 다음과 같은 상태가 된다.
+
+```mermaid
+flowchart LR
+  id1(A)-->id2(B);
+  id1(A)-->id3(C);
+  style id2 stroke-dasharray: 5 5
+```
+
+A의 의존성 중 B는 `forwardRef`이므로 빈 인스턴스를 그대로 사용하고 C는 순환 참조가 없으므로 `loadInstance`를 호출해 인스턴스를 생성한다.
+그래서 A와 C만 인스턴스가 만들어진 상태이고(resolved) A는 비어있는 B를 참조하게 된다.
+
+이제 B에 대해 `loadInstance`가 호출되면 다음과 같은 상태가 된다.
+
+```mermaid
+flowchart LR
+  id1(A)-->id2(B);
+  id1(A)-->id3(C);
+  id4(B)-->id1(A);
+  style id2 stroke-dasharray: 5 5
+```
+
+B의 의존성인 A는 이미 인스턴스가 생성된 상태이므로 이를 활용해 B를 생성한다.  
+하지만 B를 만들 때 A가 참조하고 있던 B의 빈 인스턴스가 아닌 새로운 공간에 인스턴스가 생성되므로 A는 여전히 비어있는 B를 참조하게 된다.
+
+## 요약
+
+- provider끼리 순환 참조를 가지는 경우 Nest.js는 `forwardRef`를 사용하도록 안내한다.
+- 순환 참조를 가지면 `design:paramtypes`이 제대로 설정되지 않는 문제가 발생한다.
+- 이를 해결하기 위해 Nest.js는 지연 참조를 통해 의존성의 타입을 파악한다.
+- Injector는 순환참조 여부에 따라 인스턴스를 생성하는 방식이 다르다.
