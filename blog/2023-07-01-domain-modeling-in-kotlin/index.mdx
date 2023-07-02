@@ -1,0 +1,272 @@
+---
+title: "Kotlin으로 도메인 모델링하기"
+slug: "kotlin으로-도메인-모델링하기"
+description: "Kotlin과 Arrow를 활용해 효과적인 도메인 모델링을 하는 방법을 소개합니다."
+authors: jake
+tags: [kotlin, ddd, domain-modeling]
+---
+
+> Kotlin용 함수형 라이브러리 Arrow의 공식문서에 있는 [Domain modeling](https://arrow-kt.io/learn/design/domain-modeling/) 블로그 글을 번역한 내용입니다.
+
+<!--truncate-->
+
+함수형 도메인 모델링의 목적은 비즈니스 도메인을 최대한 정확하기 기술하여 타입 안정성을 높이고,
+도메인에서 컴파일러 사용을 극대화하여 버그를 방지하고 단위 테스트를 줄이는 것입니다.
+추가로, 도메인은 실제 세계와의 접점이므로 도메인에 대한 커뮤니케이션이 더 쉬워집니다.
+
+Kotlin은 함수형 도메인 모델링에 적합합니다.
+`data class`, `sealed class`, `enum class`, `value class` 등을 제공하기 때문입니다.
+추가로 `Either` 및 `Ior`와 같은 몇 가지 흥미로운 제네릭 타입을 제공하는 Arrow 라이브러리도 사용할 수 있습니다.
+
+행사(Event)를 다루는 도메인 모델을 예로 살펴보겠습니다.
+다음과 같은 원시 타입 기반 구현을 생각해 볼 수 있습니다.
+
+```kotlin
+data class Event(
+  val id: Long
+  val title: String,
+  val organizer: String,
+  val description: String,
+  val date: LocalDate
+)
+```
+
+여기서 사용한 타입들은 의미가 거의 없는데 이는 `title`, `organizer`, `description`이 전부 같은 타입이기 때문입니다.
+이는 `title`을 요구하는 곳에서 `description`을 사용하는 미묘한 버그가 발생하기 쉽고, 컴파일러가 도움을 줄 수 없습니다.
+컴파일러가 도움이 되지 않아 잘못 사용하는 예제를 살펴봅시다.
+
+```kotlin
+Event(
+  0L,
+  "Simon Vergauwen",
+  "In this blogpost we dive into functional DDD...",
+  "Functional Domain Modeling",
+  LocalDate.now()
+)
+```
+
+여기서는 `organizer`와 `description`를 잘못 사용했지만, 컴파일은 성공하며 `Event` 객체가 생성됩니다.
+이 함정에 빠질 수 있는 경우는 더 많은데, 예를 들어 구조분해(destructuring)할 때입니다.
+
+그렇다면 이를 어떻게 방지할 수 있을까요?
+또는 어떻게 도메인 모델을 더 잘 타입화할 수 있을까요?
+Kotiln의 기능인 이미 존재하는 타입을 새 이름으로 위장하는 `value class`를 사용할 수 있습니다.
+이렇게 하면 런타임에 `value class`가 제거되므로 추가 오버헤드가 발생하지 않습니다.
+글 작성 시점에는, `value class`를 사용하려면 `@JvmInline` 어노테이션을 추가해야 합니다.
+
+```kotlin
+@JvmInline value class EventId(val value: Long)
+@JvmInline value class Organizer(val value: String)
+@JvmInline value class Title(val value: String)
+@JvmInline value class Description(val value: String)
+
+data class Event(
+  val id: EventId
+  val title: Title,
+  val organizer: Organizer,
+  val description: Description,
+  val date: LocalDate
+)
+```
+
+이전 예제로 돌아가보면, 이제 `Title`을 요구하는 곳에서 `Organizer`를, `Organizer`를 요구하는 곳에서 `Description`을 제공했기에 컴파일 에러가 발생합니다.
+
+```kotlin
+Event(
+  EventId(0L),
+  Title("Simon Vergauwen"),
+  Organizer("In this blogpost we dive into functional DDD..."),
+  Description("Functional Domain Modeling"),
+  LocalDate.now()
+)
+```
+
+함수형 프로그래밍에서는 이러한 데이터 구성을 **product type** 또는 **record**라고 하며, 이는 _and_ 관계를 모델링하는 데 사용합니다.
+따라서 `Event`는 `EventId` _and_ `Title` _and_ `Organizer` _and_ `Description` _and_ `LocalDate`로 구성된다고 말할 수 있으며,
+이는 `Long` _and_ `String` _and_ `String` _and_ `String` _and_ `LocalDate`로 구성된다고 말하는 것보다 훨씬 더 많은 것을 알려줍니다.
+
+연령 제한을 추적하기 위해 `Event` 모델을 개선해야 한다고 가정해 봅시다.
+이를 다시 `String`으로 모델링할 수도 있지만, 그렇게 하면 기존 문제가 더 악화될 뿐입니다.
+따라서 다섯 가지 값을 가진 [MPAA 영화 등급](https://en.wikipedia.org/wiki/Motion_Picture_Association_film_rating_system)을 따른다고 가정해 보겠습니다.
+이 유형은 확실하게 _고정된 집합_ 또는 *열거형*이므로, `enum class`를 사용합니다.
+
+```kotlin
+enum class AgeRestriction(val description: String) {
+  General("All ages admitted. Nothing that would offend parents for viewing by children."),
+  PG("Some material may not be suitable for children. Parents urged to give \"parental guidance\""),
+  PG13("Some material may be inappropriate for children under 13. Parents are urged to be cautious."),
+  Restricted("Under 17 requires accompanying parent or adult guardian. Contains some adult material."),
+  NC17("No One 17 and Under Admitted. Clearly adult.")
+}
+```
+
+`enum class`를 사용하는 것은 위에서 설명한 문제 외에도 여러 가지 이유로 `String`보다 훨씬 강력합니다.
+`String`은 가능한 값이 무한대이지만, 이제 우리는 다섯 개의 값만 사용할 수 있습니다.
+따라서 `String`로 추론하고 작업하는 것보다 `AgeRestriction`에 대해 추론하는 것이 훨씬 쉽습니다.
+
+함수형 프로그래밍에서는 이러한 데이터 구성을 **sum type**이라고 하며, 이는 _or_ 관계를 모델링하는 데 사용합니다.
+따라서 `AgeRestriction`은 `General` _or_ `PG` _or_ `PG13` _or_ `Restricted` _or_ `NC17`로 구성된다고 말할 수 있습니다.
+이는 단순이 `String`이라고 말하는 것보다 훨씬 더 많은 것을 알려줍니다.
+`String`은 무한한 값을 가질 수 있지만, `enum class`로 모델링한 `AgeRestriction`은 다섯 가지 값만 가질 수 있습니다.
+따라서 `sum type`을 사용하면 타입의 복잡성을 크게 줄일 수 있습니다.
+
+이제 온라인 행사 대한 대응이 필요하다고 가정해 보겠습니다.
+이러한 유형의 행사는 `Address` 대신 특정 `URL`을 가집니다.
+따라서 `Event`가 어떠한 유형인가에 따라, 내부 데이터가 약간 달라지게 됩니다.
+이를 간단하게 구현하면 다음과 같습니다.
+
+```kotlin
+@JvmInline value class Url(val value: String)
+
+@JvmInline value  class City(val value: String)
+@JvmInline value  class Street(val value: String)
+data class Address(val city: City, val street: Street)
+
+data class Event(
+  val id: EventId
+  val title: Title,
+  val organizer: Organizer,
+  val description: Description,
+  val date: LocalDate,
+  val ageRestriction: AgeRestriction,
+  val isOnline: Boolean,
+  val url: Url?,
+  val address: Address?
+)
+```
+
+이는 일반적인 접근 방식이나, 꽤 문제가 될 수 있습니다.
+`isOnline`이 `true`이면 `url`은 `null`이 아니어야 하고, 아니라면 `address`가 `null`이 아니어야 합니다.
+그러나 `isOnline`을 확인한 이후에도, `url`, `address` 둘 다 `null`일 수 있습니다.
+그래서 결국 다음과 같은 코드를 작성하게 됩니다.
+
+```kotlin
+fun printLocation(event: Event): Unit =
+  if(event.isOnline) {
+    event.url?.value?.let(::println)
+  } else {
+    event.address?.let(::println)
+  }
+```
+
+하지만 더 심각한 문제는 다음 예제처럼 의도한 계약을 쉽게 위반할 수 있다는 점입니다.
+
+```kotlin
+Event(
+    Id(0L),
+    Title("Functional Domain Modeling"),
+    Organizer("47 Degrees"),
+    Description("Building software with functional DDD..."),
+    LocalDate.now(),
+    AgeRestriction.General,
+    true,
+    null,
+    null
+)
+```
+
+컴파일러는 이 코드를 허용하지만, 우리가 의도한 계약에 따르면 `isOnline`이 `true`이면 `url`은 `null`이 아니어야 합니다.
+이러한 문제는 `sealed class`를 사용해 `Event.Online`과 `Event.AtAddress`를 타입방식으로 조합해 해결할 수 있습니다.
+
+```kotlin
+sealed class Event {
+  abstract val id: EventId
+  abstract val title: Title
+  abstract val organizer: Organizer
+  abstract val description: Description
+  abstract val ageRestriction: AgeRestriction
+  abstract val date: LocalDate
+
+  data class Online(
+    override val id: EventId,
+    override val title: Title,
+    override val organizer: Organizer,
+    override val description: Description,
+    override val ageRestriction: AgeRestriction,
+    override val date: LocalDate,
+    val url: Url
+  ) : Event()
+
+  data class AtAddress(
+    override val id: EventId,
+    override val title: Title,
+    override val organizer: Organizer,
+    override val description: Description,
+    override val ageRestriction: AgeRestriction,
+    override val date: LocalDate,
+    val address: Address
+  ) : Event()
+}
+```
+
+이렇게 하면 `Url` 없이 온라인 `Event`를 생성할 수 있는 이전 문제가 해결되고, 데이터를 더 훌륭하게 다를 수 있는 방법이 제공됩니다.
+이제 `if(event.isOnline)` 대신 `when`를 사용하여 `Event`에 대해 패턴 매칭을 사용할 수 있으며,
+Kotlin의 스마트 캐스팅 덕분에 `Event.Online`인 경우 안전하게 `Url`에 접근할 수 있습니다.
+
+```kotlin
+fun printLocation(event: Event): Unit =
+  when(event) {
+    is Online -> println(event.url.value)
+    is AtAddress -> println("${event.address.city}: ${event.address.street}")
+  }
+```
+
+이러한 유형의 데이터 구성 또한 **sum type**이며, 이는 _or_ 관계를 모델링하는 데 사용됩니다.
+하지만 `sealed class`는 `enum class`보다 더 강력한 기능을 제공합니다.
+`sealed class`는 `object`, `data class` 또는 다른 `sealed class`를 *케이스*로 사용할 수 있습니다.
+반면 `enum class`는 다른 클래스를 확장할 수 없으므로, `sealed class`의 *케이스*가 될 수 없습니다.
+
+예제에서 `sealed class`는 `Online` 또는 `AtAddress` `Event` 두 가지 케이스 중 하나로 구성되며,
+여기서 `Online` 및 `AtAddress`는 다른 여러 타입의 **product type**입니다.
+Kotlin의 경험 법칙에 따르면 케이스에 데이터가 포함되지 않은 경우, 즉 모든 케이스를 `object`로 모델링할 수 있는 경우에는 `enum class`를 사용하는 것이 좋습니다.
+
+위 예제에서 살펴본 것처럼 도메인을 정확하게 모델링하면 많은 이점이 있습니다.
+데이터를 잘못 생성하는 것과 같은 특정 버그를 방지할 수 있습니다.
+유효하지 않은 값을 제거하여 코드/모델을 더 쉽게 추론할 수 있으며, 모델에 의존하는 코드를 개선할 수 있습니다.
+
+이제 Arrow의 데이터 타입을 사용하여 코드의 도메인 문제를 더 명확히 하는 방법을 살펴봅시다.
+다음과 같은 `EventId`를 기반으로 예정된 이벤트를 가져올 수 있는 `EventService`가 있습니다.
+
+```kotlin
+interface EventService {
+  suspend fun fetchUpcomingEvent(id: EventId): Event
+}
+```
+
+이 `EventService`는 발생할 수 있는 다양한 종류의 오류 시나리오를 모델링하지 않습니다.
+다만 `suspend`를 사용하여 `Throwable`을 던질 수 있다는 것을 알려줄 뿐입니다.
+따라서 오류 도메인을 명시적으로 모델링하려면 위에서 이미 살펴본 기법 중 하나를 사용할 수 있습니다.
+
+다음과 같이, 두 개의 에러 케이스를 모델링할 수 있습니다.
+
+1. 행사가 존재하지 않는 경우
+2. 행사가 이미 종료되어 더 이상 예정된 행사가 아닌 경우
+
+```kotlin
+sealed class Error {
+  data class EventNotFound(val id: EventId): Error()
+  data class EventPassed(val event: Event): Error()
+}
+```
+
+`Arrow Core`의 `Either`를 사용하여 `Error`와 `Event` 두 개별 도메인을 구성할 수 있습니다.
+이는 `or` 관계를 모델링 할 수 있도록 해줍니다.
+즉 `fetchUpcomingEvent`는 `Event` _or_ `Error`를 반환하지만, 둘 다 반환하지는 않습니다.
+따라서 `Either`는 *general sum type*으로, 일반적으로 두 개의 개별 도메인을 _or_ 관계로 구성할 수 있습니다.
+
+이제 다음과 같이 `EventService`를 수정할 수 있습니다.
+
+```kotlin
+interface EventService {
+  suspend fun fetchUpcomingEvent(id: EventId): Either<Error, Event>
+}
+```
+
+`Either`는 [Arrow Core](https://apidocs.arrow-kt.io/arrow-core/index.html)에서 `sealed class`로 정의되어 있기에,
+기존에 사용했던 방법인 `when`을 사용하여 `Error` 또는 `Event`를 안전하게 꺼낼 수 있습니다.
+
+이번 게시글에서는, 도메인을 개선하는 방법에 대해 살펴보았습니다.
+
+- 도메인 정의 시 원시 타입을 사용하지 않고, 런타임 오버해드가 없는 `value class`를 사용
+- `Event` 유형에 따라 달라지는 데이터를 모델링하기 위해 `enum class`와 `sealed class`를 사용
+- 두 개의 도메인을 _or_ 관계로 구성하기 위해 Arrow의 `Either`를 활용
