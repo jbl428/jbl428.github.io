@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[2448],{2401:function(e){e.exports=JSON.parse('{"label":"kotlin","permalink":"/tags/kotlin","allTagsPath":"/tags","count":3}')}}]);
