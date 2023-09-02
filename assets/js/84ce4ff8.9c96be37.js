@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[6802],{9308:a=>{a.exports=JSON.parse('{"label":"localstack","permalink":"/tags/localstack","allTagsPath":"/tags","count":1}')}}]);

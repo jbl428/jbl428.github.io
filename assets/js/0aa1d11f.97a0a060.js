@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[2333],{4715:e=>{e.exports=JSON.parse('{"label":"domain-modeling","permalink":"/tags/domain-modeling","allTagsPath":"/tags","count":1}')}}]);

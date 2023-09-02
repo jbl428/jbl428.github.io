@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkmy_website=self.webpackChunkmy_website||[]).push([[6684],{2102:function(s){s.exports=JSON.parse('{"label":"fp-ts","permalink":"/tags/fp-ts","allTagsPath":"/tags","count":2}')}}]);
