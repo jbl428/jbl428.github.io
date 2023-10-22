@@ -104,13 +104,13 @@ import { buildSchema, introspectionFromSchema } from "graphql";
 const schema = readFileSync("스키마 파일 경로");
 
 const introspectionQuery = introspectionFromSchema(
-  buildSchema(schema.toString())
+  buildSchema(schema.toString()),
 );
 
 writeFileSync(
   "introspection.json",
   // GraphQL 응답은 항상 data 필드안에 들어가므로 아래와같이 감싸주어야 한다
-  JSON.stringify({ data: introspectionQuery })
+  JSON.stringify({ data: introspectionQuery }),
 );
 ```
 

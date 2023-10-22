@@ -63,7 +63,7 @@ export class Distributions<RANDOM_VARIABLE> {
   }
 
   static of<RANDOM_VARIABLE>(
-    value: [RANDOM_VARIABLE, Probability][]
+    value: [RANDOM_VARIABLE, Probability][],
   ): Distributions<RANDOM_VARIABLE> {
     return new Distributions(value);
   }
@@ -176,7 +176,7 @@ console.log(dice.evaluate(evenEvent)); // 0.5
 
 ```typescript
 declare function map<A, B>(
-  f: (a: A) => B
+  f: (a: A) => B,
 ): (fa: Distributions<A>) => Distributions<B>;
 ```
 
@@ -224,11 +224,11 @@ import { pipe } from "fp-ts/function";
 
 const marginalX = pipe(
   dist,
-  map(([x, _]) => x)
+  map(([x, _]) => x),
 );
 const marginalY = pipe(
   dist,
-  map(([_, y]) => y)
+  map(([_, y]) => y),
 );
 
 console.log(marginalX(dist).value); // [[0, 0.6], [1, 0.4]]
@@ -250,7 +250,7 @@ P(x,y) = P(x)P(y)
 ```typescript
 declare function join<A, B, C>(
   fa: Distributions<A>,
-  fb: Distributions<B>
+  fb: Distributions<B>,
 ): Distributions<C>;
 ```
 
@@ -268,7 +268,7 @@ declare function joinVariables<A, B, C>(a: A, b: B): C;
 
 ```typescript
 declare function ap<A, B>(
-  fa: Distributions<A>
+  fa: Distributions<A>,
 ): (fab: Distributions<(a: A) => B>) => Distributions<B>;
 ```
 
@@ -283,9 +283,9 @@ export const ap =
         ([f, prob1]) =>
           fa.value.map(([a, prob2]) => [f(a), prob1 * prob2]) as [
             B,
-            Probability
-          ][]
-      )
+            Probability,
+          ][],
+      ),
     );
 ```
 
@@ -350,7 +350,7 @@ export const liftA2 =
     pipe(
       fa,
       map((a) => (b: B) => f(a, b)),
-      ap(fb)
+      ap(fb),
     );
 ```
 

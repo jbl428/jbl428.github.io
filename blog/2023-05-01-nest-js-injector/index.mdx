@@ -110,7 +110,7 @@ const propertyDecorator: PropertyDecorator = (target, propertyKey) => {
 const parameterDecorator: ParameterDecorator = (
   target,
   propertyKey,
-  parameterIndex
+  parameterIndex,
 ) => {
   console.log("parameter decorator", target, propertyKey, parameterIndex);
 };
@@ -153,7 +153,7 @@ const injectable: ClassDecorator = (target) => {
   Reflect.defineMetadata(
     "key", // 이후 메타데이터를 가져오기 위해 사용할 키
     "injectable", // 저장할 메타데이터
-    target // 메타데이터를 저장할 대상
+    target, // 메타데이터를 저장할 대상
   );
 };
 ```
@@ -214,7 +214,7 @@ function Inject(cls: any): ParameterDecorator {
 export class UserService {
   constructor(
     // target(UserService)에 "inject"를 키로하는 메타데이터({ parameterIndex: 0, cls: UserRepository }) 를 저장
-    @Inject(UserRepository) private readonly userRepository: UserRepository
+    @Inject(UserRepository) private readonly userRepository: UserRepository,
   ) {}
 }
 ```
@@ -292,7 +292,7 @@ __decorate(
   ],
   TestClass.prototype,
   "testMethod",
-  null
+  null,
 );
 ```
 
@@ -362,7 +362,7 @@ TestService = __decorate(
     // highlight-next-line
     __metadata("design:paramtypes", [TestRepository]),
   ],
-  TestService
+  TestService,
 );
 ```
 
@@ -517,7 +517,7 @@ class Test {
     b: Promise<string>,
     c: Array<string>,
     d: number[],
-    e: Partial<A>
+    e: Partial<A>,
   ) {}
 }
 ```
@@ -535,7 +535,7 @@ __decorate(
   ],
   Test.prototype,
   "method",
-  null
+  null,
 );
 ```
 

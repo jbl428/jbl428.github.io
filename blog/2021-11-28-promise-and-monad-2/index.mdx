@@ -107,7 +107,7 @@ addNumber = do
 ```ts
 const a: number = 3; // a 는 평가시점에 그 값과 타입을 바로 알 수 있다.
 const b: Promise<number> = new Promise((resolve) =>
-  setTimeout(() => resolve(5), 1000)
+  setTimeout(() => resolve(5), 1000),
 ); // 컨테이너 안의 값은 평가시점이후 일정 시간이 지난 후에 알 수 있는데 그 타입은 number 이다.
 ```
 

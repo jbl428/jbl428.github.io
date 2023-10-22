@@ -147,7 +147,7 @@ A = __decorate(
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [b_service_1.B]),
   ],
-  A
+  A,
 );
 exports.A = A;
 ```
@@ -168,7 +168,7 @@ B = __decorate(
     // 올바르게 설정된 것이 아닌걸까?
     __metadata("design:paramtypes", [a_service_1.A]),
   ],
-  B
+  B,
 );
 exports.B = B;
 ```
@@ -424,7 +424,7 @@ Nest.js가 실행되면 모든 의존성에 대한 `InstanceWrapper` 인스턴�
 instanceHost.instance = wrapper.forwardRef
   ? Object.assign(
       instanceHost.instance,
-      new (metatype as Type<any>)(...instances)
+      new (metatype as Type<any>)(...instances),
     )
   : new (metatype as Type<any>)(...instances);
 ```

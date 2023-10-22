@@ -32,7 +32,7 @@ const dists = Array.from({ length: 10 }, () =>
   Distributions.of([
     [0, 0.7],
     [1, 0.3],
-  ])
+  ]),
 );
 ```
 
@@ -75,7 +75,7 @@ Monad를 만족하려면 `확률변수 A를 인자로 받고 확률분포 B를 �
 
 ```typescript
 declare function chain<A, B>(
-  f: (a: A) => Distribution<B>
+  f: (a: A) => Distribution<B>,
 ): (dist: Distribution<A>) => Distribution<B>;
 ```
 
@@ -90,9 +90,9 @@ export const chain =
         ([variable, prob1]) =>
           f(variable).value.map(([b, prob2]) => [b, prob1 * prob2]) as [
             B,
-            Probability
-          ][]
-      )
+            Probability,
+          ][],
+      ),
     );
 ```
 
@@ -127,7 +127,7 @@ const unfairCoin = Distributions.of([
 const result = pipe(
   dice,
   // 주사위의 결과가 6인 경우 공평한 동전을 던지고, 아닌 경우 불공평한 동전을 던진다.
-  chain((n) => (n === Dice.Six ? coin : unfairCoin))
+  chain((n) => (n === Dice.Six ? coin : unfairCoin)),
 );
 
 console.log(result.value); // [['Head', 1 / 6], ['Tail', 5 / 6]]
@@ -224,13 +224,13 @@ const result = pipe(
       // 질병여부에 따라 다른 확률분포를 적용
       disease ? positiveTest : negativeTest,
       // 질병여부와 검사결과를 tuple로 묶어줌
-      map((test) => [disease, test] as const)
-    )
+      map((test) => [disease, test] as const),
+    ),
   ),
   // 검사결과가 양성인 경우를 가정
   (dist) => dist.conditional(([_, test]) => test),
   // 실제로 발병한 경우의 확률을 계산
-  (dist) => dist.evaluate(([disease]) => disease)
+  (dist) => dist.evaluate(([disease]) => disease),
 );
 
 console(result.toFixed(2)); // "0.16"

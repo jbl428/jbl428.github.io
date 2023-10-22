@@ -86,7 +86,7 @@ export const initTelemetry = (config: {
     new Resource({
       [SemanticResourceAttributes.SERVICE_NAME]: config.appName,
       application: config.appName,
-    })
+    }),
   );
 
   // tracing을 위한 provider를 생성한다.
@@ -106,7 +106,7 @@ export const initTelemetry = (config: {
       maxExportBatchSize: 512,
       scheduledDelayMillis: 5000,
       exportTimeoutMillis: 30000,
-    })
+    }),
   );
 
   // W3C 표준 propagation을 사용한다.
@@ -162,7 +162,7 @@ export const NodeProviderLayer = (provider: NodeTracerProvider) =>
     T.succeed({
       [OT.TracerProviderSymbol]: OT.TracerProviderSymbol,
       tracerProvider: provider,
-    })
+    }),
   );
 
 const dummyProps = {} as any;
@@ -188,7 +188,7 @@ export const liveTracer = process.env.OTLP_TRACE
         telemetryUrl: "http://localhost:4318/v1/traces",
       }),
       (provider) =>
-        T.provideSomeLayer(OT.LiveTracer["<<<"](NodeProviderLayer(provider)))
+        T.provideSomeLayer(OT.LiveTracer["<<<"](NodeProviderLayer(provider))),
     )
   : T.provide(DummyTracing);
 ```
@@ -219,7 +219,7 @@ export class EffectInterceptor implements NestInterceptor {
         }
 
         return value;
-      })
+      }),
     );
   }
 }
@@ -314,7 +314,7 @@ import { RESOLVER_TYPE_METADATA } from "@nestjs/graphql";
 export class OTELModule implements OnModuleInit {
   constructor(
     private readonly discoveryService: DiscoveryService,
-    private readonly metadataScanner: MetadataScanner
+    private readonly metadataScanner: MetadataScanner,
   ) {}
 
   onModuleInit() {

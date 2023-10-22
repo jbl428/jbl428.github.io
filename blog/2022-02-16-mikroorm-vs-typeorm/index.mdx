@@ -248,7 +248,7 @@ export class LocalDateTimeType implements ValueTransformer {
 export class LocalDateTimeType extends Type<LocalDateTime, Date> {
   convertToDatabaseValue(
     value: LocalDateTime | Date,
-    platform: Platform
+    platform: Platform,
   ): Date {
     if (value instanceof Date) {
       return value;
@@ -259,7 +259,7 @@ export class LocalDateTimeType extends Type<LocalDateTime, Date> {
 
   convertToJSValue(
     value: LocalDateTime | Date,
-    platform: Platform
+    platform: Platform,
   ): LocalDateTime {
     if (value instanceof LocalDateTime) {
       return value;
@@ -537,7 +537,7 @@ const result = await commentEntityRepository.find(
     populate: ["post"],
     strategy: LoadStrategy.SELECT_IN, // select in 방식으로 조회
     fields: ["id", "like", "post", "post.name"],
-  }
+  },
 );
 ```
 

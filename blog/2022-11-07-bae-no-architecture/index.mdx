@@ -142,7 +142,7 @@ class PhoneVerification {
   // ...생략
   verify(
     code: string,
-    now = new Date()
+    now = new Date(),
   ): Either<ExpiredCodeException | MismatchedCodeException, void> {
     if (this.code !== code) {
       return left(new MismatchedCodeException());
@@ -180,7 +180,7 @@ import tracer from "dd-trace";
 class ChatQueryRepositoryAdapter {
   override unreadCount(
     shareDealId: string,
-    userId: string
+    userId: string,
   ): TaskEither<DBError, number> {
     return tracer.trace("ChatQueryRepositoryAdapter.unreadCount", () =>
       pipe(
@@ -191,9 +191,9 @@ class ChatQueryRepositoryAdapter {
               userId,
               message: { is: { unread: true } },
             },
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
   }
 }
@@ -227,7 +227,7 @@ import { Injectable } from "@nestjs/common";
 export class ShareDealCommandService implements ShareDealCommandUseCase {
   // 포트 인터페이스 구현
   constructor(
-    private readonly shareDealRepositoryPort: ShareDealRepositoryPort // 포트 인터페이스 주입
+    private readonly shareDealRepositoryPort: ShareDealRepositoryPort, // 포트 인터페이스 주입
   ) {}
 }
 ```
@@ -253,7 +253,7 @@ export class ShareDealCommandService {
   constructor(
     // token과 매칭되는 interface를 잘못 지정해도 에러가 발생하지 않는다.
     @Inject(CHAT_REPOSITORY_PORT_TOKEN)
-    private readonly shareDealRepositoryPort: ShareDealRepositoryPort
+    private readonly shareDealRepositoryPort: ShareDealRepositoryPort,
   ) {}
 }
 ```
@@ -317,7 +317,7 @@ describe("ChatQueryService", () => {
     shareDealQueryRepositoryPort,
     chatQueryRepositoryPort,
     userQueryRepositoryPort,
-    eventEmitter
+    eventEmitter,
   );
 });
 ```

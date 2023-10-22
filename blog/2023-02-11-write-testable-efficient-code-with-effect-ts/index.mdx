@@ -245,7 +245,7 @@ pipe(
     log: (message: string) => T.succeedWith(() => console.log(message)),
   }),
   // promise로 변환
-  T.runPromise
+  T.runPromise,
 );
 ```
 
@@ -269,7 +269,7 @@ import * as T from "@effect-ts/core/Effect";
 // Mike와 John을 순차적으로 출력하는 효과를 합성
 const program = pipe(
   helloWorld("Mike"),
-  T.chain(() => helloWorld("John"))
+  T.chain(() => helloWorld("John")),
 );
 
 pipe(
@@ -277,7 +277,7 @@ pipe(
   T.provideService(ConsoleService)({
     log: (message: string) => T.succeedWith(() => console.log(message)),
   }),
-  T.runPromise
+  T.runPromise,
 );
 // Hello world: Mike!
 // Hello world: John!
@@ -309,7 +309,7 @@ pipe(
   T.provideService(ConsoleService)({
     log: (message: string) => T.succeedWith(() => console.log(message)),
   }),
-  T.runPromise
+  T.runPromise,
 );
 ```
 
@@ -374,8 +374,8 @@ const program = T.gen(function* (_) {
 const program = pipe(
   rand,
   T.chain((value) =>
-    value <= 0.5 ? log(`got: ${value}`) : T.fail(new BadRandomValue({ value }))
-  )
+    value <= 0.5 ? log(`got: ${value}`) : T.fail(new BadRandomValue({ value })),
+  ),
 );
 ```
 
@@ -404,7 +404,7 @@ it("0.5 보다 크면 에러를 반환한다", async () => {
 
   // then
   expect(Exit.untraced(result)).toEqual(
-    Exit.fail(new BadRandomValue({ value: 0.6 }))
+    Exit.fail(new BadRandomValue({ value: 0.6 })),
   );
 });
 ```
