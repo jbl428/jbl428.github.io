@@ -1,15 +1,14 @@
 ---
 title: "Nest.js 커스텀 CLI Plugin 만들기"
 slug: "2023/10/22/nestjs-커스텀-cli-plugin-만들기"
-description: "Nest.js의 CLI Plugin을 직접 만드는 방법을 소개합니다"
+description: "Nest.js의 CLI Plugin에 대한 내용과 직접 만드는 방법을 소개합니다"
 authors: jake
 tags: [nest.js, ast, cli-plugin, typescript]
-draft: true
 ---
 
 Nest.js 공식문서를 살펴보면 REST, GraphQL, WebSocket 등 다양한 기능을 제공하는걸 알 수 있다.  
 하지만 공식문서에는 없는 작지만 숨겨진 기능들이 존재한다.  
-이번 포스트에서는 이러한 기능 중 하나인 CLI Plugin을 직접 만들어보는 방법을 소개한다.
+이번 포스트에서는 이러한 기능 중 하나인 CLI Plugin에 대한 소개와 직접 플러그인을 만드는 방법을 소개한다.
 
 <!--truncate-->
 
@@ -52,7 +51,7 @@ export class CreateUserDto {
 ```
 
 공식문서에는 각 CLI Plugin의 사용법만 소개하며, 직접 플러그인을 만드는 방법은 나와있지 않다.  
-GihHub 이슈를 살펴보면 직접 플러그인을 만드는 방법에 대한 문서를 제공하면 좋겠다는 요청이 있다.
+GihHub 이슈를 살펴보면 커스텀 플러그인을 만드는 방법에 대한 문서를 제공하면 좋겠다는 요청이 있다.
 
 https://github.com/nestjs/docs.nestjs.com/issues/975
 
@@ -364,4 +363,161 @@ export const before = (options?: Record<string, any>, program?: ts.Program) => {
 
 ## 예제
 
-추후 내용 보강
+이제 직접 CLI Plugin을 사용하는 예제 프로젝트를 만들어보자.
+
+`nest-cli`는 기본적으로 `node_modules` 기준으로 플러그인을 찾기 때문에 플러그인 코드를 npm 패키지로 배포하는게 가장 간단하다.  
+하지만 이번 예제에서는 npm 패키지를 배포하지 않고 로컬에서 플러그인을 실행하는 방법을 소개한다.
+
+> 예제 코드는 [GitHub](https://github.com/jbl428/study-note/tree/master/nodejs/nestjs-cli-plugin)에 올려두었다.
+
+### 프로젝트 생성
+
+먼저 Nest.js 프로젝트를 생성한다.
+
+```bash
+nest new nestjs-cli-plugin
+```
+
+> 명령어를 실행하면 패키지 관리자를 선택해야 하는데 어떤 것을 선택해도 상관없다.
+
+### 로컬 플러그인 설정
+
+프로젝트 루트에 `plugin` 디렉터리에 생성하고 이곳에 플러그인 코드를 작성할 예정이다.
+
+```bash
+mkdir plugin
+```
+
+해당 디렉터리에 TypeScript로 플러그인 로직을 작성하지만 CLI Plugin은 JavaScript로 빌드된 코드를 사용해야 한다.  
+이를 위해 프로젝트 루트에 플러그인 용 tsconfig 파일을 생성한다.
+
+```json title="tsconfig.plugin.json"
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./node_modules/my-plugin"
+  },
+  "files": [
+    "plugin/index.ts",
+    "plugin/compiler-plugin.ts"
+  ]
+}
+```
+
+`plugin` 디렉터리의 `index.ts`와 `compiler-plugin.ts` 파일을 빌드하며, 결과물은 `node_modules/my-plugin` 디렉터리에 생성하는 설정이다.  
+플러그인 이름은 `my-plugin` 으로 설정된다.
+
+:::caution
+플러그인 이름은 외부 패키지와 중복되지 않도록 주의해야 한다.  
+만약 node_modules에 플러그인을 빌드하는 방식이 이상하게 느껴진다면, 우선 다른 디렉터리에 빌드하고 `node_modules`에 링크하는 방식을 사용해도 된다.  
+
+관련 문서: https://stackoverflow.com/questions/14381898/local-dependency-in-package-json
+:::
+
+:::tip
+`plugin` 디렉터리가 기존 Nest.js 빌드대상에 포함하지 않도록 하기위해 `tsconfig.build.json` 파일에 `exclude` 옵션을 추가할 수도 있다.
+
+```json title="tsconfig.build.json"
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["node_modules", "test", "dist", "**/*spec.ts", "plugin"]
+}
+```
+:::
+
+### 플러그인 연동
+
+`nest-cli`가 커스텀 플러그인을 실행하기 위해 `nest-cli.json` 파일을 수정한다.
+
+```json title="nest-cli.json"
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "plugins": [
+      {
+        "name": "my-plugin",
+        "options": {
+          "option1": true,
+          "option2": "value"
+        }
+      }
+    ]
+  }
+}
+```
+
+`compilerOptions.plugins`에 플러그인 이름과 부가 옵션을 넣어주었다.  
+`name` 옵션은 `tsconfig.plugin.json` 파일에서 설정한 플러그인 이름과 동일해야 한다.  
+`options`는 선택사항으로 플러그인 동작을 제어할 수 있는 옵션값을 넣어준다.
+
+`nest build` 실행 전에 플러그인을 먼저 빌드하기 위해 `package.json` 파일의 `scripts`를 수정한다.
+
+```json title="package.json"
+{
+  "scripts": {
+    "prebuild": "tsc -p tsconfig.plugin.json",
+    "build": "nest build"
+  }
+}
+```
+
+### 플러그인 코드
+
+이제 플러그인 코드를 작성한다.  
+플러그인은 단순히 `nest-cli.json` 파일에 설정한 옵션을 출력하고 변환을 수행할 각 파일의 경로를 출력한다.
+
+```ts title="plugin/index.ts"
+export * from './compiler-plugin';
+```
+
+```ts title="plugin/compiler-plugin.ts"
+import type ts from 'typescript';
+
+export const before: (
+  options: Record<string, any> | undefined,
+  program: ts.Program,
+) => ts.TransformerFactory<ts.SourceFile> | ts.CustomTransformerFactory = (
+  options,
+  program,
+) => {
+  console.log('options', options);
+
+  return (ctx) => {
+    return (sourceFile) => {
+      console.log('sourceFile', sourceFile.fileName);
+
+      return sourceFile;
+    };
+  };
+};
+```
+
+### 실행
+
+이제 `nest build` 명령어를 실행하면 플러그인이 정상적으로 실행되는 것을 확인할 수 있다.
+
+```bash
+npm run build
+> nest build
+
+options { option1: true, option2: 'value' }
+sourceFile /nestjs-cli-plugin/src/app.service.ts
+sourceFile /nestjs-cli-plugin/src/app.controller.ts
+sourceFile /nestjs-cli-plugin/src/app.module.ts
+sourceFile /nestjs-cli-plugin/src/main.ts
+```
+
+주어진 옵션과 프로젝트에 존재하는 각 TypeScript 파일의 경로가 출력되었다.  
+이제 `compiler-plugin.ts` 파일을 수정해 각 파일의 AST를 변환하는 코드를 작성하면 된다.
+
+:::tip
+Nest.js의 CLI Plugin은 보통 `visitor.ts`로 끝나는 파일에 AST transformer 로직이 존재한다.  
+해당 파일들의 코드를 참조하면 어떻게 코드를 작성할지 감을 잡을 수 있다.
+
+- [model-class.visitor.ts (swagger)](https://github.com/nestjs/swagger/blob/master/lib/plugin/visitors/model-class.visitor.ts)
+- [model-class.visitor.ts (graphql)](https://github.com/nestjs/graphql/blob/master/packages/graphql/lib/plugin/visitors/model-class.visitor.ts)
+
+:::
